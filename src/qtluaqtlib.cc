@@ -28,6 +28,9 @@
 #include <QInputDialog>
 #include <QMessageBox>
 
+#include <QMenu>
+#include <QMenuBar>
+
 #include <QtLua/State>
 #include <QtLua/Function>
 #include <internal/QObjectWrapper>
@@ -265,6 +268,127 @@ namespace QtLua {
     } new_widget;
 
     new_widget.register_(ls, "qt.new_widget");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
+
+	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
+	QObject &obj = qow->get_object();
+	QObject *result;
+	String name = args[1].to_string();
+
+	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
+	  result = menu->addMenu(name);
+	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
+	  result = menubar->addMenu(name);
+	else
+	  throw String("Bad menu owner object type");
+
+	result->setObjectName(QString("menu") + name);
+	return QtLua::Value(ls, result, false);
+      }
+
+      String get_description() const
+      {
+	return "Add a QMenu to a QMenu or QMenuBar";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.addmenu( parent, name )");
+      }
+
+    } menu_addmenu;
+
+    menu_addmenu.register_(ls, "qt.menu.addmenu");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
+
+	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
+	QObject &obj = qow->get_object();
+	QObject *result;
+	String name = args[1].to_string();
+
+	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
+	  result = menu->addAction(name);
+	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
+	  result = menubar->addAction(name);
+	else
+	  throw String("Bad menu owner object type");
+
+	result->setObjectName(QString("action") + name);
+	return QtLua::Value(ls, result, false);
+      }
+
+      String get_description() const
+      {
+	return "Add a QAction to a QMenu or QMenuBar";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.addaction( parent, name )");
+      }
+
+    } menu_addaction;
+
+    menu_addaction.register_(ls, "qt.menu.addaction");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 1, Value::TUserData);
+
+	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
+	QObject &obj = qow->get_object();
+	QAction *action;
+	QMenu *menu = 0;
+
+	if (action = dynamic_cast<QAction*>(&obj))
+	  ;
+	else if ((menu = dynamic_cast<QMenu*>(&obj)))
+	  action = menu->menuAction();
+	else
+	  throw String("Unable to find associated QAction");
+
+	if (QWidget *parent = dynamic_cast<QWidget*>(obj.parent()))
+	  parent->removeAction(action);
+	else
+	  throw String("QAction has no parent");
+
+	delete action;
+	if (menu)
+	  delete menu;
+	return QtLua::Value(ls);
+      }
+
+      String get_description() const
+      {
+	return "Remove a QAction from a QMenu or QMenuBar";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.addaction( parent, name )");
+      }
+
+    } menu_remove;
+
+    menu_remove.register_(ls, "qt.menu.remove");
 
     //////////////////////////////////////////////////////////////////////
 
