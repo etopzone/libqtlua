@@ -57,7 +57,7 @@ public:
   Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
 
 private:
-  void completion_patch(String &path, String &entry, int &offset);
+  virtual void completion_patch(String &path, String &entry, int &offset);
 
   /**
    * @short QHashProxyRo iterator class (internal)

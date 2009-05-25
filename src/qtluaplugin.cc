@@ -76,5 +76,10 @@ const String & Plugin::get_plugin_ext()
   return s;
 }
 
+void Plugin::completion_patch(String &path, String &entry, int &offset)
+{
+  entry += ".";
+}
+
 }
 

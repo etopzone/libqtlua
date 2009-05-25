@@ -133,6 +133,7 @@ namespace QtLua {
     };
 
     String get_value_str() const;
+    void completion_patch(String &path, String &entry, int &offset);
 
     plugin_map_t	_map;
     Loader::ptr		_loader;
