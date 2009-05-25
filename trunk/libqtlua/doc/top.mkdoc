@@ -70,6 +70,7 @@ included in the section entitled @xref{GNU Free Documentation License}.
    @item The @tt qt.connect() and @tt qt.disconnect() functions manage signals and slots connections, see @xref{Dynamic signals and slots}.
    @item The @tt qt.dialog table contains all functions needed to display Qt dialogs.
    @item The @tt qt.load_ui() function returns a Qt user interface file loaded using the @ref QUiLoader::load function.
+   @item The @tt qt.menu table contains functions to manage Qt menus.
    @item The @tt qt.meta table contains all wrapped Qt meta objects, useful to access Qt enums and other meta data without @ref QObject instance.
    @item The @tt qt.new_widget() function returns a new widget of given class name using the @ref QUiLoader::createWidget function.
   @end list
