@@ -127,11 +127,11 @@ int State::lua_cmd_plugin(lua_State *st)
 
     if (lua_gettop(st) < 1 || !lua_isstring(st, 1))
       {
-	this_->output("Usage: plugin(\"library_filename_without_ext\" [, load_as_table] )\n");
+	this_->output("Usage: plugin(\"library_filename_without_ext\")\n");
 	return 0;
       }
 
-    QTLUA_REFNEW(Plugin, lua_tostring(st, 1))->push_ud(st);
+    QTLUA_REFNEW(Plugin, String(lua_tostring(st, 1)) + Plugin::get_plugin_ext())->push_ud(st);
     return 1;
 
   } catch (String &e) {
