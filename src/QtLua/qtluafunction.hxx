@@ -41,6 +41,12 @@ X Function::get_arg(const Value::List &args, int n)
   return args[n];
 }
 
+template <class X>
+Ref<X> Function::get_arg_ud(const Value::List &args, int n)
+{
+  return get_arg<const Value &>(args, n).to_userdata_cast<X>();
+}
+
 }
 
 #endif
