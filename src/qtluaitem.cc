@@ -73,6 +73,13 @@ Item::~Item()
   assert(!_model);
 }
 
+void Item::move(QtLua::Ref<ListItem> parent)
+{
+  if (_parent)
+    remove();
+  insert(parent);
+}
+
 void Item::insert(ListItem::ptr parent)
 {
   assert(!_parent);

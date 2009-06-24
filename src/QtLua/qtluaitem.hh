@@ -81,6 +81,9 @@ public:
 
   ~Item();
 
+  /** Insert this item in parent container, remove from existing parent if any */
+  void			move(QtLua::Ref<ListItem> parent);
+
   /** Insert this item in parent container */
   void			insert(QtLua::Ref<ListItem> parent);
 
