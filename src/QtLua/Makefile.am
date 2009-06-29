@@ -11,6 +11,7 @@ pkginclude_HEADERS = \
 	PluginInterface qtluaplugininterface.hh \
 	State qtluastate.hh qtluastate.hxx \
 	UserData qtluauserdata.hh qtluauserdata.hxx \
+	UserObject qtluauserobject.hh qtluauserobject.hxx \
 	Value qtluavalue.hh qtluavalue.hxx \
 	ValueRef qtluavalueref.hh qtluavalueref.hxx \
 	Ref qtluaref.hh \
