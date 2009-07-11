@@ -75,7 +75,7 @@ void ListItem::meta_newindex(State &ls, const Value &key, const Value &value)
 	  if (!kbml->is_move_allowed())
 	    throw String("Moving '%' item is not allowed.").arg(kbml->get_name());
 
-	  if (!accept_child(kbml.ptr()))
+	  if (!accept_child(kbml))
 	    throw String("Item '%' doesn't accept '%' as child.")
 	      .arg(get_name()).arg(kbml->get_name());
 
@@ -146,7 +146,7 @@ inline int ListItem::get_child_count() const
   return _child_list.count();
 }
 
-bool ListItem::accept_child(const Item *item) const
+bool ListItem::accept_child(const Item::ptr &item) const
 {
   return true;
 }

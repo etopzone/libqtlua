@@ -68,7 +68,7 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const
 Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
-    return 0;
+    return Qt::ItemIsDropEnabled;
 
   Item *item = static_cast<Item*>(index.internalPointer());
 
@@ -77,7 +77,109 @@ Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const
   if (item->is_rename_allowed())
     res |= Qt::ItemIsEditable;
 
+  if (item->is_move_allowed())
+    res |= Qt::ItemIsDragEnabled;
+
+  if (dynamic_cast<ListItem*>(item))
+    res |= Qt::ItemIsDropEnabled;
+
   return res;
+}
+
+Item::ptr ItemModel::from_mimedata(const QMimeData *data)
+{
+  return Item::ptr();
+}
+
+bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+			     int row, int column, const QModelIndex &parent)
+{
+  ListItem *pi = dynamic_cast<ListItem*>(parent.isValid()
+					 ? static_cast<Item*>(parent.internalPointer())
+					 : _root.ptr());
+
+  if (!pi)		// parent is not a ListItem ?
+    return false;
+
+  if (row < 0)
+    row = 0;
+
+  const ItemQMimeData *d = dynamic_cast<const ItemQMimeData*>(data);
+
+  if (!d)
+    // external mime object drop
+    {
+      Item::ptr i = from_mimedata(data);
+
+      if (i.valid())
+	{
+	  i->insert(*pi);
+	  return true;
+	}
+    }
+
+  else
+    // internal existing items drop
+    {
+      switch (action)
+	{
+	case Qt::IgnoreAction:
+	  return true;
+
+	case Qt::MoveAction:
+	  emit layoutAboutToBeChanged();
+
+	  foreach(Item::ptr i, d->_itemlist)
+	    {
+	      if (!i->is_move_allowed() || !pi->accept_child(i))
+		continue;
+	
+	      // handle case where deleted item shifts row offset
+	      if (pi == i->_parent && row > i->_row)
+		row--;
+
+	      i->_parent->qtllistitem_remove(i.ptr());
+	      i->set_model(this);
+	      i->_parent = pi;
+	      assert(row <= pi->get_child_count());
+	      i->_row = row;
+	      pi->qtllistitem_insert(i, row++);
+	      i->rename_insert();
+	    }
+
+	  emit layoutChanged();
+	  return true;
+
+	default:
+	  break;
+	}
+    }
+
+  return false;
+}
+
+QStringList ItemModel::mimeTypes() const
+{
+  QStringList types;
+  types << QString("application/qtlua.item");
+  return types;
+}
+
+QMimeData * ItemModel::mimeData(const QModelIndexList &indexes) const
+{
+  ItemQMimeData *r = new ItemQMimeData();
+
+  foreach(const QModelIndex &index, indexes)
+    r->_itemlist.push_back(*static_cast<Item*>(index.internalPointer()));
+
+  r->setData("application/qtlua.item", "");
+
+  return r;
+}
+
+Qt::DropActions ItemModel::supportedDropActions() const
+{
+  return Qt::MoveAction /* | Qt::CopyAction*/;
 }
 
 QVariant ItemModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -154,34 +256,24 @@ bool ItemModel::setData(const QModelIndex & index, const QVariant & value, int r
     }
 }
 
-bool ItemModel::insertRows(int row, int count, const QModelIndex & parent)
+Value ItemModel::get_selection(State &ls, const QAbstractItemView &view)
 {
-  return false;
-  //  beginInsertRows(parent, row, row + count - 1);
-  //  endInsertRows();
-}
+  assert(dynamic_cast<ItemModel*>(view.model()));
+  QItemSelectionModel *sm = view.selectionModel();
 
-bool ItemModel::removeRows(int row, int count, const QModelIndex & parent)
-{
-  ListItem *p;
+  if (!sm || !sm->hasSelection())
+    return Value(ls);
 
-  if (!parent.isValid())
-    return false;
-  else
-    p = static_cast<ListItem*>((Item*)parent.internalPointer());
+  Value table(ls, Value::TTable);
 
-  beginRemoveRows(parent, row, row + count - 1);
-
-  for (unsigned int i = row; i < row + count; i++)
+  foreach(const QModelIndex &index, sm->selectedIndexes())
     {
-      Item *item = p->get_child_row(i);
-      item->set_model(0);
-      p->qtllistitem_remove(item);
+      Value entry(ls, *static_cast<Item*>(index.internalPointer()));
+
+      table[entry] = entry;
     }
 
-  endRemoveRows();
-
-  return true;
+  return table;
 }
 
 }
