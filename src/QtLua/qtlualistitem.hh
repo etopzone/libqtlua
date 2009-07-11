@@ -75,7 +75,7 @@ protected:
    *
    * @return true if item is allowed to be a child member.
    */
-  virtual bool		accept_child(const Item *item) const;
+  virtual bool		accept_child(const Item::ptr &item) const;
 
 private:
 

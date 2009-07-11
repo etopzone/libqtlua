@@ -23,6 +23,8 @@
 #define QTLUABITMAPLISTMODEL_HH_
 
 #include <QAbstractItemModel>
+#include <QAbstractItemView>
+#include <QMimeData>
 
 #include "qtluaitem.hh"
 
@@ -46,6 +48,8 @@ namespace QtLua {
    * @example examples/cpp/mvc/treeview.cc:1
    */
 
+class State;
+
 class ItemModel : public QAbstractItemModel
 {
   friend class Item;
@@ -61,6 +65,17 @@ public:
   /** Get pointer to Item from QT model index. */
   static Item::ptr get_item(const QModelIndex &index);
 
+  /** Get a lua table value with selected items on given view */
+  static Value get_selection(State &ls, const QAbstractItemView &view);
+
+protected:
+  /** May be reimplemented to return a new item created from mime
+      data. Used when dropping external objects. */
+  virtual Item::ptr	from_mimedata(const QMimeData *data);
+
+  /** Return supported mime type. May be reimplemented to add more types. */
+  virtual QStringList mimeTypes() const;
+
 private:
   QVariant	data(const QModelIndex &index, int role) const;
   Qt::ItemFlags	flags(const QModelIndex &index) const;
@@ -70,10 +85,16 @@ private:
   int		rowCount(const QModelIndex &parent = QModelIndex()) const;
   int		columnCount(const QModelIndex &parent = QModelIndex()) const;
   bool		setData(const QModelIndex & index, const QVariant & value, int role);
-  bool		insertRows(int row, int count, const QModelIndex & parent);
-  bool		removeRows(int row, int count, const QModelIndex & parent);
+  bool		dropMimeData(const QMimeData *data, Qt::DropAction action,
+			     int row, int column, const QModelIndex & parent);
+  QMimeData *	mimeData(const QModelIndexList &indexes) const;
+  Qt::DropActions supportedDropActions() const;
 
-private:
+  struct ItemQMimeData : public QMimeData
+  {
+    QList<Item::ptr> _itemlist;
+  };
+
   Item::ptr _root;
 };
 

@@ -121,9 +121,6 @@ void Item::remove()
 
 void Item::set_model(ItemModel* model)
 {
-  if (model)
-    assert(!_model);
-
   if (_model)
     _model->changePersistentIndex(model_index(), QModelIndex());
 
