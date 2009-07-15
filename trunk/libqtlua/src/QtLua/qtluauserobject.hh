@@ -52,7 +52,7 @@ namespace QtLua {
     {
     public:
       QTLUA_REFTYPE(UserObjectIterator);
-      UserObjectIterator(State &ls, UserObject::ptr obj);
+      UserObjectIterator(State &ls, Ref<UserObject> obj);
 
     private:
       bool more() const;
@@ -62,7 +62,7 @@ namespace QtLua {
       ValueRef get_value_ref();
 
       State &_ls;
-      UserObject::ptr _obj;
+      Ref<UserObject> _obj;
       size_t _index;
     };
 
