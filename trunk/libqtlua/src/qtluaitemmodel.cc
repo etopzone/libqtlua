@@ -266,11 +266,12 @@ Value ItemModel::get_selection(State &ls, const QAbstractItemView &view)
 
   Value table(ls, Value::TTable);
 
+  int i = 1;
   foreach(const QModelIndex &index, sm->selectedIndexes())
     {
       Value entry(ls, *static_cast<Item*>(index.internalPointer()));
 
-      table[entry] = entry;
+      table[i++] = entry;
     }
 
   return table;
