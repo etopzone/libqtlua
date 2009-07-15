@@ -68,6 +68,7 @@ class Item : public UserData
 {
   friend class ItemModel;
   friend class ListItem;
+  friend class ItemSelectionModel;
 
 public:
 

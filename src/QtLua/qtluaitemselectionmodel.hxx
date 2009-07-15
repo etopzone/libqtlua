@@ -14,51 +14,31 @@
     You should have received a copy of the GNU General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2009, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#ifndef QTLUAITEM_HXX_
-#define QTLUAITEM_HXX_
-
-#include <cassert>
-
-#include "qtluauserdata.hxx"
-#include "qtluaitemmodel.hh"
+#ifndef QTLUA_ITEMSELECTIONMODEL_HXX_
+#define QTLUA_ITEMSELECTIONMODEL_HXX_
 
 namespace QtLua {
 
-QModelIndex Item::model_index() const
-{
-  return _model->createIndex(_row, 0, (void*)this);
-}
+  ItemSelectionModel::ItemSelectionModel(ItemModel *model)
+    : QItemSelectionModel(model)
+  {
+  }
 
-void Item::set_row(int row)
-{
-  _row = row;
-}
+  ItemSelectionModel::ItemSelectionModel(ItemModel *model, QObject *parent)
+    : QItemSelectionModel(model, parent)
+  {
+  }
 
-int Item::get_row() const
-{
-  return _row;
-}
-
-ListItem * Item::get_parent() const
-{
-  return _parent;
-}
-
-const String & Item::get_name() const
-{
-  return _name;
-}
-
-ItemModel * Item::get_model() const
-{
-  return _model;
-}
+  ItemSelectionModel::~ItemSelectionModel()
+  {
+  }
 
 }
 
 #endif
+
 

@@ -5,6 +5,7 @@ pkginclude_HEADERS = \
 	Console qtluaconsole.hh qtluaconsole.hxx \
 	Item qtluaitem.hh qtluaitem.hxx	\
 	ItemModel qtluaitemmodel.hh \
+	ItemSelectionModel qtluaitemselectionmodel.hh qtluaitemselectionmodel.hxx \
 	Iterator qtluaiterator.hh qtluaiterator.hxx \
 	ListItem qtlualistitem.hh qtlualistitem.hxx \
 	Plugin qtluaplugin.hh qtluaplugin.hxx \
