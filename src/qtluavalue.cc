@@ -185,6 +185,9 @@ Value::List Value::call (const List &args) const
     case TFunction: {
       int oldtop = lua_gettop(_st);
 
+      if (!lua_checkstack(_st, args.size()))
+	throw String("Unable to extend lua stack to handle % arguments").arg(args.size());
+
       foreach(const Value &v, args)
 	v.push_value();
 

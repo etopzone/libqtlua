@@ -314,7 +314,12 @@ int State::lua_meta_item_call(lua_State *st)
     for (int i = 2; i <= lua_gettop(st); i++)
       args.append(Value(st, i));
 
-    foreach(const Value &v, ud->meta_call(*get_this(st), args))
+    args = ud->meta_call(*get_this(st), args);
+
+    if (!lua_checkstack(st, args.size()))
+      throw String("Unable to extend lua stack to handle % return values").arg(args.size());
+
+    foreach(const Value &v, args)
       {
 	assert(v._st == st);
 	v.push_value();
