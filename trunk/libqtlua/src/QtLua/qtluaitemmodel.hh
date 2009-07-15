@@ -19,8 +19,8 @@
 */
 
 
-#ifndef QTLUABITMAPLISTMODEL_HH_
-#define QTLUABITMAPLISTMODEL_HH_
+#ifndef QTLUA_ITEMMODEL_HH_
+#define QTLUA_ITEMMODEL_HH_
 
 #include <QAbstractItemModel>
 #include <QAbstractItemView>
