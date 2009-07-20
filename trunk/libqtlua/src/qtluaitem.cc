@@ -49,10 +49,13 @@ void Item::rename_insert()
   else
     _name = QString(_name).replace(QRegExp("[^A-Za-z0-9_]"), "_");
 
-  String	oldname = _name;
-
-  while (_parent->get_child(_name).valid())
-    _name = QString(_name).sprintf("%s_%05u", oldname.constData(), _parent->get_next_id());
+  if (_parent->get_child(_name).valid())
+    {
+      String base_name = QString(_name).remove(QRegExp("_[0-9]+$"));
+      do {
+	_name = QString().sprintf("%s_%u", base_name.constData(), _parent->get_next_id());
+      } while (_parent->get_child(_name).valid());
+    }
 
   _parent->qtllistitem_insert(this, _name);
 }
