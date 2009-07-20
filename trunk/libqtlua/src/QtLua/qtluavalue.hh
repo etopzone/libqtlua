@@ -163,6 +163,9 @@ public:
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5, const Value &v6);
+    /** Create value list from @ref QList content */
+    template <typename X>
+    inline List(const State &ls, const QList<X> &list);
   };
 
   /** Specify lua value types. This is the same as @tt LUA_T* macros defined in lua headers */
