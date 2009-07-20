@@ -104,6 +104,8 @@ namespace QtLua {
 
     virtual Value::List meta_call(State &ls, const Value::List &args) = 0;
 
+  public:
+
     /**
      * This function may be called from the @ref meta_call function to
      * perform lua to C++ argument conversion and checking.
@@ -125,7 +127,7 @@ namespace QtLua {
      * @alias get_arg1
      */
     template <class X>
-    inline X get_arg(const Value::List &args, int n, const X & default_);
+    static inline X get_arg(const Value::List &args, int n, const X & default_);
 
     /**
      * This function does the same as the @ref __get_arg1__ function
@@ -137,7 +139,7 @@ namespace QtLua {
      * @alias get_arg2
      */
     template <class X>
-    inline X get_arg(const Value::List &args, int n);
+    static inline X get_arg(const Value::List &args, int n);
 
     /**
      * This function may be called from the @ref meta_call function to
@@ -155,7 +157,7 @@ namespace QtLua {
      * @see __get_arg2__
      */
     template <class X>
-    inline Ref<X> get_arg_ud(const Value::List &args, int n);
+    static inline Ref<X> get_arg_ud(const Value::List &args, int n);
 
   private:
     String get_value_str() const;
