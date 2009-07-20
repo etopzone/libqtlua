@@ -284,6 +284,13 @@ namespace QtLua {
     return to_boolean();
   }
 
+  template <typename X>
+  Value::List::List(const State &ls, const QList<X> &list)
+  {
+    foreach(const X &i, list)
+      push_back(Value(ls, i));
+  }
+
   Value::List::List()
   {
   }
