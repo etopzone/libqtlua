@@ -49,8 +49,7 @@ int Value::empty_fcn(lua_State *st)
   return 0;
 }
 
-Value::Value(const State &ls, ValueType type)
-  : _st(ls._st)
+void Value::init_type_value(ValueType type)
 {
   lua_pushlightuserdata(_st, this);
 

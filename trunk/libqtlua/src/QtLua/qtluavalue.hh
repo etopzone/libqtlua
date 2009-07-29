@@ -153,19 +153,40 @@ public:
   {
     /** Create an empty value list */
     inline List();
+
     /** Create value list copy */
     inline List(const List &vl);
+
     /** Create value list with one @ref Value object */
     inline List(const Value &v1);
+
     /** Create value list with @ref Value objects. @multiple */
     inline List(const Value &v1, const Value &v2);
     inline List(const Value &v1, const Value &v2, const Value &v3);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5, const Value &v6);
+
     /** Create value list from @ref QList content */
     template <typename X>
     inline List(const State &ls, const QList<X> &list);
+
+    /** Create value list from @ref QList content */
+    template <typename X>
+    inline List(const State &ls, const typename QList<X>::const_iterator &begin,
+		const typename QList<X>::const_iterator &end);
+
+    /** return a @ref QList with all elements converted from lua values */
+    template <typename X>
+    QList<X> to_qlist() const;
+    /** return a @ref QList with elements converted from lua values */
+    template <typename X>
+    QList<X> to_qlist(const const_iterator &begin, const const_iterator &end) const;
+
+    /** return a lua table containing all values from list */
+    inline Value to_table(const State &ls) const;
+    /** return a lua table containing values from list */
+    inline Value to_table(const State &ls, const const_iterator &begin, const const_iterator &end) const;
   };
 
   /** Specify lua value types. This is the same as @tt LUA_T* macros defined in lua headers */
@@ -197,7 +218,7 @@ public:
     };
 
   /** Create a default value of the given type. Useful to create empty lua tables. */
-  Value(const State &ls, ValueType type);
+  inline Value(const State &ls, ValueType type);
 
   /** Create a "nil" lua value. */
   inline Value(const State &ls);
@@ -433,6 +454,9 @@ public:
   template <class X>
   inline operator Ref<X> () const;
 
+  /** Check if the value is @tt nil */
+  inline bool is_nil() const;
+
   /** Get lua value type. */
   ValueType type() const;
 
@@ -495,10 +519,12 @@ private:
   Value(lua_State *st, int index);
 
   inline Value(lua_State *st);
+  inline Value(lua_State *st, ValueType type);
   inline Value(lua_State *st, double n);
   inline Value(lua_State *st, const String &str);
   inline Value(lua_State *st, Ref<UserData> ud);
   inline Value(lua_State *st, QObject *obj);
+  void init_type_value(ValueType type);
 
   void convert_error(ValueType type) const;
 

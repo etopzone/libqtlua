@@ -109,6 +109,18 @@ namespace QtLua {
     *this = obj;
   }
 
+  Value::Value(lua_State *st, ValueType type)
+    : _st(_st)
+  {
+    init_type_value(type);
+  }
+
+  Value::Value(const State &ls, ValueType type)
+    : _st(ls._st)
+  {
+    init_type_value(type);
+  }
+
   template <typename ListContainer>
   inline void Value::from_list(const State &ls, const ListContainer &list)
   {
@@ -259,6 +271,11 @@ namespace QtLua {
     return to_qmap<Key, Val>();
   }
 
+  bool Value::is_nil() const
+  {
+    return type() == TNil;
+  }
+
   Value::operator String () const
   {
     return to_string();
@@ -285,10 +302,48 @@ namespace QtLua {
   }
 
   template <typename X>
+  Value::List::List(const State &ls, const typename QList<X>::const_iterator &begin,
+		    const typename QList<X>::const_iterator &end)
+  {
+    for (typename QList<X>::const_iterator i = begin; i != end; i++)
+      push_back(Value(ls, *i));
+  }
+
+  template <typename X>
   Value::List::List(const State &ls, const QList<X> &list)
   {
     foreach(const X &i, list)
       push_back(Value(ls, i));
+  }
+
+  template <typename X>
+  QList<X> Value::List::to_qlist(const const_iterator &begin, const const_iterator &end) const
+  {
+    QList<X> res;
+    for (const_iterator i = begin; i != end; i++)
+      res.push_back(i);
+    return res;
+  }
+
+  template <typename X>
+  QList<X> Value::List::to_qlist() const
+  {
+    return to_qlist<X>(constBegin(), constEnd());
+  }
+
+  /** return a lua table containing values from list */
+  Value Value::List::to_table(const State &ls, const const_iterator &begin, const const_iterator &end) const
+  {
+    Value res(ls, TTable);
+    int j = 1;
+    for (const_iterator i = begin; i != end; i++)
+      res[j++] = *i;
+    return res;
+  }
+
+  Value Value::List::to_table(const State &ls) const
+  {
+    return to_table(ls, constBegin(), constEnd());
   }
 
   Value::List::List()
