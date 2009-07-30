@@ -133,18 +133,17 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	    {
 	      if (!i->is_move_allowed() || !pi->accept_child(i))
 		continue;
-	
+
 	      // handle case where deleted item shifts row offset
 	      if (pi == i->_parent && row > i->_row)
 		row--;
 
-	      i->_parent->qtllistitem_remove(i.ptr());
-	      i->set_model(this);
+	      i->_parent->remove(i.ptr());
 	      i->_parent = pi;
 	      assert(row <= pi->get_child_count());
 	      i->_row = row;
-	      pi->qtllistitem_insert(i, row++);
-	      i->rename_insert();
+	      pi->insert(i.ptr(), row++);
+	      pi->insert_name(i.ptr());
 	    }
 
 	  emit layoutChanged();
@@ -189,20 +188,21 @@ QVariant ItemModel::headerData(int section, Qt::Orientation orientation, int rol
 
 QModelIndex ItemModel::index(int row, int column, const QModelIndex &parent) const
 {
-  Item *p;
+  Item *p_;
 
   if (column)
     return QModelIndex();    
 
   if (!parent.isValid())
-    p = _root.ptr();
+    p_ = _root.ptr();
   else
-    p = static_cast<Item*>(parent.internalPointer());
+    p_ = static_cast<Item*>(parent.internalPointer());
 
-  Item *c = p->get_child_row(row);
+  ListItem *p = dynamic_cast<ListItem*>(p_);
+  assert(p);
 
-  if (c)
-    return createIndex(row, column, c);
+  if (row < p->_child_list.size())
+    return createIndex(row, 0, p->_child_list[row].ptr());
   else
     return QModelIndex();
 }

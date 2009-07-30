@@ -23,7 +23,7 @@
 #define QTLUALISTITEM_HH_
 
 #include <QHash>
-#include <QVector>
+#include <QList>
 
 #include "qtluaitem.hh"
 #include "qtluaiterator.hh"
@@ -65,7 +65,10 @@ public:
   inline Item::ptr	get_child(const String &name) const;
 
   /** Get child items list */
-  inline const QVector<Item::ptr> & get_list() const;
+  inline const QList<Item::ptr> & get_list() const;
+
+  /** Get number of childs */
+  inline int get_child_count() const;
 
 protected:
 
@@ -85,17 +88,15 @@ private:
   void			completion_patch(String &path, String &entry, int &offset);
 
   void			set_model(ItemModel* model);
-  Item *		get_child_row(int row) const;
-  int			get_child_count() const;
-  inline int		get_next_id();
 
-  void			qtllistitem_insert(Item::ptr item, int row);
-  void			qtllistitem_insert(Item *item, const String &name);
-  void			qtllistitem_remove(Item *item);
-  inline void		qtllistitem_remove_name(Item *item);
+  void			change_indexes(int first);
+  void			insert(Item *item, int row);
+  void			insert_name(Item *item);
+  void			remove(Item *item);
+  inline void		remove_name(Item *item);
 
   QHash<String,Item*>	_child_hash;
-  QVector<Item::ptr>	_child_list;
+  QList<Item::ptr>	_child_list;
   int			_id_counter;
 };
 

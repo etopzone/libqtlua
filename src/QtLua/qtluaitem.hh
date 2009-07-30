@@ -127,7 +127,7 @@ private:
   virtual void			set_model(ItemModel* model);
   inline ItemModel *		get_model() const;
   bool				in_parent_path(Item *item);
-  void				rename_insert();
+  void				insert_name();
   inline QModelIndex		model_index() const;
   inline int			get_row() const;
   inline void			set_row(int row);
