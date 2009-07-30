@@ -92,8 +92,8 @@ void Item::remove()
   if (model)
     emit model->layoutAboutToBeChanged();
 
-  set_model(0);
   _parent->remove(this);
+  set_model(0);
 
   if (model)
     emit model->layoutChanged();
