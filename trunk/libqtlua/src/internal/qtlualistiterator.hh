@@ -54,7 +54,7 @@ private:
 
   State &_ls;
   ListItem::ptr _list;
-  QVector<Item::ptr>::const_iterator _it;
+  QList<Item::ptr>::const_iterator _it;
 };
 
 }

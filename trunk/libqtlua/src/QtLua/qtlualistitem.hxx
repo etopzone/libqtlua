@@ -30,28 +30,24 @@ namespace QtLua {
 
 Item::ptr ListItem::get_child(const String &name) const
 {
-  Item::ptr	res;
-
-  res = *_child_hash.value(name, 0);
-
-  return res;
+  Item *i = _child_hash.value(name, 0);
+  return i ? *i : Item::ptr();
 }
 
-const QVector<Item::ptr> & ListItem::get_list() const
+const QList<Item::ptr> & ListItem::get_list() const
 {
   return _child_list;
 }
 
-int ListItem::get_next_id()
+int ListItem::get_child_count() const
 {
-  return _id_counter++;
+  return _child_list.count();
 }
 
-void ListItem::qtllistitem_remove_name(Item *item)
+void ListItem::remove_name(Item *item)
 {
   assert(item->get_parent() == this);
-
-  assert(_child_hash.remove(item->get_name()));
+  _child_hash.remove(item->get_name());
 }
 
 }

@@ -53,6 +53,7 @@ class State;
 class ItemModel : public QAbstractItemModel
 {
   friend class Item;
+  friend class ListItem;
 
   Q_OBJECT;
 

@@ -111,39 +111,61 @@ Iterator::ptr ListItem::new_iterator(State &ls)
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
 }
 
-void ListItem::qtllistitem_remove(Item *item)
+void ListItem::change_indexes(int first)
+{
+  for (int i = first; i < get_child_count(); i++)
+    {
+      const Item::ptr &item = _child_list[i];
+
+      if (_model)
+	{
+	  QModelIndex old(item->model_index());
+	  _child_list[i]->set_row(i);
+	  _model->changePersistentIndex(old, item->model_index());
+	}
+      else
+	{
+	  _child_list[i]->set_row(i);
+	}
+    }
+}
+
+void ListItem::remove(Item *item)
 {
   assert(item->get_parent() == this);
 
   _child_hash.remove(item->get_name());
-  _child_list.remove(item->get_row());
-
-  // update row ids
-  for (int i = item->get_row(); i < get_child_count(); i++)
-    _child_list[i]->set_row(i);
+  _child_list.removeAt(item->get_row());
+  if (_model)
+    _model->changePersistentIndex(item->model_index(), QModelIndex());
+  change_indexes(item->get_row());
 }
 
-void ListItem::qtllistitem_insert(Item::ptr item, int row)
+void ListItem::insert(Item *item, int row)
 {
-  _child_list.insert(row, item);
-
-  for (int i = row; i < get_child_count(); i++)
-    _child_list[i]->set_row(i);
+  _child_list.insert(row, *item);
+  item->set_row(row);
+  change_indexes(row + 1);
 }
 
-void ListItem::qtllistitem_insert(Item *item, const String &name)
+void ListItem::insert_name(Item *item)
 {
+  String &name = item->_name;
+
+  if (name.size() == 0)
+    name += "noname";
+  else
+    name = QString(name).replace(QRegExp("[^A-Za-z0-9_]"), "_");
+
+  if (_child_hash.contains(name))
+    {
+      String basename = QString(name).remove(QRegExp("_[0-9]+$"));
+      do {
+	name = QString().sprintf("%s_%u", basename.constData(), _id_counter++);
+      } while (_child_hash.contains(name));
+    }
+
   _child_hash.insert(name, item);
-}
-
-Item * ListItem::get_child_row(int row) const
-{
-  return _child_list.value(row).ptr();
-}
-
-inline int ListItem::get_child_count() const
-{
-  return _child_list.count();
 }
 
 bool ListItem::accept_child(const Item::ptr &item) const
@@ -168,6 +190,9 @@ ListItem::~ListItem()
 
 void ListItem::set_model(ItemModel* model)
 {
+  if (_model == model)
+    return;
+
   Item::set_model(model);
 
   foreach(Item::ptr tmp, _child_list)

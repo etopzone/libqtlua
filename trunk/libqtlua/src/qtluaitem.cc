@@ -40,26 +40,6 @@ bool Item::in_parent_path(Item *item)
   return false;
 }
 
-void Item::rename_insert()
-{
-  assert(_parent);
-
-  if (_name.size() == 0)
-    _name += "noname";
-  else
-    _name = QString(_name).replace(QRegExp("[^A-Za-z0-9_]"), "_");
-
-  if (_parent->get_child(_name).valid())
-    {
-      String base_name = QString(_name).remove(QRegExp("_[0-9]+$"));
-      do {
-	_name = QString().sprintf("%s_%u", base_name.constData(), _parent->get_next_id());
-      } while (_parent->get_child(_name).valid());
-    }
-
-  _parent->qtllistitem_insert(this, _name);
-}
-
 Item::Item(const String &name)
   : UserData(), _name(name), _parent(0), _model(0), _row(-1)
 {
@@ -95,8 +75,8 @@ void Item::insert(ListItem::ptr parent)
   if (_model)
     emit _model->layoutAboutToBeChanged();
 
-  _parent->qtllistitem_insert(*this, _row);
-  rename_insert();
+  _parent->insert(this, _row);
+  _parent->insert_name(this);
 
   if (_model)
     emit _model->layoutChanged();
@@ -110,10 +90,10 @@ void Item::remove()
   ItemModel *model = _model;
 
   if (model)
-    emit _model->layoutAboutToBeChanged();
+    emit model->layoutAboutToBeChanged();
 
   set_model(0);
-  _parent->qtllistitem_remove(this);
+  _parent->remove(this);
 
   if (model)
     emit model->layoutChanged();
@@ -124,21 +104,18 @@ void Item::remove()
 
 void Item::set_model(ItemModel* model)
 {
-  if (_model)
-    _model->changePersistentIndex(model_index(), QModelIndex());
-
   _model = model;
 }
 
 void Item::set_name(const String &name)
 {
   if (_parent)
-    _parent->qtllistitem_remove_name(this);
+    _parent->remove_name(this);
 
   _name = name;
 
   if (_parent)
-    rename_insert();
+    _parent->insert_name(this);
 
   if (_model)
     emit _model->dataChanged(model_index(), model_index());
