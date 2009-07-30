@@ -30,6 +30,7 @@ namespace QtLua {
 
 QModelIndex Item::model_index() const
 {
+  assert(_model);
   return _model->createIndex(_row, 0, (void*)this);
 }
 
