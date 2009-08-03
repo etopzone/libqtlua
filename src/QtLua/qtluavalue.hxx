@@ -317,11 +317,11 @@ namespace QtLua {
   }
 
   template <typename X>
-  QList<X> Value::List::to_qlist(const const_iterator &begin, const const_iterator &end) const
+  QList<X> Value::List::to_qlist(const const_iterator &begin, const const_iterator &end)
   {
     QList<X> res;
     for (const_iterator i = begin; i != end; i++)
-      res.push_back(i);
+      res.push_back(*i);
     return res;
   }
 
@@ -332,7 +332,7 @@ namespace QtLua {
   }
 
   /** return a lua table containing values from list */
-  Value Value::List::to_table(const State &ls, const const_iterator &begin, const const_iterator &end) const
+  Value Value::List::to_table(const State &ls, const const_iterator &begin, const const_iterator &end)
   {
     Value res(ls, TTable);
     int j = 1;

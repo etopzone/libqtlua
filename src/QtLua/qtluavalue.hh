@@ -181,12 +181,12 @@ public:
     QList<X> to_qlist() const;
     /** return a @ref QList with elements converted from lua values */
     template <typename X>
-    QList<X> to_qlist(const const_iterator &begin, const const_iterator &end) const;
+    static QList<X> to_qlist(const const_iterator &begin, const const_iterator &end);
 
     /** return a lua table containing all values from list */
     inline Value to_table(const State &ls) const;
     /** return a lua table containing values from list */
-    inline Value to_table(const State &ls, const const_iterator &begin, const const_iterator &end) const;
+    static inline Value to_table(const State &ls, const const_iterator &begin, const const_iterator &end);
   };
 
   /** Specify lua value types. This is the same as @tt LUA_T* macros defined in lua headers */
