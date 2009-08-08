@@ -28,6 +28,17 @@
 
 namespace QtLua {
 
+Value ListItem::meta_operation(State &ls, Operation op, const Value &a, const Value &b)
+{
+  switch (op)
+    {
+    case OpLen:
+      return Value(ls, get_child_count());
+    default:
+      return UserData::meta_operation(ls, op, a, b);
+    }
+}
+
 void ListItem::meta_newindex(State &ls, const Value &key, const Value &value)
   
 {
