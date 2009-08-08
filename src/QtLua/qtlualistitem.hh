@@ -80,6 +80,8 @@ protected:
    */
   virtual bool		accept_child(const Item::ptr &item) const;
 
+  virtual Value		meta_operation(State &ls, Operation op, const Value &a, const Value &b);
+
 private:
 
   void			meta_newindex(State &ls, const Value &key, const Value &value);
