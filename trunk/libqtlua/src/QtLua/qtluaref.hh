@@ -72,7 +72,7 @@ namespace QtLua {
    * no reference are left in both C++ code and lua interpreter state.
    *
    * This smart pointer template class can be used as pointer to
-   * objects with class derived from the @ref QtLua::Refobj. Most of the
+   * objects with class derived from the @ref QtLua::Refobj class. Most of the
    * time you need @ref QtLua::UserData based objects and you don't
    * want to inherit from the @ref QtLua::Refobj class directly.
    *
@@ -94,7 +94,7 @@ namespace QtLua {
    *
    * Two shortcuts to @tt{Ref<X, X>} and @tt{Ref<const X, X>} types
    * are provided for convenience, the @tt{X::ptr} and @tt{X::const_ptr} types
-   * can be defined thanks the @ref #QTLUA_REFTYPE macro.
+   * can be defined with the @ref #QTLUA_REFTYPE macro.
    */
 
   template <class X, class Xnoconst = X>

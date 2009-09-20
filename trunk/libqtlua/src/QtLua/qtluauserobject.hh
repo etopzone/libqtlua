@@ -48,6 +48,7 @@ namespace QtLua {
     QTLUA_REFTYPE(UserObject);
 
   private:
+    /** @internal */
     class UserObjectIterator : public Iterator
     {
     public:
@@ -73,9 +74,9 @@ namespace QtLua {
     /** Property member entry */
     struct member_s
     {
-      const char *name;
-      void (T::*set)(State &ls, const Value &value);
-      Value (T::*get)(State &ls);
+      const char *name;		//< Lua property name
+      void (T::*set)(State &ls, const Value &value); //< Pointer to property set accesor function for lua
+      Value (T::*get)(State &ls); //< Pointer to property get accesor function for lua
     };
 
     Value meta_index(State &ls, const Value &key);
