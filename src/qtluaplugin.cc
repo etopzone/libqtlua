@@ -60,14 +60,9 @@ const String & Plugin::get_name() const
   return api<PluginInterface>()->get_name();
 }
 
-const String & Plugin::get_description() const
-{
-  return api<PluginInterface>()->get_description();
-}
-
 String Plugin::get_value_str() const
 {
-  return get_name() + " : " + get_description();
+  return get_name();
 }
 
 const String & Plugin::get_plugin_ext()

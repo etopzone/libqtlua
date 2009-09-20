@@ -105,9 +105,6 @@ namespace QtLua {
     /** Get plugin name */
     const String & get_name() const;
 
-    /** Get plugin description */
-    const String & get_description() const;
-
     /** Convert @ref Plugin object to lua table */
     Value to_table(State &ls) const;
 

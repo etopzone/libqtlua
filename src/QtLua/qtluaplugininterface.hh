@@ -48,8 +48,6 @@ namespace QtLua {
 
     /** Get plugin name */
     virtual const String & get_name() const = 0;
-    /** Get plugin description */
-    virtual const String & get_description() const = 0;
     /** Register all plugin members, called on @ref Plugin initialization */
     virtual void register_members(Plugin &plugin) = 0;
   };
