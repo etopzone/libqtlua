@@ -113,7 +113,7 @@ included in the section entitled @xref{GNU Free Documentation License}.
    @item @ref QtLua::String, const char*
 
    @item table
-   @item @ref QHash, @ref QList
+   @item @ref QHash, @ref QMap, @ref QList, @ref QVector
 
    @item userdata
    @item Any @ref QtLua::UserData based class
