@@ -33,7 +33,7 @@ Console::Console(QWidget *parent)
   : QTextEdit(parent),
     _complete_re("[_.:a-zA-Z0-9]+$")
 {
-  _fmt_normal.setFontFamily("courier");
+  _fmt_normal.setFontFamily("monospace");
   _fmt_normal.setFontFixedPitch(true);
   _fmt_normal.setFontItalic(false);
   _fmt_normal.setFontPointSize(12);
