@@ -524,6 +524,29 @@ UserData::ptr Value::to_userdata_null() const
   return UserData::ptr();
 }
 
+static int lua_writer(lua_State *L, const void* p, size_t sz, void* pv)
+{
+  QByteArray *ba = (QByteArray*)pv;
+  ba->append((const char*)p, (int)sz);
+  return 0;
+}
+
+QByteArray Value::to_bytecode() const
+{
+  push_value();
+
+  if (lua_type(_st, -1) == LUA_TFUNCTION)
+    {
+      QByteArray bytecode;
+      lua_dump(_st, &lua_writer, &bytecode);
+      lua_pop(_st, 1);
+      return bytecode;
+    }
+
+  convert_error(TUserData);
+  std::abort();
+}
+
 bool Value::operator==(const Value &lv) const
 {
   bool		res;;

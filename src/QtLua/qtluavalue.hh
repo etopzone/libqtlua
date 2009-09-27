@@ -457,6 +457,9 @@ public:
   /** Check if the value is @tt nil */
   inline bool is_nil() const;
 
+  /** Dump the bytecode for a function object */
+  QByteArray to_bytecode() const;
+
   /** Get lua value type. */
   ValueType type() const;
 
