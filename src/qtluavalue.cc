@@ -538,8 +538,10 @@ QByteArray Value::to_bytecode() const
   if (lua_type(_st, -1) == LUA_TFUNCTION)
     {
       QByteArray bytecode;
-      lua_dump(_st, &lua_writer, &bytecode);
+      int status = lua_dump(_st, &lua_writer, &bytecode);	
       lua_pop(_st, 1);
+      if (status)
+	throw QtLua::String("Unable to dump function bytecode");
       return bytecode;
     }
 
