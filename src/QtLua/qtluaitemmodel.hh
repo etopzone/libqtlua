@@ -30,6 +30,8 @@
 
 namespace QtLua {
 
+class State;
+
   /**
    * @short Qt Model/View model class
    * @header QtLua/ItemModel
@@ -47,8 +49,6 @@ namespace QtLua {
    * Usage example:
    * @example examples/cpp/mvc/treeview.cc:1
    */
-
-class State;
 
 class ItemModel : public QAbstractItemModel
 {
