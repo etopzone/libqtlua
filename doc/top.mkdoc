@@ -364,7 +364,7 @@ included in the section entitled @xref{GNU Free Documentation License}.
   @insert modules_table
  @end section
  @section {Classes list}
-  @insert classes_table_bymodules
+  @insert {bymodules} classes_table
  @end section
  @insert all_classes_sections
  @insert all_namespaces_sections 
