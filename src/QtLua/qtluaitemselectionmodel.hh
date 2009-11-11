@@ -31,7 +31,7 @@ namespace QtLua {
    * @header QtLua/ItemSelectionModel
    * @module {Model/View}
    *
-   * This class can be used with @xref{ItemModel} if you want to
+   * This class can be used with @ref ItemModel if you want to
    * prevent multiple selection which contains childs and associated
    * parents at the same time.
    */

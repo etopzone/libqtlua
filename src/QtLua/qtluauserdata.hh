@@ -94,8 +94,6 @@ public:
   template <class X>
   static String type_name();
 
-protected:
-
   /**
    * This function is called when a lua operator is used with a @ref
    * UserData object. The default implementation throws an error
@@ -139,23 +137,6 @@ protected:
   virtual Value::List meta_call(State &ls, const Value::List &args);
 
   /**
-   * This helper function can be used to check arguments types passed
-   * to the @ref meta_call functions. This function throw an error
-   * message if checking fails.
-   *
-   * More advanced arguments checking and conversion features are
-   * available in the @ref QtLua::Function base class which may be
-   * more appropriate when a userdata object is to be used as a
-   * function.
-   *
-   * @param args list of passed arguments.
-   * @param min_count Minimum expected arguments count.
-   * @param max_count Maximum expected arguments count or 0 if no limit.
-   * @param ... List of @ref QtLua::Value::ValueType matching expected arguments type. At least @tt{max(min_count, max_count)} types must be passed. @ref QtLua::Value::TNone may be used as wildcard. Last specified type is expected for all arguments above min_count when max_count == 0.
-   */
-  static void meta_call_check_args(const Value::List &args, int min_count, int max_count, ...);
-
-  /**
    * This function may return an @ref Iterator object used to iterate
    * over an userdata object. The default implementation throws
    * an error message.
@@ -185,6 +166,29 @@ protected:
 
   /** Userdata compare less than, default implementation compares the @tt this pointers */
   virtual bool operator<(const UserData &ud);
+
+protected:
+
+  /**
+   * This helper function can be used to check arguments types passed
+   * to the @ref meta_call functions. This function throw an error
+   * message if checking fails.
+   *
+   * More advanced arguments checking and conversion features are
+   * available in the @ref QtLua::Function base class which may be
+   * more appropriate when a userdata object is to be used as a
+   * function.
+   *
+   * @param args list of passed arguments.
+   * @param min_count Minimum expected arguments count.
+   * @param max_count Maximum expected arguments count or 0 if no limit.
+   * @param ... List of @ref QtLua::Value::ValueType matching expected 
+   *   arguments type. At least @tt{max(min_count, max_count)}
+   *   types must be passed. @ref QtLua::Value::TNone may be 
+   *   used as wildcard. Last specified type is expected for
+   *   all arguments above @tt min_count when @tt {max_count == 0}.
+   */
+  static void meta_call_check_args(const Value::List &args, int min_count, int max_count, ...);
 
   /**
    * This function may be reimplemented to further modify completion

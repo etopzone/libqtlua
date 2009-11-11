@@ -151,10 +151,7 @@ public:
    */
   struct List : public QList<Value>
   {
-    /** Create an empty value list */
     inline List();
-
-    /** Create value list copy */
     inline List(const List &vl);
 
     /** Create value list with one @ref Value object */
