@@ -1,6 +1,6 @@
 
  The QtLua library aims to make Qt4 applications scriptable
- using the @url{Lua} http://www.lua.org/ scripting language. It is an
+ using the @url http://www.lua.org/ {Lua} scripting language. It is an
  alternative to the QtScript module.
 
  QtLua does not generate or use generated binding code for Qt. Instead it

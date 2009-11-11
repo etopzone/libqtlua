@@ -57,7 +57,6 @@ public:
 
   QTLUA_REFTYPE(ListItem);
 
-  /** Create a new item list container. */
   ListItem();
   ~ListItem();
 

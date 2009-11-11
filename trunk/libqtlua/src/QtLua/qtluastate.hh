@@ -86,7 +86,6 @@ class State : public QObject
 
 public:
 
-  /** Create a lua interpreter state object. */
   State();
 
   /** 

@@ -50,7 +50,6 @@ namespace QtLua {
     /** Construct reference with given table and key. */
     ValueRef(const Value &table, const Value &key);
 
-    /** Copy reference object. */
     ValueRef(const ValueRef &ref);
 
     /** Assign new value to reference. */

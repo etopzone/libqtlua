@@ -77,9 +77,7 @@ public:
   /** Create a new Item with given name */
   Item(const String &name = "");
 
-  /** Create a new Item copy */
   Item(const Item &item);
-
   ~Item();
 
   /** Insert this item in parent container, remove from existing parent if any */
