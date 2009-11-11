@@ -1,9 +1,9 @@
 
-AC_INIT(libqtlua, 1.0.0b)
+AC_INIT(libqtlua, 1.1)
 
 AC_CONFIG_AUX_DIR([build])
 
-AM_INIT_AUTOMAKE(libqtlua, 1.0.0b)
+AM_INIT_AUTOMAKE(libqtlua, 1.1)
 AC_CONFIG_HEADERS(config.hh)
 
 AC_PROG_CXX

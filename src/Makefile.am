@@ -18,7 +18,6 @@ libqtlua_la_SOURCES = $(BUILT_SOURCES) qtluaconsole.cc qtluaenum.cc		\
 
 libqtlua_la_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 libqtlua_la_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS)
-libqtlua_la_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags) -version-info 1:0:0
+libqtlua_la_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags) -release 1.1
 libqtlua_la_LIBADD   = $(QT_LIBS) $(LIBADD)
-
 
