@@ -215,6 +215,24 @@ int main()
   Foo f;
 }
 _ASEOF
+
+  AC_MSG_CHECKING([Qt spec to use for the host system])
+  AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
+  case $host_os in
+    *linux* ) QMAKESPEC="-spec linux-g++" ;;
+    *freebsd* ) QMAKESPEC="-spec freebsd-g++" ;;
+    *openbsd* ) QMAKESPEC="-spec openbsd-g++" ;;
+    *netbsd* ) QMAKESPEC="-spec netbsd-g++" ;;
+    *darwin* )
+	  QMAKESPEC="-spec macx-g++" 
+	  at_darwin="yes"
+	  ;;
+    *mingw* ) QMAKESPEC="-spec win32-g++" ;;
+           * ) AC_MSG_ERROR([No Qt spec defined for $host_os, please edit autotroll.m4.]) ;;
+  esac
+  AC_MSG_RESULT([$QMAKESPEC])
+
+
   if $QMAKE -project; then :; else
     AC_MSG_ERROR([Calling $QMAKE -project failed.])
   fi
@@ -237,16 +255,10 @@ m4_ifval([$3],
   echo "$3" >>"$pro_file"
 ])
 
-  AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
-    case $host_os in
-    *darwin* ) QMAKE="$QMAKE -spec macx-g++" ;;
-           * ) ;;
-  esac
-
   echo "$as_me:$LINENO: Invoking $QMAKE on $pro_file" >&AS_MESSAGE_LOG_FD
   sed 's/^/| /' "$pro_file" >&AS_MESSAGE_LOG_FD
 
-  if $QMAKE; then :; else
+  if $QMAKE $QMAKESPEC; then :; else
     AC_MSG_ERROR([Calling $QMAKE failed.])
   fi
   # Try to compile a simple Qt app.
@@ -339,7 +351,12 @@ instead" >&AS_MESSAGE_LOG_FD
 
   # Find the INCPATH of Qt.
   AC_CACHE_CHECK([for the INCPATH to use with Qt], [at_cv_env_QT_INCPATH],
-  [at_cv_env_QT_INCPATH=`sed "/^INCPATH@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
+  [for i in $(sed "/^INCPATH@<:@^A-Z@:>@*=/!d;s/-I//g;s/\"//g;$qt_sed_filter" $at_mfile) ; do
+      if test -d $i ; then
+	  at_cv_env_QT_INCPATH="$at_cv_env_QT_INCPATH -I $(realpath $i)"
+      fi
+  done
+  ])
   AC_SUBST([QT_INCPATH], [$at_cv_env_QT_INCPATH])
 
   AC_SUBST([QT_CPPFLAGS], ["$at_cv_env_QT_DEFINES $at_cv_env_QT_INCPATH"])
@@ -349,15 +366,6 @@ instead" >&AS_MESSAGE_LOG_FD
   [at_cv_env_QT_LDFLAGS=`sed "/^LFLAGS@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
   AC_SUBST([QT_LFLAGS], [$at_cv_env_QT_LDFLAGS])
   AC_SUBST([QT_LDFLAGS], [$at_cv_env_QT_LDFLAGS])
-
-  AC_MSG_CHECKING([whether host operating system is Darwin])
-  at_darwin="no"
-  case $host_os in
-    darwin*)
-      at_darwin="yes"
-      ;;
-  esac
-  AC_MSG_RESULT([$at_darwin])
 
   # Find the LIBS of Qt.
   AC_CACHE_CHECK([for the LIBS to use with Qt], [at_cv_env_QT_LIBS],
