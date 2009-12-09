@@ -242,9 +242,10 @@
    properties... This userdata value is an internal @ref QtLua::UserData
    based wrapper with a pointer to the actual @ref QObject.
 
-   Because we have no way to know if other C++ pointers to the wrapped @ref QObject
-   exist, we have to decide if the wrapper is the @ref QObject owner to
-   take the right action when the wrapper get garbage collected.
+   We have no way to know if C++ pointers to the wrapped @ref QObject
+   exist or if the wrapper will be the single owner. Unfortunately we
+   still have to take the right action when the wrapper get garbage
+   collected.
 
    The following rules apply:
    @list
