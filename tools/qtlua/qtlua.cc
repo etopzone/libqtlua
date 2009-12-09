@@ -2,7 +2,7 @@
     This file is part of LibQtLua.
 
     LibQtLua is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
+    it under the terms of the GNU Lesser General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
@@ -11,8 +11,13 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
+    You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
+
+    Additional Terms 7.b of GPLv3 applies to this file: Requiring
+    preservation of specified reasonable legal notices or author
+    attributions in that material or in the Appropriate Legal Notices
+    displayed by works containing it;
 
     Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
@@ -52,7 +57,8 @@ int main(int argc, char *argv[])
 	      }
 	    else
 	      {
-		std::cout
+		std::cerr
+		  << "QtLua Copyright (C) 2008, Alexandre Becoulet" << std::endl
 		  << "usage: qtlua [options] luafiles ..." << std::endl
 		  << "  -i --interactive    show a lua console dialog" << std::endl;
 	      }
