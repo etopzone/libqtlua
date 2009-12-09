@@ -352,8 +352,9 @@ instead" >&AS_MESSAGE_LOG_FD
   # Find the INCPATH of Qt.
   AC_CACHE_CHECK([for the INCPATH to use with Qt], [at_cv_env_QT_INCPATH],
   [for i in $(sed "/^INCPATH@<:@^A-Z@:>@*=/!d;s/-I//g;s/\"//g;$qt_sed_filter" $at_mfile) ; do
-      if test -d $i ; then
-	  at_cv_env_QT_INCPATH="$at_cv_env_QT_INCPATH -I $(realpath $i)"
+      d=`echo -n $i | sed "s:^\(^\(\.\.\)\?/.*\)\|.*:\1:;s:^\.\./:$TMPDIR/:;:ok;s:/[[^/.]]\+/\.\./:/:g;tok"`
+      if test -d "$d" ; then
+         at_cv_env_QT_INCPATH="$at_cv_env_QT_INCPATH -I $d"
       fi
   done
   ])
