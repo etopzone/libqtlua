@@ -7,7 +7,7 @@ if EXAMPLES
 SUBDIRS += examples
 endif
 
-EXTRA_DIST = bootstrap
+EXTRA_DIST = bootstrap COPYING.LESSER
 
 doc: doc/manual doc/internals
 
