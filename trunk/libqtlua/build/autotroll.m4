@@ -104,7 +104,7 @@ AC_DEFUN([AT_WITH_QT],
 dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
   AC_ARG_WITH([qt],
               [AS_HELP_STRING([--with-qt],
-                 [Path to Qt @<:@Look in PATH and /usr/local/Trolltech@:>@])],
+                 [Path to Qt tools[[Look in PATH and /usr/local/Trolltech]]])],
               [QT_PATH=$withval], [QT_PATH=])
 
   # Find Qt.
@@ -139,6 +139,7 @@ dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
   fi
 
   # If we don't know the path to Qt, guess it from the path to qmake.
+  AC_MSG_CHECKING([Qt install bin path])
   if test x"$QT_PATH" = x; then
     QT_PATH=`dirname "$QMAKE"`
   fi
@@ -146,11 +147,15 @@ dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
     AC_MSG_ERROR([Cannot find the path to your Qt install. Use --with-qt.])
   fi
   AC_SUBST([QT_PATH])
+  AC_MSG_RESULT($QT_PATH)
+
+  QTDIR="$QT_PATH/.."
+  export QTDIR
 
   # Get ready to build a test-app with Qt.
 
   # Look for a writable temporary directory.
-  AC_ARG_VAR([TMPDIR], [A temporary directory with write access @<:@/tmp@:>@])
+  AC_ARG_VAR([TMPDIR], [A temporary directory with write access [[/tmp]]])
   if test x"$TMPDIR" = x || test ! -d "$TMPDIR" || test ! -w "$TMPDIR"; then
     echo "$as_me:$LINENO: no TMPDIR or bad TMPDIR ($TMPDIR)" \
       >&AS_MESSAGE_LOG_FD
@@ -217,7 +222,6 @@ int main()
 _ASEOF
 
   AC_MSG_CHECKING([Qt spec to use for the host system])
-  AC_REQUIRE([AC_CANONICAL_HOST])[]dnl
   case $host_os in
     *linux* ) QMAKESPEC="-spec linux-g++" ;;
     *freebsd* ) QMAKESPEC="-spec freebsd-g++" ;;
@@ -314,10 +318,10 @@ instead" >&AS_MESSAGE_LOG_FD
   # It starts by removing the beginning of the line, removing references to
   # SUBLIBS, removing unnecessary whitespaces at the beginning, and prefixes
   # all variable uses by QT_.
-  qt_sed_filter='s///;
-                 s/$(SUBLIBS)//g;
-                 s/^ *//;
-                 s/\$(\(@<:@A-Z_@:>@@<:@A-Z_@:>@*\))/$(QT_\1)/g'
+  qt_sed_filter='s/^[[^=]]*=//;
+                 s/\$(SUBLIBS)//g;
+		 s:\$(QTDIR):'$QTDIR':g;
+                 s/\$(\([[A-Z_]][[A-Z_]]*\))/$(qmake_\1)/g'
 
   # Find the Makefile (qmake happens to generate a fake Makefile which invokes
   # a Makefile.Debug or Makefile.Release). We we have both, we'll pick the
@@ -336,22 +340,22 @@ instead" >&AS_MESSAGE_LOG_FD
 
   # Find the DEFINES of Qt (should have been named CPPFLAGS).
   AC_CACHE_CHECK([for the DEFINES to use with Qt], [at_cv_env_QT_DEFINES],
-  [at_cv_env_QT_DEFINES=`sed "/^DEFINES@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
+  [at_cv_env_QT_DEFINES=`sed "/^DEFINES[[^A-Z]]*=/!d;$qt_sed_filter" $at_mfile`])
   AC_SUBST([QT_DEFINES], [$at_cv_env_QT_DEFINES])
 
   # Find the CFLAGS of Qt (We can use Qt in C?!)
   AC_CACHE_CHECK([for the CFLAGS to use with Qt], [at_cv_env_QT_CFLAGS],
-  [at_cv_env_QT_CFLAGS=`sed "/^CFLAGS@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
+  [at_cv_env_QT_CFLAGS=`sed "/^CFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^ ]]*//g" $at_mfile`])
   AC_SUBST([QT_CFLAGS], [$at_cv_env_QT_CFLAGS])
 
   # Find the CXXFLAGS of Qt.
   AC_CACHE_CHECK([for the CXXFLAGS to use with Qt], [at_cv_env_QT_CXXFLAGS],
-  [at_cv_env_QT_CXXFLAGS=`sed "/^CXXFLAGS@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
+  [at_cv_env_QT_CXXFLAGS=`sed "/^CXXFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^ ]]*//g" $at_mfile`])
   AC_SUBST([QT_CXXFLAGS], [$at_cv_env_QT_CXXFLAGS])
 
   # Find the INCPATH of Qt.
   AC_CACHE_CHECK([for the INCPATH to use with Qt], [at_cv_env_QT_INCPATH],
-  [for i in $(sed "/^INCPATH@<:@^A-Z@:>@*=/!d;s/-I//g;s/\"//g;$qt_sed_filter" $at_mfile) ; do
+  [for i in $(sed "/^INCPATH[[^A-Z]]*=/!d;s/-I//g;s/\"//g;$qt_sed_filter" $at_mfile) ; do
       d=`echo -n $i/ | sed -e "s://*:/:g" \                                                                 
                           -e "\:^\.\./:bn" -e "\:^/:bn" \                                                   
                           -e "d;q" \                                                                        
@@ -369,13 +373,13 @@ instead" >&AS_MESSAGE_LOG_FD
 
   # Find the LFLAGS of Qt (Should have been named LDFLAGS)
   AC_CACHE_CHECK([for the LDFLAGS to use with Qt], [at_cv_env_QT_LDFLAGS],
-  [at_cv_env_QT_LDFLAGS=`sed "/^LFLAGS@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`])
+  [at_cv_env_QT_LDFLAGS=`sed "/^LFLAGS[[^A-Z]]*=/!d;$qt_sed_filter" $at_mfile`])
   AC_SUBST([QT_LFLAGS], [$at_cv_env_QT_LDFLAGS])
   AC_SUBST([QT_LDFLAGS], [$at_cv_env_QT_LDFLAGS])
 
   # Find the LIBS of Qt.
   AC_CACHE_CHECK([for the LIBS to use with Qt], [at_cv_env_QT_LIBS],
-  [at_cv_env_QT_LIBS=`sed "/^LIBS@<:@^A-Z@:>@*=/!d;$qt_sed_filter" $at_mfile`
+  [at_cv_env_QT_LIBS=`sed "/^LIBS[[^A-Z]]*=/!d;$qt_sed_filter" $at_mfile`
    if test x$at_darwin = xyes; then
      # Fix QT_LIBS: as of today Libtool (GNU Libtool 1.5.23a) doesn't handle
      # -F properly. The "bug" has been fixed on 22 October 2006
