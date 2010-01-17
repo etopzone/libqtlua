@@ -100,6 +100,8 @@ namespace QtLua {
     Value meta_index(State &ls, const Value &key);
     void meta_newindex(State &ls, const Value &key, const Value &value);
     Ref<Iterator> new_iterator(State &ls);
+    bool support(enum Operation c);
+
     void completion_patch(String &path, String &entry, int &offset);
     String get_type_name() const;
     String get_value_str() const;

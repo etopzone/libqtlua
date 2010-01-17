@@ -85,6 +85,37 @@ namespace QtLua {
   }
 
   template <class Container>
+  bool QHashProxyRo<Container>::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container>
+  bool QHashProxy<Container>::support(enum UserData::Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpNewindex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container>
   void QHashProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_hash)

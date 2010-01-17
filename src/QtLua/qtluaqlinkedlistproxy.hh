@@ -55,6 +55,7 @@ public:
   void set_container(Container *list);
 
   Ref<Iterator> new_iterator(State &ls);
+  bool support(enum Operation c);
 
 private:
 

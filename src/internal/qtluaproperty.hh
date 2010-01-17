@@ -53,6 +53,7 @@ namespace QtLua {
     // FIXME handle enumerator
     Value meta_index(State &ls, const Value &key);
     Ref<Iterator> new_iterator(State &ls);
+    bool support(enum Operation c);
 #endif
 
     String get_value_str() const;

@@ -51,7 +51,7 @@ namespace QtLua {
     QMetaMethod mm = _mo->method(_index);
 
     if (mm.methodType() != QMetaMethod::Slot)
-      throw String("Can not call non-slot methods.");
+      throw String("Can't call non-slot methods.");
 
     void *qt_args[11];
     int qt_tid[11];
@@ -132,6 +132,17 @@ namespace QtLua {
     const char * t = mm.typeName();
 
     return String(*t ? t : "void") + " " + _mo->className() + "::" + mm.signature();
+  }
+
+  bool Method::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpCall:
+	return true;
+      default:
+	return false;
+      }
   }
 
   void Method::completion_patch(String &path, String &entry, int &offset)

@@ -54,6 +54,18 @@ namespace QtLua {
   }
 
   template <class Container>
+  bool QLinkedListProxy<Container>::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIterate:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container>
   QLinkedListProxy<Container>::ProxyIterator::ProxyIterator(State &ls, QLinkedListProxy::ptr proxy)
     : _ls(ls),
       _proxy(proxy),

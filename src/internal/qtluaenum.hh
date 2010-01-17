@@ -49,6 +49,7 @@ namespace QtLua {
   private:
     Value meta_index(State &ls, const Value &key);
     Ref<Iterator> new_iterator(State &ls);
+    bool support(enum Operation c);
     String get_value_str() const;
     void completion_patch(String &path, String &entry, int &offset);
   };

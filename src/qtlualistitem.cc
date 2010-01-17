@@ -122,6 +122,20 @@ Iterator::ptr ListItem::new_iterator(State &ls)
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
 }
 
+bool ListItem::support(enum Operation c)
+{
+  switch (c)
+    {
+    case UserData::OpIndex:
+    case UserData::OpNewindex:
+    case UserData::OpIterate:
+    case UserData::OpLen:
+      return true;
+    default:
+      return false;
+    }
+}
+
 void ListItem::change_indexes(int first)
 {
   for (int i = first; i < get_child_count(); i++)

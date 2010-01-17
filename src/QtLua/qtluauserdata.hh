@@ -88,6 +88,11 @@ public:
       OpEq,       //< Lua equal binary operator @tt ==
       OpLt,       //< Lua less than binary operator @tt <
       OpLe,       //< Lua less than or equal binary operator @tt <=
+
+      OpIndex, 	  //< Table index operation
+      OpNewindex, //< Table newindex operation
+      OpCall,     //< Function call operation
+      OpIterate,  //< Iteration operation
     };
 
   /** Get a bare C++ typename from type */
@@ -160,6 +165,9 @@ public:
    * object pointer. This is used for mainly for pretty printing.
    */
   virtual String get_value_str() const;
+
+  /** Check given operation support */
+  virtual bool support(enum Operation c);
 
   /** Userdata compare for equality, default implementation compares the @tt this pointers */
   virtual bool operator==(const UserData &ud);
