@@ -85,6 +85,37 @@ namespace QtLua {
   }
 
   template <class Container, bool resize>
+  bool QVectorProxyRo<Container, resize>::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container, bool resize>
+  bool QVectorProxy<Container, resize>::support(enum UserData::Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpNewindex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container, bool resize>
   void QVectorProxy<Container, resize>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_vector)

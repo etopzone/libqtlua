@@ -114,6 +114,11 @@ Ref<Iterator> UserData::new_iterator(State &ls)
   throw String("Table iteration not handled by % type").arg(get_type_name());
 }
 
+bool UserData::support(enum Operation c)
+{
+  return false;
+}
+
 void UserData::meta_call_check_args(const Value::List &args,
 				    int min_count, int max_count, ...) 
 {

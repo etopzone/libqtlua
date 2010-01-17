@@ -325,6 +325,19 @@ namespace QtLua {
     return QTLUA_REFNEW(QObjectIterator, ls, *this);
   }
 
+  bool QObjectWrapper::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpNewindex:
+      case UserData::OpIterate:
+	return true;
+      default:
+	return false;
+      }
+  }
+
   String QObjectWrapper::get_type_name() const
   {
     String res(UserData::get_type_name());

@@ -41,6 +41,18 @@ namespace QtLua {
     return QTLUA_REFNEW(EnumIterator, ls, _mo->enumerator(_index));
   }
 
+  bool Enum::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpIterate:
+	return true;
+      default:
+	return false;
+      }
+  }
+
   String Enum::get_value_str() const
   {
     QMetaEnum me = _mo->enumerator(_index);

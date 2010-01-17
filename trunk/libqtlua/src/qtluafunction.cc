@@ -66,6 +66,17 @@ void Function::completion_patch(String &path, String &entry, int &offset)
   offset--;
 }
 
+bool Function::support(enum Operation c)
+{
+  switch (c)
+    {
+    case UserData::OpCall:
+      return true;
+    default:
+      return false;
+    }
+}
+
 void Function::ref_drop(int count)
 {
   // Drop reference to plugin loader if statically defined Function

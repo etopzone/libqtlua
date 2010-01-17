@@ -67,6 +67,20 @@ namespace QtLua {
   }
 
   template <class T>
+  bool UserObject<T>::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpNewindex:
+      case UserData::OpIterate:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class T>
   UserObject<T>::UserObjectIterator::UserObjectIterator(State &ls, UserObject<T>::ptr obj)
     : _ls(ls),
       _obj(obj),

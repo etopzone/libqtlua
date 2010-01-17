@@ -81,7 +81,7 @@ namespace QtLua {
 	_member_cache.insert(name, QTLUA_REFNEW(Enum, mo, index));
       }
 
-    // Add 
+    // Add property members
     for (int i = 0; i < mo->propertyCount(); i++)
       {
 	int index = mo->propertyOffset() + i;

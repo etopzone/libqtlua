@@ -85,6 +85,37 @@ namespace QtLua {
   }
 
   template <class Container>
+  bool QListProxyRo<Container>::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container>
+  bool QListProxy<Container>::support(enum UserData::Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpNewindex:
+      case UserData::OpIterate:
+      case UserData::OpLen:
+      case UserData::OpUnm:
+	return true;
+      default:
+	return false;
+      }
+  }
+
+  template <class Container>
   void QListProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_list)

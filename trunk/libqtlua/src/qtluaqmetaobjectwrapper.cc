@@ -45,6 +45,18 @@ namespace QtLua {
     return QTLUA_REFNEW(QObjectIterator, ls, _mo);
   }
 
+  bool QMetaObjectWrapper::support(enum Operation c)
+  {
+    switch (c)
+      {
+      case UserData::OpIndex:
+      case UserData::OpIterate:
+	return true;
+      default:
+	return false;
+      }
+  }
+
   void QMetaObjectWrapper::completion_patch(String &path, String &entry, int &offset)
   {
     entry += ".";
