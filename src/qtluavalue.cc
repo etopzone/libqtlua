@@ -153,7 +153,7 @@ bool Value::connect(QObject *obj, const char *signal)
 
     qow->_lua_connect(sigid, *this);
 
-  } catch (String &e) {
+  } catch (const String &e) {
     return false;
   }
   return true;
@@ -351,16 +351,21 @@ String Value::type_name_u() const
 
   if (t == TUserData)
     {
-      UserData::ptr ud = UserData::get_ud(_st, -1);
-      lua_pop(_st, 1);
-      String res(ud.valid() ? ud->get_type_name() : "QtLua::UserData");
-      return res;
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	UserData::ptr ud = UserData::get_ud(_st, -1);
+	lua_pop(_st, 1);
+	if (ud.valid())
+	  return ud->get_type_name();
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (const String &e) {
+      }
+#endif
     }
-  else
-    {
-      lua_pop(_st, 1);
-      return String("lua::") + lua_typename(_st, t);
-    }
+
+  lua_pop(_st, 1);
+  return String("lua::") + lua_typename(_st, t);
 }
 
 Value::Value(lua_State *st, int index)
@@ -464,9 +469,17 @@ String Value::to_string_p(lua_State *st, int index)
       return "(lua::function)";
 
     case TUserData: {
-      UserData::ptr ud = UserData::get_ud(st, index);
-      String res(ud.valid() ? ud->get_value_str() : ud->UserData::get_value_str());
-      return res;
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	UserData::ptr ud = UserData::get_ud(st, index);
+	String res(ud.valid() ? ud->get_value_str() : ud->UserData::get_value_str());
+	return res;
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (const String &e) {
+	// goto default
+      }
+#endif
     }
 
     default: {
@@ -515,9 +528,16 @@ UserData::ptr Value::to_userdata_null() const
 
   if (lua_type(_st, -1) == LUA_TUSERDATA)
     {
-      UserData::ptr ptr = UserData::get_ud(_st, -1);
-      lua_pop(_st, 1);
-      return ptr;
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	UserData::ptr ptr = UserData::get_ud(_st, -1);
+	lua_pop(_st, 1);
+	return ptr;
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (const String &e) {
+      }
+#endif
     }
 
   lua_pop(_st, 1);
@@ -551,8 +571,6 @@ QByteArray Value::to_bytecode() const
 
 bool Value::operator==(const Value &lv) const
 {
-  bool		res;;
-
   if (lv._st != _st)
     return false;
 
@@ -562,24 +580,27 @@ bool Value::operator==(const Value &lv) const
   if ((lua_type(_st, -1) == TUserData) &&
       (lua_type(_st, -2) == TUserData))
     {
-      UserData::ptr a = UserData::get_ud(_st, -1);
-      UserData::ptr b = UserData::get_ud(_st, -2);
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	UserData::ptr a = UserData::get_ud(_st, -1);
+	UserData::ptr b = UserData::get_ud(_st, -2);
 
-      res = (a.valid() == b.valid()) && (!a.valid() || (*a == *b));
-    }
-  else
-    {
-      res = lua_equal(_st, -1, -2);
+	lua_pop(_st, 2);
+	return (a.valid() == b.valid()) && (!a.valid() || (*a == *b));
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (const String &e) {
+      }
+#endif
     }
 
+  bool res = lua_equal(_st, -1, -2);
   lua_pop(_st, 2);
   return res;
 }
 
 bool Value::operator<(const Value &lv) const
 {
-  bool		res;;
-
   if (lv._st != _st)
     return false;
 
@@ -589,16 +610,21 @@ bool Value::operator<(const Value &lv) const
   if ((lua_type(_st, -1) == TUserData) &&
       (lua_type(_st, -2) == TUserData))
     {
-      UserData::ptr a = UserData::get_ud(_st, -1);
-      UserData::ptr b = UserData::get_ud(_st, -2);
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	UserData::ptr a = UserData::get_ud(_st, -1);
+	UserData::ptr b = UserData::get_ud(_st, -2);
 
-      res = a.valid() && b.valid() && (*a < *b);
-    }
-  else
-    {
-      res = lua_lessthan(_st, -1, -2);
+	lua_pop(_st, 2);
+	return a.valid() && b.valid() && (*a < *b);
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (const String &e) {
+      }
+#endif
     }
 
+  bool res = lua_lessthan(_st, -1, -2);
   lua_pop(_st, 2);
   return res;
 }
@@ -669,8 +695,16 @@ uint qHash(const Value &lv)
       break;
 
     case LUA_TUSERDATA: {
-      QtLua::Ref<UserData> ud = UserData::get_ud(lv._st, -1);
-      res = (uint)(long)ud.ptr();
+#ifndef QTLUA_NO_USERDATA_CHECK
+      try {
+#endif
+	QtLua::Ref<UserData> ud = UserData::get_ud(lv._st, -1);
+	res = (uint)(long)ud.ptr();
+#ifndef QTLUA_NO_USERDATA_CHECK
+      } catch (...) {
+	res = (uint)(long)lua_touserdata(lv._st, -1);
+      }
+#endif
       break;
     }
 
