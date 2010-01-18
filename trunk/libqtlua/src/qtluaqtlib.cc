@@ -35,6 +35,7 @@
 #include <QtLua/Function>
 #include <internal/QObjectWrapper>
 #include <QtLua/QHashProxy>
+#include <QtLua/TableDialog>
 
 #include <internal/Method>
 #include <internal/MetaCache>
@@ -856,6 +857,64 @@ namespace QtLua {
     } dialog_msg_warning;
 
     dialog_msg_warning.register_(ls, "qt.dialog.msg_warning");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 5, Value::TNone, Value::TString, Value::TBool, Value::TBool, Value::TNumber);
+
+	TableDialog::table_dialog(0, args[0], get_arg<String>(args, 1, ""),
+				  get_arg<Value::Bool>(args, 2, Value::True),
+				  get_arg<Value::Bool>(args, 3, Value::False),
+				  (TableDialog::ColumnIds)get_arg<int>(args, 4, 0)
+				  );
+
+	return Value::List();
+      }
+
+      String get_description() const
+      {
+	return "expose a lua table in a list view";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.dialog.show_table( table [ , \"title\", recursive, editable ] )");
+      }
+
+    } dialog_show_table;
+
+    dialog_show_table.register_(ls, "qt.dialog.show_table");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString, Value::TBool, Value::TBool);
+
+	return Value(ls, new TableDialog(0, args[0],
+					 get_arg<Value::Bool>(args, 2, Value::True),
+					 get_arg<Value::Bool>(args, 3, Value::False)), true);
+      }
+
+      String get_description() const
+      {
+	return "dynamically create a new QtLua::TableDialog";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.dialog.new_table_dialog( table [ , recursive, editable ] )");
+      }
+
+    } new_table_dialog;
+
+    new_table_dialog.register_(ls, "qt.dialog.new_table_dialog");
 
   }
 

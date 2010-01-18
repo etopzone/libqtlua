@@ -4,6 +4,8 @@ pkginclude_HEADERS = \
 	Function qtluafunction.hh qtluafunction.hxx \
 	Console qtluaconsole.hh qtluaconsole.hxx \
 	Item qtluaitem.hh qtluaitem.hxx	\
+	TableModel qtluatablemodel.hh \
+	TableDialog qtluatabledialog.hh \
 	ItemModel qtluaitemmodel.hh \
 	ItemSelectionModel qtluaitemselectionmodel.hh qtluaitemselectionmodel.hxx \
 	Iterator qtluaiterator.hh qtluaiterator.hxx \

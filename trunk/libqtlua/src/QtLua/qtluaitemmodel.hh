@@ -33,7 +33,7 @@ namespace QtLua {
 class State;
 
   /**
-   * @short Qt Model/View model class
+   * @short Qt Model/View item model class
    * @header QtLua/ItemModel
    * @module {Model/View}
    *
@@ -47,7 +47,7 @@ class State;
    * lua immediately update to the Qt view widget.
    *
    * Usage example:
-   * @example examples/cpp/mvc/treeview.cc:1
+   * @example examples/cpp/mvc/itemtreeview.cc:1
    */
 
 class ItemModel : public QAbstractItemModel
@@ -81,10 +81,10 @@ private:
   QVariant	data(const QModelIndex &index, int role) const;
   Qt::ItemFlags	flags(const QModelIndex &index) const;
   QVariant	headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-  QModelIndex	index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
+  QModelIndex	index(int row, int column, const QModelIndex &parent) const;
   QModelIndex	parent(const QModelIndex &index) const;
-  int		rowCount(const QModelIndex &parent = QModelIndex()) const;
-  int		columnCount(const QModelIndex &parent = QModelIndex()) const;
+  int		rowCount(const QModelIndex &parent) const;
+  int		columnCount(const QModelIndex &parent) const;
   bool		setData(const QModelIndex & index, const QVariant & value, int role);
   bool		dropMimeData(const QMimeData *data, Qt::DropAction action,
 			     int row, int column, const QModelIndex & parent);
