@@ -32,8 +32,10 @@
    @ref QtLua::Function objects invocable from lua.
   @end group
 
-  @group Qt @ref QtLua::ItemModel {Model/View base classes} are provided to easily develop
-   hierarchical data structures accessible from both lua script and Qt view widgets.
+  @group Qt Model/View classes are provided to expose various script objects to user:
+   @ref QtLua::ItemModel class enable development of hierarchical C++ data structures
+   accessible from both lua script and Qt view widgets whereas @ref QtLua::TableModel class
+   can be used to expose lua tables to Qt views.
   @end group
 
   @group Qt template containers can be exposed to lua script with just a proxy

@@ -1,13 +1,21 @@
 
 include $(top_srcdir)/build/autotroll.mk
 
-noinst_PROGRAMS = treeview
+noinst_PROGRAMS = itemtreeview tabletreeview
 
-treeview_SOURCES = treeview.cc treeview.moc.cc treeview.hh
-treeview_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
-treeview_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
-treeview_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
-treeview_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
+itemtreeview_SOURCES = itemtreeview.cc itemtreeview.moc.cc itemtreeview.hh
+itemtreeview_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
+itemtreeview_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
+itemtreeview_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
+itemtreeview_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
 
-BUILT_SOURCES = treeview.moc.cc
+BUILT_SOURCES = itemtreeview.moc.cc
+
+tabletreeview_SOURCES = tabletreeview.cc tabletreeview.moc.cc tabletreeview.hh
+tabletreeview_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
+tabletreeview_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
+tabletreeview_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
+tabletreeview_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
+
+BUILT_SOURCES = tabletreeview.moc.cc
 
