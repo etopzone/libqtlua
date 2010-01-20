@@ -96,7 +96,7 @@ namespace QtLua {
 
   int TableModel::columnCount(const QModelIndex &parent) const
   {
-    return 3;
+    return _table->_attr & HideType ? 2 : 3;
   }
 
   QVariant TableModel::data(const QModelIndex &index, int role) const
@@ -114,11 +114,11 @@ namespace QtLua {
 
 	  switch (index.column())
 	    {
-	    case 0:
+	    case ColKey:
 	      return QVariant(t->get_lua_index(index.row()));
-	    case 1:
+	    case ColType:
 	      return QVariant(t->get_value(index.row()).type_name_u());
-	    case 2:
+	    case ColValue:
 	      return QVariant(t->get_value(index.row()).to_string_p());
 	    }
 
@@ -140,10 +140,21 @@ namespace QtLua {
 
     Qt::ItemFlags res = Qt::ItemIsEnabled;
 
-    if ((t->_attr & Editable) &&
-	index.column() == 2 &&	// only value column
-	!t->is_table(index.row())) // prevent edit if already explored table
-      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+    if (t->_attr & Editable)
+      {
+	switch (index.column())
+	  {
+	  case ColValue:
+	    if (!t->is_table(index.row()))		// prevent edit if already explored table
+	      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+	    break;
+
+	  case ColKey:
+	    if (t->_attr & EditKey)
+	      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+	    break;
+	  }
+      }
 
     if (t->_attr & EditRemove)
       res |= Qt::ItemIsSelectable;
@@ -164,8 +175,11 @@ namespace QtLua {
     if (!value.canConvert(QVariant::ByteArray))
       return false;
 
+    State &state = t->_value.get_state();
     String input = value.toString();
-    Value newvalue(t->_value.get_state());
+    Value newvalue(state);
+    Value oldvalue(t->get_value(index.row()));
+    Value::ValueType oldtype = oldvalue.type();
 
     try {
 
@@ -183,7 +197,7 @@ namespace QtLua {
       // Do not use lua, only handle string and number cases
       else
 	{
-	  bool ok;
+	  bool ok = false;
 	  double number = value.toDouble(&ok);
 
 	  if (ok)
@@ -192,6 +206,7 @@ namespace QtLua {
 	    {
 	      String str = value.toByteArray();
 
+	      // strip double quotes if any
 	      if (str.size() > 1 && str.startsWith('"') && str.endsWith('"'))
 		newvalue = String(str.mid(1, str.size() - 2));
 	      else
@@ -199,24 +214,49 @@ namespace QtLua {
 	    }
 	}
 
-      // check type change
-      if (t->_attr & EditFixedType)
-	{
-	  Value::ValueType type_to = newvalue.type();
-	  Value::ValueType type_from = t->get_value(index.row()).type();
+      Value::ValueType newtype = newvalue.type();
 
-	  if (type_from != type_to)
-	    throw String("% value type must be preserved").arg(Value::type_name(type_from));
+      switch (index.column())
+	{
+	case ColValue:
+
+	  // convert to string type when enforced
+	  if ((t->_attr & EditFixedType) &&
+	      oldtype == Value::TString &&
+	      newtype != Value::TString)
+	    {
+	      newvalue = newvalue.to_string_p();
+	      newtype = Value::TString;
+	    }
+
+	  // check type change
+	  if ((t->_attr & EditFixedType) &&
+	      (oldtype != newtype))
+	    throw String("% value type must be preserved").arg(Value::type_name(oldtype));
+
+	  t->set_value(index.row(), newvalue);
+	  return true;
+
+	case ColKey: {
+	  String str = newvalue.to_string();
+	  Value old = t->get_value(index.row());
+
+	  t->set_value(index.row(), Value(state));
+	  t->set_lua_index(index.row(), str);
+	  t->set_value(index.row(), old);
+	  return true;
+	}
+
+	default:
+	  ;
 	}
 
     } catch (const String &s) {
       QMessageBox::critical(0, "Value update error",
 			    String("\"%\" expression error: %").arg(input).arg(s));
-      return false;
     }
 
-    t->set_value(index.row(), newvalue);
-    return true;
+    return false;
   }
 
   QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -229,11 +269,11 @@ namespace QtLua {
 
     switch (section)
       {
-      case 0:
+      case ColKey:
 	return QVariant("key");
-      case 1:
+      case ColType:
 	return QVariant("type");
-      case 2:
+      case ColValue:
 	return QVariant("value");
       default:
 	return QVariant();

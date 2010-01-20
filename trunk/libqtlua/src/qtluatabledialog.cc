@@ -89,19 +89,15 @@ namespace QtLua {
   void TableDialog::clicked(const QModelIndex & index) const
   {
     _eb->setEnabled(_model->flags(index) & Qt::ItemIsEditable);
+    // FIXME try to set current index to editable column in row
   }
 
   void TableDialog::table_dialog(QWidget *parent, const Value &root,
 				 const QString &title, TableModel::Attributes attr,
-				 ColumnIds hide, bool tableview)
+				 bool tableview)
   {
     TableDialog d(parent, root, attr, tableview);
     d.setWindowTitle(title);
-#if 0
-    for (int i = 0; i < 3; i++)
-      if (hide & (1 << i))
-	d._view->hideColumn(i);
-#endif
     d.exec();
   }
 

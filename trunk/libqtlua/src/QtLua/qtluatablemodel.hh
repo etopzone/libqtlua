@@ -37,18 +37,19 @@ namespace QtLua {
    * This class can be used to expose lua tables content to Qt view
    * widgets in a flat (list) or hierarchical (tree) manner.
    *
-   * Lua tables and @ref UserData objects with iteration capabilities
-   * are handled. Changes in exposed lua tables do @b not update the
-   * model and the @ref update function must be called. This is
-   * partially due to lack of lua mechanism to implement efficient
-   * table change event yet.
+   * Lua tables and @ref UserData objects with @ref
+   * UserData::OpIterate operation support are handled.
    *
    * Lua tables can be edited from Qt views using this model. The
    * @ref Attribute flags can be used to finely control which editing
    * actions are allowed. User input may be evaluated as a lua
    * expression when editing a table entry.
    *
-   * Only table entries with string or number keys are considered yet.
+   * Only table entries with string or number keys are considered
+   * yet. Changes in exposed lua tables may @b not update the model on
+   * the fly and the @ref update function must be called to refresh on
+   * heavy modifications. This is partially due to lack of lua
+   * mechanism to implement efficient table change event.
    *
    * Usage example:
    * @example examples/cpp/mvc/tabletreeview.cc:1
@@ -65,10 +66,15 @@ namespace QtLua {
 
     enum Attribute
       {
+	AttrNone = 0,		//< @internal
+	AttrAll = -1,		//< @internal
+
 	Recursive = 1,		//< Expose nested tables too.
 	UserDataIter = 2,	//< Iterate over UserData objects too.
+	HideType = 256,		//< Do not show entry type in an additionnal column.
+
 	Editable = 4,		//< Allow editing exposed tables using views.
-	EditFixedType = 8,	//< Allow value type change when editing.
+	EditFixedType = 8,	//< Prevent value type change when editing.
 	EditLuaEval = 16,	//< Evaluate user input as a lua expression.
 	EditInsert = 32,	//< Allow insertion of new entries.
 	EditRemove = 64,	//< Allow deletion of existing entries.
@@ -88,6 +94,12 @@ namespace QtLua {
     void update();
 
   private:
+
+    enum ColumnId
+      {
+	ColKey = 0, ColValue = 1, ColType = 2,
+      };
+
     QModelIndex	index(int row, int column, const QModelIndex &parent) const;
     QModelIndex	parent(const QModelIndex &index) const;
     int		rowCount(const QModelIndex &parent) const;

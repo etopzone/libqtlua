@@ -39,6 +39,11 @@ namespace QtLua {
     return _entries[n]._index;
   }
 
+  void Table::set_lua_index(int n, const String &index)
+  {
+    _entries[n]._index = index;
+  }
+
   bool Table::is_table(int n) const
   {
     return _entries[n]._table != 0;
