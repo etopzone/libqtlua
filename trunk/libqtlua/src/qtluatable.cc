@@ -23,9 +23,10 @@
 
 namespace QtLua {
 
-  Table::Table(const Value &val)
+  Table::Table(const Value &val, TableModel::Attributes attr)
     : _value(val),
-      _parent(0)
+      _parent(0),
+      _attr(attr)
   {
   }
 
@@ -46,6 +47,9 @@ namespace QtLua {
 
   Table * Table::set_table(int n)
   {
+    if (!(_attr & TableModel::Recursive))
+      return NULL;
+
     if (n >= _entries.count())
       return NULL;
 
@@ -60,6 +64,9 @@ namespace QtLua {
     switch (value.type())
       {
       case Value::TUserData:
+	if (!(_attr & TableModel::UserDataIter))
+	  break;
+
 	try {
 	  if (!value.to_userdata()->support(UserData::OpIterate))
 	    break;
@@ -69,7 +76,7 @@ namespace QtLua {
 	}
 
       case Value::TTable:
-	res = new Table(value);
+	res = new Table(value, _attr);
 	res->_parent = this;
 	res->_row = n;
 	e->_table = res;
@@ -114,6 +121,8 @@ namespace QtLua {
 	    break;
 	  }
       }
+
+    qSort(_entries.begin(), _entries.end());
   }
 
 }

@@ -864,12 +864,13 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	meta_call_check_args(args, 1, 5, Value::TNone, Value::TString, Value::TBool, Value::TBool, Value::TNumber);
+	meta_call_check_args(args, 1, 5, Value::TNone, Value::TString,
+			     Value::TNumber, Value::TNumber, Value::TBool);
 
 	TableDialog::table_dialog(0, args[0], get_arg<String>(args, 1, ""),
-				  get_arg<Value::Bool>(args, 2, Value::True),
-				  get_arg<Value::Bool>(args, 3, Value::False),
-				  (TableDialog::ColumnIds)get_arg<int>(args, 4, 0)
+				  (TableModel::Attributes)get_arg<int>(args, 2, 0),
+				  (TableDialog::ColumnIds)get_arg<int>(args, 3, 0),
+				  get_arg<Value::Bool>(args, 4, Value::False)
 				  );
 
 	return Value::List();
@@ -882,7 +883,7 @@ namespace QtLua {
 
       String get_help() const
       {
-	return ("usage: qt.dialog.show_table( table [ , \"title\", recursive, editable ] )");
+	return ("usage: qt.dialog.show_table( table [ , \"title\", attributes ] )");
       }
 
     } dialog_show_table;
@@ -895,11 +896,11 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString, Value::TBool, Value::TBool);
+	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TBool);
 
 	return Value(ls, new TableDialog(0, args[0],
-					 get_arg<Value::Bool>(args, 2, Value::True),
-					 get_arg<Value::Bool>(args, 3, Value::False)), true);
+					 (TableModel::Attributes)get_arg<int>(args, 1, 0),
+					 get_arg<Value::Bool>(args, 2, Value::False)), true);
       }
 
       String get_description() const

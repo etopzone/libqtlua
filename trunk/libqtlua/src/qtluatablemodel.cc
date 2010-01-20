@@ -18,14 +18,14 @@
 
 */
 
+#include <QMessageBox>
 #include <QtLua/TableModel>
 #include <internal/Table>
 
 namespace QtLua {
 
-  TableModel::TableModel(const Value &root, QObject *parent, bool recursive)
-    : _table(new Table(root)),
-      _recursive(recursive)
+  TableModel::TableModel(const Value &root, QObject *parent, Attributes attr)
+    : _table(new Table(root, attr))
   {
   }
 
@@ -44,9 +44,6 @@ namespace QtLua {
   {
     if (!index.isValid())
       return _table;
-
-    if (!_recursive)
-      return NULL;
 
     Table *t = static_cast<Table*>(index.internalPointer());
     return t->set_table(index.row());
@@ -134,10 +131,101 @@ namespace QtLua {
     }
   }
 
+  Qt::ItemFlags TableModel::flags(const QModelIndex &index) const
+  {
+    if (!index.isValid())
+      return 0;
+
+    Table *t = static_cast<Table*>(index.internalPointer());
+
+    Qt::ItemFlags res = Qt::ItemIsEnabled;
+
+    if ((t->_attr & Editable) &&
+	index.column() == 2 &&	// only value column
+	!t->is_table(index.row())) // prevent edit if already explored table
+      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+
+    if (t->_attr & EditRemove)
+      res |= Qt::ItemIsSelectable;
+
+    return res;
+  }
+
+  bool TableModel::setData(const QModelIndex & index, const QVariant & value, int role)
+  {
+    if (!index.isValid())
+      return false;
+
+    Table *t = static_cast<Table*>(index.internalPointer());
+
+    if (role != Qt::EditRole)
+      return false;
+
+    if (!value.canConvert(QVariant::ByteArray))
+      return false;
+
+    String input = value.toString();
+    Value newvalue(t->_value.get_state());
+
+    try {
+
+      // Use lua to transform user input to lua value
+      if (t->_attr & EditLuaEval)
+	{
+	  Value::List res = t->_value.get_state().exec_statements(String("return ") + input);
+
+	  if (res.empty() || res[0].is_nil())
+	    throw String("expression is nil");
+
+	  newvalue = res[0];
+	}
+
+      // Do not use lua, only handle string and number cases
+      else
+	{
+	  bool ok;
+	  double number = value.toDouble(&ok);
+
+	  if (ok)
+	    newvalue = number;
+	  else
+	    {
+	      String str = value.toByteArray();
+
+	      if (str.size() > 1 && str.startsWith('"') && str.endsWith('"'))
+		newvalue = String(str.mid(1, str.size() - 2));
+	      else
+		newvalue = str;
+	    }
+	}
+
+      // check type change
+      if (t->_attr & EditFixedType)
+	{
+	  Value::ValueType type_to = newvalue.type();
+	  Value::ValueType type_from = t->get_value(index.row()).type();
+
+	  if (type_from != type_to)
+	    throw String("% value type must be preserved").arg(Value::type_name(type_from));
+	}
+
+    } catch (const String &s) {
+      QMessageBox::critical(0, "Value update error",
+			    String("\"%\" expression error: %").arg(input).arg(s));
+      return false;
+    }
+
+    t->set_value(index.row(), newvalue);
+    return true;
+  }
+
   QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
   {
     if (role != Qt::DisplayRole)
       return QVariant();
+
+    if (orientation == Qt::Vertical)
+      return QVariant(section + 1);
 
     switch (section)
       {
