@@ -89,10 +89,10 @@ public:
       OpLt,       //< Lua less than binary operator @tt <
       OpLe,       //< Lua less than or equal binary operator @tt <=
 
-      OpIndex, 	  //< Table index operation
-      OpNewindex, //< Table newindex operation
-      OpCall,     //< Function call operation
-      OpIterate,  //< Iteration operation
+      OpIndex, 	  //< Table index operation, used by @ref support function only
+      OpNewindex, //< Table newindex operation, used by @ref support function only
+      OpCall,     //< Function call operation, used by @ref support function only
+      OpIterate,  //< Iteration operation, used by @ref support function only
     };
 
   /** Get a bare C++ typename from type */
@@ -102,7 +102,8 @@ public:
   /**
    * This function is called when a lua operator is used with a @ref
    * UserData object. The default implementation throws an error
-   * message.
+   * message. The @ref support function should be reimplemented along
+   * with this function.
    *
    * @param op Specify invoked lua operator (see @ref Operation).
    * @param a First value involved in operation.
@@ -114,7 +115,8 @@ public:
   /** 
    * This functions is called when a table read access operation is
    * attempted on a userdata object. The default implementation throws
-   * an error message.
+   * an error message. The @ref support function should be
+   * reimplemented along with this function.
    * 
    * @param key Value used as table index.
    * @returns Table access result value.
@@ -124,7 +126,8 @@ public:
   /**
    * This functions is called when a table write access operation is
    * attempted on a userdata object. The default implementation throws
-   * an error message.
+   * an error message. The @ref support function should be
+   * reimplemented along with this function.
    *
    * @param key Value used as table index.
    * @param value Value to put in table.
@@ -134,7 +137,8 @@ public:
   /**
    * This function is called when a function invokation operation is
    * performed on a userdata object. The default implementation throws
-   * an error message.
+   * an error message. The @ref support function should be
+   * reimplemented along with this function.
    *
    * @param args List of passed arguments.
    * @returns List of returned values.
@@ -143,8 +147,9 @@ public:
 
   /**
    * This function may return an @ref Iterator object used to iterate
-   * over an userdata object. The default implementation throws
-   * an error message.
+   * over an userdata object. The default implementation throws an
+   * error message. The @ref support function should be reimplemented
+   * along with this function.
    *
    * @returns an @ref Iterator based iterator object.
    */
