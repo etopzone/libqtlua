@@ -470,9 +470,6 @@ String Value::to_string_p(lua_State *st, int index)
     case TString:
       return String("\"") + lua_tostring(st, index) + "\"";
 
-    case TFunction:
-      return "(lua::function)";
-
     case TUserData: {
 #ifndef QTLUA_NO_USERDATA_CHECK
       try {
@@ -490,7 +487,7 @@ String Value::to_string_p(lua_State *st, int index)
     default: {
       String res;
       res.setNum((qulonglong)lua_topointer(st, index), 16);
-      return "0x" + res;
+      return String("(%:%)").arg(lua_typename(NULL, lua_type(st, index))).arg(res);
     }
 
     }
