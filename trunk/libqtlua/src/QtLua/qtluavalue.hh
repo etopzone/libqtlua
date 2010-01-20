@@ -463,6 +463,9 @@ public:
   /** Get value raw lua type name. */
   String type_name() const;
 
+  /** Get value raw lua type name. */
+  static String type_name(ValueType t);
+
   /** Get value type name, if the value is a @ref UserData, the type
       name is extracted using the @ref UserData::get_type_name function. */
   String type_name_u() const;

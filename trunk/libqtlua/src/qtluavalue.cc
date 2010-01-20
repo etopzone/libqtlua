@@ -341,7 +341,12 @@ Value::ValueType Value::type() const
 
 String Value::type_name() const
 {
-  return String("lua::") + lua_typename(_st, type());
+  return String("lua::") + lua_typename(NULL, type());
+}
+
+String Value::type_name(enum Value::ValueType v)
+{
+  return String("lua::") + lua_typename(NULL, v);
 }
 
 String Value::type_name_u() const
