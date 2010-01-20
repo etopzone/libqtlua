@@ -27,6 +27,7 @@
 #include <QErrorMessage>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QApplication>
 
 #include <QMenu>
 #include <QMenuBar>
@@ -420,7 +421,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QFileDialog::getExistingDirectory(0,
+	return Value(ls, QFileDialog::getExistingDirectory(QApplication::activeWindow(),
 			   get_arg<String>(args, 0, ""),
 			   get_arg<String>(args, 1, ""),
 			   (QFileDialog::Option)get_arg<int>(args, 2, QFileDialog::ShowDirsOnly)
@@ -447,7 +448,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QFileDialog::getOpenFileName(0,
+	return Value(ls, QFileDialog::getOpenFileName(QApplication::activeWindow(),
 			   get_arg<String>(args, 0, ""),
 			   get_arg<String>(args, 1, ""),
 			   get_arg<String>(args, 2, ""), 0,
@@ -475,7 +476,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QFileDialog::getOpenFileNames(0,
+	return Value(ls, QFileDialog::getOpenFileNames(QApplication::activeWindow(),
 			   get_arg<String>(args, 0, ""),
 			   get_arg<String>(args, 1, ""),
 			   get_arg<String>(args, 2, ""), 0,
@@ -503,7 +504,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QFileDialog::getSaveFileName(0,
+	return Value(ls, QFileDialog::getSaveFileName(QApplication::activeWindow(),
 			   get_arg<String>(args, 0, ""),
 			   get_arg<String>(args, 1, ""),
 			   get_arg<String>(args, 2, ""), 0,
@@ -531,7 +532,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	QColor c = QColorDialog::getColor(Qt::white);
+	QColor c = QColorDialog::getColor(Qt::white, QApplication::activeWindow());
 
 	return c.isValid() ? Value(ls, c.red()), Value(ls, c.green()), Value(ls, c.blue())
 	                   : Value::List();
@@ -581,7 +582,7 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	bool ok;
-	double v = QInputDialog::getDouble(0,
+	double v = QInputDialog::getDouble(QApplication::activeWindow(),
 				 get_arg<String>(args, 0, ""),
 				 get_arg<String>(args, 1, ""),
 				 get_arg<double>(args, 2, 0),
@@ -614,7 +615,7 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	bool ok;
-	int v = QInputDialog::getInteger(0,
+	int v = QInputDialog::getInteger(QApplication::activeWindow(),
 				 get_arg<String>(args, 0, ""),
 				 get_arg<String>(args, 1, ""),
 				 get_arg<int>(args, 2, 0),
@@ -647,7 +648,7 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	bool ok;
-	QString v = QInputDialog::getText(0,
+	QString v = QInputDialog::getText(QApplication::activeWindow(),
 				 get_arg<String>(args, 0, ""),
 				 get_arg<String>(args, 1, ""),
 				 QLineEdit::Normal,
@@ -678,7 +679,7 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	bool ok;
-	QString v = QInputDialog::getItem(0,
+	QString v = QInputDialog::getItem(QApplication::activeWindow(),
 				 get_arg<String>(args, 3, ""),
 				 get_arg<String>(args, 4, ""),
 				 get_arg<QList<QString> >(args, 0),
@@ -732,7 +733,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	QMessageBox::about(0, get_arg<String>(args, 1, ""), get_arg<String>(args, 0));
+	QMessageBox::about(QApplication::activeWindow(), get_arg<String>(args, 1, ""), get_arg<String>(args, 0));
 	return Value(ls);
       }
 
@@ -756,7 +757,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QMessageBox::critical(0,
+	return Value(ls, QMessageBox::critical(QApplication::activeWindow(),
 					       get_arg<String>(args, 1, ""),
 					       get_arg<String>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
@@ -783,7 +784,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QMessageBox::information(0,
+	return Value(ls, QMessageBox::information(QApplication::activeWindow(),
 					       get_arg<String>(args, 1, ""),
 					       get_arg<String>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
@@ -810,7 +811,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QMessageBox::question(0,
+	return Value(ls, QMessageBox::question(QApplication::activeWindow(),
 					       get_arg<String>(args, 1, ""),
 					       get_arg<String>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
@@ -837,7 +838,7 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QMessageBox::warning(0,
+	return Value(ls, QMessageBox::warning(QApplication::activeWindow(),
 					       get_arg<String>(args, 1, ""),
 					       get_arg<String>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
@@ -867,7 +868,7 @@ namespace QtLua {
 	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString,
 			     Value::TNumber, Value::TBool);
 
-	TableDialog::table_dialog(0, args[0], get_arg<String>(args, 1, ""),
+	TableDialog::table_dialog(QApplication::activeWindow(), args[0], get_arg<String>(args, 1, ""),
 				  (TableModel::Attributes)get_arg<int>(args, 2, 0),
 				  get_arg<Value::Bool>(args, 3, Value::False)
 				  );

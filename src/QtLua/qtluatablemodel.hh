@@ -66,9 +66,6 @@ namespace QtLua {
 
     enum Attribute
       {
-	AttrNone = 0,		//< @internal
-	AttrAll = -1,		//< @internal
-
 	Recursive = 1,		//< Expose nested tables too.
 	UserDataIter = 2,	//< Iterate over UserData objects too.
 	HideType = 256,		//< Do not show entry type in an additionnal column.
@@ -93,12 +90,13 @@ namespace QtLua {
     /** Clear cached table content and reset model. */
     void update();
 
-  private:
-
+    /** Columns ids */
     enum ColumnId
       {
 	ColKey = 0, ColValue = 1, ColType = 2,
       };
+
+  private:
 
     QModelIndex	index(int row, int column, const QModelIndex &parent) const;
     QModelIndex	parent(const QModelIndex &index) const;
@@ -109,7 +107,8 @@ namespace QtLua {
     QVariant	headerData(int section, Qt::Orientation orientation, int role) const;
     bool	setData(const QModelIndex & index, const QVariant & value, int role);
     Qt::ItemFlags flags(const QModelIndex &index) const;
-
+    bool	removeRows(int row, int count, const QModelIndex &parent);
+    bool	insertRows(int row, int count, const QModelIndex &parent);
     Table * table_from_index(const QModelIndex &index) const;
 
     Table *_table;

@@ -54,20 +54,26 @@ namespace QtLua {
 		TableModel::Attributes attr, bool tableview);
     ~TableDialog();
 
-    /** Shortcut function to display a modal lua table dialog. */
+    /** Shortcut function to display a modal lua table dialog. The @tt
+	tableview parameter must be set to true if a QTableView is
+	prefered over a QTreeView. */
     static void table_dialog(QWidget *parent, const Value &root, const QString &title,
 			     TableModel::Attributes attr, bool tableview = false);
 
   private slots:
     void expanded() const;
     void edit() const;
-    void clicked(const QModelIndex & index) const;
+    void insert() const;
+    void remove() const;
+    void currentChanged(const QModelIndex & index) const;
+    QModelIndex editable_index(const QModelIndex &index) const;
 
   private:
+    QSize minimumSizeHint() const;
 
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
-    QPushButton *_eb;
+    QPushButton *_eb, *_rb, *_ib;
   };
 
 }
