@@ -28,15 +28,17 @@ MainWindow::MainWindow()
 {
 							/* anchor 1 */
   state = new QtLua::State();
-
   state->openlib(QtLua::AllLibs);
+
   // Create a new model and expose lua global table
-  model = new QtLua::TableModel((*state)["_G"]);
+  model = new QtLua::TableModel((*state)["_G"], 0,
+    QtLua::TableModel::Recursive | QtLua::TableModel::EditAll);
 
   // Create Qt view widget
   treeview = new QTreeView(0);
-  setCentralWidget(treeview);
   treeview->setModel(model);
+
+  setCentralWidget(treeview);
 							/* anchor end */
 }
 

@@ -23,6 +23,7 @@
 #define QTLUA_TABLE_HH_
 
 #include <QList>
+#include <QtLua/qtluatablemodel.hh>
 
 namespace QtLua {
 
@@ -30,13 +31,14 @@ namespace QtLua {
   {
     friend class TableModel;
 
-    Table(const Value &val);
+    Table(const Value &val, TableModel::Attributes attr);
     ~Table();
 
     inline Value get_value(int n) const;
+    inline void set_value(int n, const Value &value);
     inline const String & get_lua_index(int n) const;
-    inline bool has_entry(int n) const;
     inline size_t count() const;
+    inline bool is_table(int n) const;
 
     Table * set_table(int n);
     void update();
@@ -44,14 +46,17 @@ namespace QtLua {
 
     struct Entry
     {
-      String _index;
+      String _index;		// FIXME keep trace of number keys
       Table *_table;
       bool _table_chk;
+
+      inline bool operator<(const Entry &e) const;
     };
 
     Value _value;
     Table *_parent;
     int _row;
+    TableModel::Attributes _attr;
     QList<Entry> _entries;
   };
 

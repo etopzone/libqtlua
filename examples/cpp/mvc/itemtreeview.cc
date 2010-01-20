@@ -40,10 +40,11 @@ MainWindow::MainWindow()
   QTLUA_REFNEW(QtLua::Item, "foo2")->insert(root);
 
   // Create Qt view widget and set model
-  treeview = new QTreeView(0);
-  setCentralWidget(treeview);
   model = new QtLua::ItemModel(root);
+
+  treeview = new QTreeView(0);
   treeview->setModel(model);
+  setCentralWidget(treeview);
 
   // Rename node from lua script
   state->exec_statements("root.bar = root.foo2");

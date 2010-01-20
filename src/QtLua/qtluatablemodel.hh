@@ -41,7 +41,14 @@ namespace QtLua {
    * are handled. Changes in exposed lua tables do @b not update the
    * model and the @ref update function must be called. This is
    * partially due to lack of lua mechanism to implement efficient
-   * table change hook yet.
+   * table change event yet.
+   *
+   * Lua tables can be edited from Qt views using this model. The
+   * @ref Attribute flags can be used to finely control which editing
+   * actions are allowed. User input may be evaluated as a lua
+   * expression when editing a table entry.
+   *
+   * Only table entries with string or number keys are considered yet.
    *
    * Usage example:
    * @example examples/cpp/mvc/tabletreeview.cc:1
@@ -51,12 +58,29 @@ namespace QtLua {
   class TableModel : public QAbstractItemModel
   {
     Q_OBJECT;
+    Q_ENUMS(Attribute);
+    Q_FLAGS(Attributes);
 
   public:
 
+    enum Attribute
+      {
+	Recursive = 1,		//< Expose nested tables too.
+	UserDataIter = 2,	//< Iterate over UserData objects too.
+	Editable = 4,		//< Allow editing exposed tables using views.
+	EditFixedType = 8,	//< Allow value type change when editing.
+	EditLuaEval = 16,	//< Evaluate user input as a lua expression.
+	EditInsert = 32,	//< Allow insertion of new entries.
+	EditRemove = 64,	//< Allow deletion of existing entries.
+	EditKey = 128,	        //< Allow entry key update.
+	EditAll = 4 + 32 + 64 + 128, //< Editable with no restrictions (Insert + Remove + Key)
+      };
+
+    Q_DECLARE_FLAGS(Attributes, Attribute);
+
     /** Create a new lua table model. */
     TableModel(const Value &root, QObject *parent = 0,
-	       bool recursive = true);
+	       Attributes attr = Attributes(Recursive | UserDataIter));
 
     ~TableModel();
 
@@ -64,8 +88,6 @@ namespace QtLua {
     void update();
 
   private:
-    Table * table_from_index(const QModelIndex &index) const;
-
     QModelIndex	index(int row, int column, const QModelIndex &parent) const;
     QModelIndex	parent(const QModelIndex &index) const;
     int		rowCount(const QModelIndex &parent) const;
@@ -73,10 +95,15 @@ namespace QtLua {
     int		columnCount(const QModelIndex &parent) const;
     QVariant	data(const QModelIndex &index, int role) const;
     QVariant	headerData(int section, Qt::Orientation orientation, int role) const;
+    bool	setData(const QModelIndex & index, const QVariant & value, int role);
+    Qt::ItemFlags flags(const QModelIndex &index) const;
+
+    Table * table_from_index(const QModelIndex &index) const;
 
     Table *_table;
-    bool _recursive;
   };
+
+  Q_DECLARE_OPERATORS_FOR_FLAGS(TableModel::Attributes);
 
 }
 

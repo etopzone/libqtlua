@@ -22,9 +22,10 @@
 #ifndef QTLUA_TABLEDIALOG_HH_
 #define QTLUA_TABLEDIALOG_HH_
 
-#include <QtLua/TableModel>
-#include <QTreeView>
+#include <QAbstractItemView>
 #include <QDialog>
+
+#include <QtLua/TableModel>
 
 namespace QtLua {
 
@@ -61,18 +62,24 @@ namespace QtLua {
     Q_DECLARE_FLAGS(ColumnIds, ColumnId);
 
     /** Create a table dialog. */
-    TableDialog(QWidget *parent, const Value &root, bool recursive, bool editable);
+    TableDialog(QWidget *parent, const Value &root,
+		TableModel::Attributes attr, bool tableview);
     ~TableDialog();
 
     /** Shortcut function to display a modal lua table dialog. */
-    static void table_dialog(QWidget *parent, const Value &root,
-			     const QString &title, bool recursive = true,
-			     bool editable = false, ColumnIds hide = 0);
+    static void table_dialog(QWidget *parent, const Value &root, const QString &title,
+			     TableModel::Attributes attr, ColumnIds hide = 0, bool tableview = false);
+
+  private slots:
+    void expanded() const;
+    void edit() const;
+    void clicked(const QModelIndex & index) const;
 
   private:
 
-    TableModel *_model;
-    QTreeView *_view;
+    QAbstractItemModel *_model;
+    QAbstractItemView *_view;
+    QPushButton *_eb;
   };
 
   Q_DECLARE_OPERATORS_FOR_FLAGS(TableDialog::ColumnIds);

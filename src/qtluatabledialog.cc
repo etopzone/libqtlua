@@ -20,19 +20,46 @@
 
 #include <QDialogButtonBox>
 #include <QVBoxLayout>
+#include <QTreeView>
+#include <QTableView>
+#include <QHeaderView>
+#include <QPushButton>
+
 #include <QtLua/TableDialog>
 
 namespace QtLua {
 
-  TableDialog::TableDialog(QWidget *parent, const Value &root, bool recursive, bool editable)
+  TableDialog::TableDialog(QWidget *parent, const Value &root,
+			   TableModel::Attributes attr, bool tableview)
     : QDialog(parent),
-      _model(new TableModel(root, 0, recursive))
+      _model(new TableModel(root, 0, attr))
   {
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
 
-    _view = new QTreeView();
-    _view->setRootIsDecorated(recursive);
+    if (tableview)
+      {
+	QTableView *view = new QTableView();
+	view->verticalHeader()->hide();
+	_view = view;
+      }
+    else
+      {
+	QTreeView *view = new QTreeView();
+	view->setRootIsDecorated(attr & TableModel::Recursive);
+	_view = view;
+	connect(view, SIGNAL(expanded(const QModelIndex&)),
+		this, SLOT(expanded()));
+      }
+
+    if (attr & TableModel::Editable)
+      {
+	_eb = buttonBox->addButton("Edit", QDialogButtonBox::ActionRole);
+	_eb->setEnabled(false);
+	connect(_eb, SIGNAL(clicked()), this, SLOT(edit()));
+	connect(_view, SIGNAL(clicked(const QModelIndex&)), this, SLOT(clicked(const QModelIndex&)));
+      }
+
     _view->setModel(_model);
 
     QVBoxLayout *layout = new QVBoxLayout;
@@ -47,17 +74,34 @@ namespace QtLua {
     delete _model;
   }
 
-  void TableDialog::table_dialog(QWidget *parent, const Value &root,
-				 const QString &title, bool recursive,
-				 bool editable, ColumnIds hide)
+  void TableDialog::expanded() const
   {
-    TableDialog d(parent, root, recursive, editable);
-    d.setWindowTitle(title);
+    for (int i = 0; i < 3; i++)
+      static_cast<QTreeView*>(_view)->resizeColumnToContents(i);
+  }
 
+  void TableDialog::edit() const
+  {
+    if (_view->currentIndex().isValid())
+      _view->edit(_view->currentIndex());
+  }
+
+  void TableDialog::clicked(const QModelIndex & index) const
+  {
+    _eb->setEnabled(_model->flags(index) & Qt::ItemIsEditable);
+  }
+
+  void TableDialog::table_dialog(QWidget *parent, const Value &root,
+				 const QString &title, TableModel::Attributes attr,
+				 ColumnIds hide, bool tableview)
+  {
+    TableDialog d(parent, root, attr, tableview);
+    d.setWindowTitle(title);
+#if 0
     for (int i = 0; i < 3; i++)
       if (hide & (1 << i))
 	d._view->hideColumn(i);
-
+#endif
     d.exec();
   }
 

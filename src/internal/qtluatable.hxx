@@ -29,14 +29,29 @@ namespace QtLua {
     return _value[_entries[n]._index];
   }
 
+  void Table::set_value(int n, const Value &value)
+  {
+    _value[_entries[n]._index] = value;
+  }
+
   const String & Table::get_lua_index(int n) const
   {
     return _entries[n]._index;
   }
 
+  bool Table::is_table(int n) const
+  {
+    return _entries[n]._table != 0;
+  }
+
   size_t Table::count() const
   {
     return _entries.count();
+  }
+
+  bool Table::Entry::operator<(const Entry &e) const
+  {
+    return _index < e._index;
   }
 
 }

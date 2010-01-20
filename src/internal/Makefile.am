@@ -7,5 +7,5 @@ noinst_HEADERS = Enum ListIterator Member MetaCache Method		\
 	qtluaproperty.hh Property \
 	QMetaObjectWrapper qtluaqmetaobjectwrapper.hh \
 	QObjectWrapper qtluaqobjectwrapper.hh qtluaqobjectwrapper.hxx \
-	qtluatable.hh Table
+	qtluatable.hh qtluatable.hxx Table
 
