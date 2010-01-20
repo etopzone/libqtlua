@@ -54,6 +54,13 @@ namespace QtLua {
     return _entries.count();
   }
 
+  Table::Entry::Entry(const String &index)
+    : _index(index),
+      _table(0),
+      _table_chk(false)
+  {
+  }
+
   bool Table::Entry::operator<(const Entry &e) const
   {
     return _index < e._index;

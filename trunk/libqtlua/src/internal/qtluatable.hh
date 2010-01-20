@@ -63,6 +63,7 @@ namespace QtLua {
       Table *_table;
       bool _table_chk;
 
+      inline Entry(const String &index = "");
       inline bool operator<(const Entry &e) const;
     };
 

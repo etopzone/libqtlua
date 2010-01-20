@@ -231,14 +231,18 @@ namespace QtLua {
 
 	  // check type change
 	  if ((t->_attr & EditFixedType) &&
-	      (oldtype != newtype))
-	    throw String("% value type must be preserved").arg(Value::type_name(oldtype));
+	      (oldtype != Value::TNil) && (oldtype != newtype))
+	    throw String("% value type must be preserved.").arg(Value::type_name(oldtype));
 
 	  t->set_value(index.row(), newvalue);
 	  return true;
 
 	case ColKey: {
 	  String str = newvalue.to_string();
+	  
+	  if (!t->_value[str].is_nil())
+	    throw String("An entry with the same key already exists.");
+
 	  Value old = t->get_value(index.row());
 
 	  t->set_value(index.row(), Value(state));
@@ -253,10 +257,68 @@ namespace QtLua {
 
     } catch (const String &s) {
       QMessageBox::critical(0, "Value update error",
-			    String("\"%\" expression error: %").arg(input).arg(s));
+			    String("`%' expression error: %").arg(input).arg(s));
     }
 
     return false;
+  }
+
+  bool TableModel::removeRows(int row, int count, const QModelIndex &parent)
+  {
+    assert(count);
+    beginRemoveRows(parent, row, row + count - 1);
+
+    Table *t = table_from_index(parent);
+    State &state = t->_value.get_state();
+
+    if (!(t->_attr & EditRemove))
+      return false;
+
+    // set lua table to nil and delete nested tables
+    for (int i = row; i < row + count; i++)
+      {
+	try {
+	  t->set_value(i, Value(state));
+	} catch (const String &e) {
+	}
+
+	if (Table *c = t->_entries[i]._table)
+	  delete c;
+      }
+
+    // update tail rows indexes
+    for (int i = row + count; i < t->count(); i++)
+      if (Table *c = t->_entries[i]._table)
+	c->_row -= count;
+
+    t->_entries.erase(t->_entries.begin() + row,
+		      t->_entries.begin() + row + count);
+
+    endRemoveRows();
+
+    return true;
+  }
+
+  bool TableModel::insertRows(int row, int count, const QModelIndex &parent)
+  {
+    assert(count);
+    beginInsertRows(parent, row, row + count - 1);
+
+    Table *t = table_from_index(parent);
+
+    if (!(t->_attr & EditInsert))
+      return false;
+
+    for (int i = 0; i < count; i++)
+      t->_entries.insert(row, Table::Entry());
+
+    for (int i = row + count; i < t->count(); i++)
+      if (Table *c = t->_entries[i]._table)
+	c->_row += count;
+
+    endInsertRows();
+
+    return true;
   }
 
   QVariant TableModel::headerData(int section, Qt::Orientation orientation, int role) const
