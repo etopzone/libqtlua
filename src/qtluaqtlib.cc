@@ -864,13 +864,12 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	meta_call_check_args(args, 1, 5, Value::TNone, Value::TString,
-			     Value::TNumber, Value::TNumber, Value::TBool);
+	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString,
+			     Value::TNumber, Value::TBool);
 
 	TableDialog::table_dialog(0, args[0], get_arg<String>(args, 1, ""),
 				  (TableModel::Attributes)get_arg<int>(args, 2, 0),
-				  (TableDialog::ColumnIds)get_arg<int>(args, 3, 0),
-				  get_arg<Value::Bool>(args, 4, Value::False)
+				  get_arg<Value::Bool>(args, 3, Value::False)
 				  );
 
 	return Value::List();

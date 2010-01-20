@@ -60,6 +60,7 @@ namespace QtLua {
 
     Table *res = 0;
     Value value = _value[_entries[n]._index];
+    TableModel::Attributes attr_mask = TableModel::AttrNone;
 
     switch (value.type())
       {
@@ -70,13 +71,17 @@ namespace QtLua {
 	try {
 	  if (!value.to_userdata()->support(UserData::OpIterate))
 	    break;
+
+	  if (!value.to_userdata()->support(UserData::OpNewindex))
+	    attr_mask |= TableModel::Editable;
+
 	} catch (const String &e) {
 	  // not a QtLua::UserData userdata
 	  break;
 	}
 
       case Value::TTable:
-	res = new Table(value, _attr);
+	res = new Table(value, _attr & ~attr_mask);
 	res->_parent = this;
 	res->_row = n;
 	e->_table = res;

@@ -27,6 +27,18 @@
 
 namespace QtLua {
 
+  /**
+   * @short Qt Model/View lua table internal state class
+   * @header internal/Table
+   * @module {Model/View}
+   * @internal
+   *
+   * This class is used internally by the @ref TableModel class. It is
+   * used to keep lua tables display attributes and index list as
+   * native lua tables can not be accessed randomly using an integer
+   * index.
+   */
+
   class Table
   {
     friend class TableModel;
@@ -37,6 +49,7 @@ namespace QtLua {
     inline Value get_value(int n) const;
     inline void set_value(int n, const Value &value);
     inline const String & get_lua_index(int n) const;
+    inline void set_lua_index(int n, const String &index);
     inline size_t count() const;
     inline bool is_table(int n) const;
 

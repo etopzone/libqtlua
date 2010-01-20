@@ -35,7 +35,7 @@ namespace QtLua {
    * @module {Model/View}
    *
    * This dialog class can be used to display lua tables easily in a
-   * @ref QTreeView .
+   * @ref QTreeView or @ref QTableView widget.
    *
    * The @ref QtLib lua library provides functions to display lua
    * tables using @ref TableDialog objects from lua code. 
@@ -46,20 +46,8 @@ namespace QtLua {
   class TableDialog : public QDialog
   {
     Q_OBJECT;
-    Q_ENUMS(ColumnId);
-    Q_FLAGS(ColumnIds);
 
   public:
-
-    /** Specify lua table view columns */
-    enum ColumnId
-      {
-	ColKey = 1,     //< Lua table key column
-	ColType = 2,    //< Lua table value type name
-	ColValue = 4,   //< Lua table value string representation using @ref Value::to_string_p
-      };
-
-    Q_DECLARE_FLAGS(ColumnIds, ColumnId);
 
     /** Create a table dialog. */
     TableDialog(QWidget *parent, const Value &root,
@@ -68,7 +56,7 @@ namespace QtLua {
 
     /** Shortcut function to display a modal lua table dialog. */
     static void table_dialog(QWidget *parent, const Value &root, const QString &title,
-			     TableModel::Attributes attr, ColumnIds hide = 0, bool tableview = false);
+			     TableModel::Attributes attr, bool tableview = false);
 
   private slots:
     void expanded() const;
@@ -81,8 +69,6 @@ namespace QtLua {
     QAbstractItemView *_view;
     QPushButton *_eb;
   };
-
-  Q_DECLARE_OPERATORS_FOR_FLAGS(TableDialog::ColumnIds);
 
 }
 
