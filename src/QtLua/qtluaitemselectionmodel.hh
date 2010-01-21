@@ -41,9 +41,8 @@ namespace QtLua {
     Q_OBJECT;
 
   public:
-    ItemSelectionModel(ItemModel *model);
-    ItemSelectionModel(ItemModel *model, QObject *parent);
-    virtual ~ItemSelectionModel();
+    inline ItemSelectionModel(ItemModel *model);
+    inline ItemSelectionModel(ItemModel *model, QObject *parent);
 
   public slots:
     virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);
