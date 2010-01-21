@@ -24,6 +24,7 @@
 #include <QTableView>
 #include <QHeaderView>
 #include <QPushButton>
+#include <QResizeEvent>
 
 #include <QtLua/TableDialog>
 
@@ -49,10 +50,6 @@ namespace QtLua {
 	QTreeView *view = new QTreeView();
 	view->setRootIsDecorated(attr & TableModel::Recursive);
 	_view = view;
-#if 0
-	connect(view, SIGNAL(expanded(const QModelIndex&)),
-		this, SLOT(expanded()));
-#endif
       }
 
     if (attr & TableModel::Editable)
@@ -81,7 +78,7 @@ namespace QtLua {
 	    this, SLOT(currentChanged(const QModelIndex&)));
 
     QVBoxLayout *layout = new QVBoxLayout;
-    layout->addWidget(_view);
+    layout->addWidget(_view, 0);
     layout->addWidget(buttonBox);
 
     setLayout(layout);
@@ -90,10 +87,6 @@ namespace QtLua {
   TableDialog::~TableDialog()
   {
     delete _model;
-  }
-
-  void TableDialog::expanded() const
-  {
   }
 
   void TableDialog::edit() const
@@ -155,8 +148,6 @@ namespace QtLua {
 
     if (_eb)
       _eb->setEnabled(_model->flags(editable_index(index)) & Qt::ItemIsEditable);
-
-    // FIXME try to set current index to editable column in row
   }
 
   void TableDialog::table_dialog(QWidget *parent, const Value &root,
@@ -165,27 +156,24 @@ namespace QtLua {
   {
     TableDialog d(parent, root, attr, tableview);
     d.setWindowTitle(title);
-    d.resize(d.minimumSizeHint());
     d.exec();
   }
 
-  QSize TableDialog::minimumSizeHint() const
+  QSize TableDialog::sizeHint() const
   {
-    //    QSize min(0, 640);
-    QSize min = QDialog::minimumSizeHint();
     int colcount = _model->columnCount(QModelIndex());
+    QSize hint(0, 640);
 
     if (QTreeView *tv = dynamic_cast<QTreeView*>(_view))
       {
 	for (int i = 0; i < colcount; i++)
 	  {
 	    tv->resizeColumnToContents(i);
-
 	    // Leave room for expand
 	    if (i == TableModel::ColKey)
-	      tv->setColumnWidth(i, tv->columnWidth(i) * 2);
+	      tv->setColumnWidth(i, tv->columnWidth(i) * 1.5);
 
-	    min.rwidth() += tv->columnWidth(i);
+	    hint.rwidth() += tv->columnWidth(i);
 	  }
       }
     else if (QTableView *tv = dynamic_cast<QTableView*>(_view))
@@ -193,11 +181,11 @@ namespace QtLua {
 	for (int i = 0; i < colcount; i++)
 	  {
 	    tv->resizeColumnToContents(i);
-	    min.rwidth() += tv->columnWidth(i);
+	    hint.rwidth() += tv->columnWidth(i);
 	  }
       }
 
-    return min;
+    return hint;
   }
 
 }

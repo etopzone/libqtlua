@@ -34,11 +34,11 @@ namespace QtLua {
    * @header QtLua/TableDialog
    * @module {Model/View}
    *
-   * This dialog class can be used to display lua tables easily in a
-   * @ref QTreeView or @ref QTableView widget.
+   * This dialog class use the @ref TableModel class to display lua
+   * tables in @ref QTreeView or @ref QTableView widgets.
    *
    * The @ref QtLib lua library provides functions to display lua
-   * tables using @ref TableDialog objects from lua code. 
+   * tables using @ref TableDialog objects from lua code.
    *
    * @see TableModel
    */
@@ -54,22 +54,26 @@ namespace QtLua {
 		TableModel::Attributes attr, bool tableview);
     ~TableDialog();
 
-    /** Shortcut function to display a modal lua table dialog. The @tt
-	tableview parameter must be set to true if a QTableView is
-	prefered over a QTreeView. */
+    /**
+     * Shortcut function to display a modal lua table dialog.
+     *
+     * @param parent parent widget
+     * @param root lua table value to expose
+     * @param attr model attributes, control display and edit options
+     * @param tableview use a QTableView instead of a QTreeView when set
+     */
     static void table_dialog(QWidget *parent, const Value &root, const QString &title,
 			     TableModel::Attributes attr, bool tableview = false);
 
   private slots:
-    void expanded() const;
     void edit() const;
     void insert() const;
     void remove() const;
     void currentChanged(const QModelIndex & index) const;
     QModelIndex editable_index(const QModelIndex &index) const;
 
-  private:
-    QSize minimumSizeHint() const;
+  protected:
+    virtual QSize sizeHint() const;
 
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
