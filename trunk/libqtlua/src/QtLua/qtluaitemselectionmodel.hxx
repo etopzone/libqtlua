@@ -33,10 +33,6 @@ namespace QtLua {
   {
   }
 
-  ItemSelectionModel::~ItemSelectionModel()
-  {
-  }
-
 }
 
 #endif
