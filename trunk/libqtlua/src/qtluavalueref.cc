@@ -91,9 +91,16 @@ namespace QtLua {
 
       case TTable:
 	_key.push_value();
-	v.push_value();
-	lua_settable(_st, -3);
-	lua_pop(_st, 1);
+	if (lua_isnil(_st, -1))
+	  {
+	    lua_pop(_st, 2);
+	  }
+	else
+	  {
+	    v.push_value();
+	    lua_settable(_st, -3);
+	    lua_pop(_st, 1);
+	  }
 	break;
 
       default:

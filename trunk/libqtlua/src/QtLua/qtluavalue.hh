@@ -520,6 +520,7 @@ private:
 
   /** construct from value on lua stack. */
   Value(lua_State *st, int index);
+  static uint qHash(lua_State *st, int index);
 
   inline Value(lua_State *st);
   inline Value(lua_State *st, ValueType type);

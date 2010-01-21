@@ -576,8 +576,8 @@ bool Value::operator==(const Value &lv) const
   if (lv._st != _st)
     return false;
 
-  push_value();
   lv.push_value();
+  push_value();
 
   if ((lua_type(_st, -1) == TUserData) &&
       (lua_type(_st, -2) == TUserData))
@@ -606,8 +606,8 @@ bool Value::operator<(const Value &lv) const
   if (lv._st != _st)
     return false;
 
-  push_value();
   lv.push_value();
+  push_value();
 
   if ((lua_type(_st, -1) == TUserData) &&
       (lua_type(_st, -2) == TUserData))
@@ -626,7 +626,14 @@ bool Value::operator<(const Value &lv) const
 #endif
     }
 
-  bool res = lua_lessthan(_st, -1, -2);
+  if (lua_type(_st, -1) == lua_type(_st, -2))
+    {
+      bool res = lua_lessthan(_st, -1, -2);
+      lua_pop(_st, 2);
+      return res;
+    }
+
+  bool res = lua_type(_st, -1) < lua_type(_st, -2);
   lua_pop(_st, 2);
   return res;
 }
@@ -674,48 +681,46 @@ bool Value::operator==(double n) const
   return res;
 }
 
-uint qHash(const Value &lv)
+uint Value::qHash(lua_State *st, int index)
 {
-  uint	res;
-
-  lv.push_value();
-
-  switch (lua_type(lv._st, -1))
+  switch (lua_type(st, index))
     {
     case LUA_TBOOLEAN:
-      res = lua_toboolean(lv._st, -1);
-      break;
+      return lua_toboolean(st, index);
 
     case LUA_TNUMBER: {
-      lua_Number n = lua_tonumber(lv._st, -1);
-      res = *(uint*)&n;
-      break;
+      lua_Number n = lua_tonumber(st, index);
+      return *(uint*)&n;
     }
 
     case LUA_TSTRING:
-      res = qHash(String(lua_tostring(lv._st, -1), lua_strlen(lv._st, -1)));
-      break;
+      return ::qHash(String(lua_tostring(st, index), lua_strlen(st, index)));
 
     case LUA_TUSERDATA: {
 #ifndef QTLUA_NO_USERDATA_CHECK
       try {
 #endif
-	QtLua::Ref<UserData> ud = UserData::get_ud(lv._st, -1);
-	res = (uint)(long)ud.ptr();
+	QtLua::Ref<UserData> ud = UserData::get_ud(st, index);
+	return (uint)(long)ud.ptr();
 #ifndef QTLUA_NO_USERDATA_CHECK
       } catch (...) {
-	res = (uint)(long)lua_touserdata(lv._st, -1);
+	return (uint)(long)lua_touserdata(st, index);
       }
 #endif
       break;
     }
 
     default:
-      res = (uint)(long)lua_topointer(lv._st, -1);
+      return (uint)(long)lua_topointer(st, index);
     }
+}
 
+uint qHash(const Value &lv)
+{
+  uint	res;
+  lv.push_value();
+  res = Value::qHash(lv._st, -1);
   lua_pop(lv._st, 1);
-
   return res;
 }
 
