@@ -55,7 +55,11 @@ namespace QtLua {
       : QHashProxyRo<qmetaobject_table_t>(_mo_table)
     {
       for (const QMetaObject **mo = meta_object_table; *mo; mo++)
-	_mo_table.insert((*mo)->className(), QMetaObjectWrapper(*mo));
+	{
+	  String name((*mo)->className());
+	  name.replace(':', '_');
+	  _mo_table.insert(name, QMetaObjectWrapper(*mo));
+	}
     }
 
   private:
@@ -868,8 +872,9 @@ namespace QtLua {
 	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString,
 			     Value::TNumber, Value::TBool);
 
-	TableDialog::table_dialog(QApplication::activeWindow(), args[0], get_arg<String>(args, 1, ""),
-				  (TableModel::Attributes)get_arg<int>(args, 2, 0),
+	TableDialog::table_dialog(QApplication::activeWindow(), args[0],
+				  (TableModel::Attributes)get_arg<int>(args, 2, TableModel::Recursive),
+				  get_arg<String>(args, 1, ""),
 				  get_arg<Value::Bool>(args, 3, Value::False)
 				  );
 

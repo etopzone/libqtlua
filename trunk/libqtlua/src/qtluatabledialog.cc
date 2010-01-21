@@ -151,7 +151,7 @@ namespace QtLua {
   }
 
   void TableDialog::table_dialog(QWidget *parent, const Value &root,
-				 const QString &title, TableModel::Attributes attr,
+				 TableModel::Attributes attr, const QString &title,
 				 bool tableview)
   {
     TableDialog d(parent, root, attr, tableview);
