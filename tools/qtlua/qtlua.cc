@@ -30,6 +30,10 @@
 #include <QtLua/State>
 #include <QtLua/Console>
 
+#include "config.hh"
+
+#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2010, Alexandre Becoulet"
+
 int main(int argc, char *argv[])
 {
   try {
@@ -58,7 +62,7 @@ int main(int argc, char *argv[])
 	    else
 	      {
 		std::cerr
-		  << "QtLua Copyright (C) 2008, Alexandre Becoulet" << std::endl
+		  << QTLUA_COPYRIGHT << std::endl
 		  << "usage: qtlua [options] luafiles ..." << std::endl
 		  << "  -i --interactive    show a lua console dialog" << std::endl;
 	      }
@@ -78,7 +82,7 @@ int main(int argc, char *argv[])
 
     if (interactive)
       {
-	QtLua::Console *console = new QtLua::Console();
+	QtLua::Console *console = new QtLua::Console(">>");
 
 	QObject::connect(console, SIGNAL(line_validate(const QString&)),
 			 &state, SLOT(exec(const QString&)));
@@ -89,6 +93,7 @@ int main(int argc, char *argv[])
 	QObject::connect(&state, SIGNAL(output(const QString&)),
 		console, SLOT(print(const QString&)));
 
+	console->print(QTLUA_COPYRIGHT "\n");
 	console->show();
       }
 
