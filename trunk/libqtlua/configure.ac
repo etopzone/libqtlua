@@ -1,11 +1,11 @@
 
-AC_INIT(libqtlua, 1.1)
-PACKAGE_VERSION=1.1
+AC_INIT(libqtlua, 1.2)
+PACKAGE_VERSION=1.2
 AC_SUBST(PACKAGE_VERSION)
 
 AC_CONFIG_AUX_DIR([build])
 
-AM_INIT_AUTOMAKE(libqtlua, 1.1)
+AM_INIT_AUTOMAKE(libqtlua, 1.2)
 AC_CONFIG_HEADERS(config.hh)
 
 AC_PROG_CXX
@@ -39,7 +39,7 @@ AC_CONFIG_FILES([
 
 AC_ARG_WITH(lua-inc-dir,
  AC_HELP_STRING(--with-lua-inc-dir, [Specify lua include directory (default /usr/include)]),
- [CPPFLAGS+=" -I$withval"])
+ [CPPFLAGS="$CPPFLAGS -I$withval"])
 
 AC_ARG_WITH(lua-lib,
  AC_HELP_STRING(--with-lua-lib, [Specify lua library name (default lua)]),
@@ -63,7 +63,7 @@ AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lu
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
 AC_CHECK_LIB($lualibname, luaL_openlibs, AC_DEFINE(HAVE_LUA_OPENLIBS, 1, [lua os library is available]))
 
-CXXFLAGS+=" -Wall -Wno-unused-parameter -DQTLUAREF_DEBUG "
+CXXFLAGS="$CPPFLAGS -Wall -Wno-unused-parameter -DQTLUAREF_DEBUG "
 
 eval shared_ext=\"$shrext_cmds\"
 AC_DEFINE_UNQUOTED(SHLIBEXT, $shared_ext, [suffix for dynamic libraries is $shared_ext])
