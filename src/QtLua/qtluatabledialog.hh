@@ -62,8 +62,9 @@ namespace QtLua {
      * @param attr model attributes, control display and edit options
      * @param tableview use a QTableView instead of a QTreeView when set
      */
-    static void table_dialog(QWidget *parent, const Value &root, const QString &title,
-			     TableModel::Attributes attr, bool tableview = false);
+    static void table_dialog(QWidget *parent, const Value &root, 
+			     TableModel::Attributes attr = TableModel::Recursive,
+			     const QString &title = "", bool tableview = false);
 
   private slots:
     void edit() const;
