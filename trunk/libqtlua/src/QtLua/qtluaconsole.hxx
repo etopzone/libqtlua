@@ -41,6 +41,11 @@ namespace QtLua {
     _complete_re = regexp;
   }
 
+  void Console::set_prompt(QString p)
+  {
+    _prompt = p;
+  }
+
 }
 
 #endif

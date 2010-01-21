@@ -24,55 +24,68 @@
 #include <QColor>
 #include <QScrollBar>
 #include <QAbstractSlider>
+#include <QFontMetrics>
+
+#ifdef QTLUA_DEBUG_KEYS
+# include <QDebug>
+#endif
 
 #include <QtLua/Console>
 
 namespace QtLua {
 
-Console::Console(QWidget *parent)
+Console::Console(const QString &prompt, QWidget *parent)
   : QTextEdit(parent),
+    _prompt(prompt),
     _complete_re("[_.:a-zA-Z0-9]+$")
+{
+  init();
+}
+
+Console::Console(const QStringList &history, const QString &prompt, QWidget *parent)
+  : QTextEdit(parent),
+    _prompt(prompt),
+    _history(history),
+    _complete_re("[_.:a-zA-Z0-9]+$")
+{
+  init();
+}
+
+void Console::init()
 {
   _fmt_normal.setFontFamily("monospace");
   _fmt_normal.setFontFixedPitch(true);
   _fmt_normal.setFontItalic(false);
   _fmt_normal.setFontPointSize(12);
 
-  _fmt_completion = _fmt_normal;
-  _fmt_completion.setFontItalic(true);
-
   setCurrentCharFormat(_fmt_normal);
-
   setWordWrapMode(QTextOption::WrapAnywhere);
   setContextMenuPolicy(Qt::NoContextMenu);
-  set_prompt("$");
-  display_prompt();
+
   _history_ndx = 0;
   _history_max = 100;
   _history.append("");
-  _color_state = 0;
-}
 
-void Console::set_prompt(QString p)
-{
-  _prompt = p;
+  display_prompt();
 }
 
 void Console::display_prompt()
 {
   QTextCursor	tc;
 
+  setUndoRedoEnabled(false);
   tc = textCursor();
   _complete_start = _prompt_start = tc.position();
 
   setTextColor(Qt::blue);
-  tc.insertText(_prompt);
+  insertPlainText(_prompt);
 
   setTextColor(Qt::black);
   tc = textCursor();
-  tc.insertText(" ");
+  insertPlainText(" ");
 
-  _line_start = tc.position();
+  _mark = _line_start = tc.position();
+  setUndoRedoEnabled(true);
 }
 
 void Console::action_history_up()
@@ -80,6 +93,7 @@ void Console::action_history_up()
   if (_history_ndx == 0)
     return;
 
+  setUndoRedoEnabled(false);
   QTextCursor	tc = textCursor();
 
   tc.setPosition(_line_start, QTextCursor::MoveAnchor);
@@ -88,6 +102,7 @@ void Console::action_history_up()
   _history.replace(_history_ndx, tc.selectedText());
 
   tc.insertText(_history[--_history_ndx]);
+  setUndoRedoEnabled(true);
 }
 
 void Console::action_history_down()
@@ -95,6 +110,7 @@ void Console::action_history_down()
   if (_history_ndx + 1 >= _history.size())
     return;
 
+  setUndoRedoEnabled(false);
   QTextCursor	tc = textCursor();
 
   tc.setPosition(_line_start, QTextCursor::MoveAnchor);
@@ -103,6 +119,7 @@ void Console::action_history_down()
   _history.replace(_history_ndx, tc.selectedText());
 
   tc.insertText(_history[++_history_ndx]);
+  setUndoRedoEnabled(true);
 }
 
 void Console::action_key_complete()
@@ -152,7 +169,7 @@ void Console::action_key_complete()
 
       //////////// multiple candidates
     default: {
-      unsigned int i;
+      int i;
 
       // find common prefix
       for (i = 0; ; i++)
@@ -182,16 +199,30 @@ void Console::action_key_complete()
 	}
 
       // print list
-      QTextCursor	tc = textCursor();
-      tc.setCharFormat(_fmt_completion); // FIXME
+
+      // clear previous completion list text
+      QTextCursor tc = textCursor();
+      int offset = tc.position() - _line_start;
       tc.setPosition(_complete_start, QTextCursor::MoveAnchor);
       tc.setPosition(_prompt_start, QTextCursor::KeepAnchor);
+      tc.removeSelectedText();
+      setTextCursor(tc);
 
-      foreach(QString str, list)
-	tc.insertText(str + "\n");
+      // insert new completion list text
+      foreach(const QString &str, list)
+	{
+	  setTextColor(Qt::darkRed);
+	  insertPlainText(str + "\n");
+	}
+      setTextColor(Qt::black);
 
+      // adjust cursor position variables
+      tc = textCursor();
       _line_start += tc.position() - _prompt_start;
+      _mark += tc.position() - _prompt_start;
       _prompt_start = tc.position();
+      tc.setPosition(_line_start + offset, QTextCursor::MoveAnchor);
+      setTextCursor(tc);
     }
     }
 }
@@ -236,12 +267,27 @@ void Console::action_key_enter()
   // new line
   append("");
 
-  if (!line.trimmed().isEmpty())
-    {
-      emit line_validate(line);
-    }
+  // print() text goes at end
+  _complete_start = textCursor().position();
 
-  delete_completion_list();
+  if (!line.trimmed().isEmpty())
+    emit line_validate(line);
+}
+
+void Console::action_home()
+{
+  QTextCursor	tc = textCursor();
+
+  tc.setPosition(_line_start, QTextCursor::MoveAnchor);
+  setTextCursor(tc);
+}
+
+void Console::action_end()
+{
+  QTextCursor	tc = textCursor();
+
+  tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor, 1);
+  setTextCursor(tc);
 }
 
 void Console::delete_completion_list()
@@ -252,26 +298,32 @@ void Console::delete_completion_list()
 
       tc.setPosition(_complete_start, QTextCursor::MoveAnchor);
       tc.setPosition(_prompt_start, QTextCursor::KeepAnchor);
-      tc.deleteChar();
+      tc.removeSelectedText();
 
       _line_start += tc.position() - _prompt_start;
+      _mark += tc.position() - _prompt_start;
       _prompt_start = tc.position();
     }
 }
 
 void Console::keyPressEvent(QKeyEvent * e)
 {
-  if (e->modifiers() & Qt::ControlModifier)
+#ifdef QTLUA_DEBUG_KEYS
+  qDebug() << e->key() << e->modifiers();
+#endif
+
+  switch (e->modifiers())
     {
+    case Qt::ControlModifier:
       switch (e->key())
 	{
-
 	case Qt::Key_C: {
 	  QTextCursor	tc = textCursor();
 
 	  tc.movePosition(QTextCursor::End, QTextCursor::MoveAnchor, 1);
 	  tc.insertText("\n");
 	  setTextCursor(tc);
+	  delete_completion_list();
 	  display_prompt();
 	} break;
 
@@ -279,27 +331,113 @@ void Console::keyPressEvent(QKeyEvent * e)
 	case Qt::Key_V:
 	  paste();
 	  break;
+
+	case Qt::Key_Underscore:
+	case Qt::Key_Z:
+	  undo();
+	  break;
+
+	case Qt::Key_A:
+	  action_home();
+	  break;
+
+	case Qt::Key_E:
+	  action_end();
+	  break;
+
+	case Qt::Key_U: {
+	  QTextCursor	tc = textCursor();
+	  tc.setPosition(_line_start, QTextCursor::KeepAnchor);
+	  setTextCursor(tc);
+	  cut();
+	  break;
+	}
+
+	case Qt::Key_K: {
+	  QTextCursor	tc = textCursor();
+	  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor, 1);
+	  setTextCursor(tc);
+	  cut();
+	  break;
+	}
+
+	case Qt::Key_W: {
+	  QTextCursor	tc = textCursor();
+	  tc.setPosition(_mark, QTextCursor::KeepAnchor);
+	  setTextCursor(tc);
+	  cut();
+	  break;
+	}
+
+	case Qt::Key_Space: {
+	  QTextCursor	tc = textCursor();
+	  _mark = textCursor().position();
+	  break;
+	}
 	}
 
       ensureCursorVisible();
-    }
-  else
-    {
+      break;
+
+    case Qt::AltModifier:
+
       switch (e->key())
 	{
-	  // Let normal ascii keys through
-	case Qt::Key_Space ... Qt::Key_AsciiTilde:
-	  QTextEdit::keyPressEvent(e);
-	  ensureCursorVisible();
-	  return;
+	case Qt::Key_W: {
+	  QTextCursor	tc = textCursor();
+	  int cur = tc.position();
+	  tc.setPosition(_mark, QTextCursor::KeepAnchor);
+	  setTextCursor(tc);
+	  copy();
+	  tc.setPosition(cur, QTextCursor::MoveAnchor);
+	  setTextCursor(tc);
+	  break;
 	}
-    }
 
-  if (e->modifiers() == Qt::NoModifier)
-    {
+	case Qt::Key_D: {
+	  QTextCursor	tc = textCursor();
+	  tc.movePosition(QTextCursor::NextWord, QTextCursor::KeepAnchor, 1);
+	  tc.removeSelectedText();
+	  break;
+	}
+
+	case Qt::Key_Backspace: {
+	  QTextCursor	tc = textCursor();
+	  tc.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor, 1);
+	  if (tc.position() < _line_start)
+	    tc.setPosition(_line_start, QTextCursor::KeepAnchor);
+	  tc.removeSelectedText();
+	  break;
+	}
+
+	case Qt::Key_F: {
+	  QTextCursor	tc = textCursor();
+	  tc.movePosition(QTextCursor::NextWord, QTextCursor::MoveAnchor, 1);
+	  setTextCursor(tc);
+	  break;
+	}
+
+	case Qt::Key_B: {
+	  QTextCursor	tc = textCursor();
+	  tc.movePosition(QTextCursor::PreviousWord, QTextCursor::MoveAnchor, 1);
+	  if (tc.position() < _line_start)
+	    tc.setPosition(_line_start, QTextCursor::MoveAnchor);
+	  setTextCursor(tc);
+	  break;
+	}
+
+	}
+      break;
+
+    case Qt::NoModifier:
+    case Qt::KeypadModifier:
+
       switch (e->key())
 	{
 	case Qt::Key_End:
+	  action_end();
+	  break;
+
 	case Qt::Key_Delete:
 	case Qt::Key_Right:
 	  QTextEdit::keyPressEvent(e);
@@ -307,6 +445,7 @@ void Console::keyPressEvent(QKeyEvent * e)
 
 	case Qt::Key_Return:
 	case Qt::Key_Enter:
+	  delete_completion_list();
 	  action_key_enter();
 	  display_prompt();
 	  break;
@@ -321,12 +460,9 @@ void Console::keyPressEvent(QKeyEvent * e)
 	    QTextEdit::keyPressEvent(e);
 	  break;
 
-	case Qt::Key_Home: {
-	  QTextCursor	tc = textCursor();
-
-	  tc.setPosition(_line_start, QTextCursor::MoveAnchor);
-	  setTextCursor(tc);
-	} break;
+	case Qt::Key_Home:
+	  action_home();
+	  break;
 
 	case Qt::Key_Up:
 	  action_history_up();
@@ -345,8 +481,18 @@ void Console::keyPressEvent(QKeyEvent * e)
 	  return;
 	}
 
+    case Qt::ShiftModifier:
+
+      if (e->key() >= Qt::Key_Space && e->key() <= Qt::Key_AsciiTilde)
+	{
+	  // Let normal ascii keys through
+	  QTextEdit::keyPressEvent(e);
+	  ensureCursorVisible();
+	  break;
+	}
+
       ensureCursorVisible();
-      return;
+      break;
     }
 }
 
@@ -392,6 +538,15 @@ void Console::print(const QString &str)
   int last;
   QRegExp rx("\\0033\\[(\\d*)m");
 
+  // go before prompt and completion list
+  QTextCursor tc = textCursor();
+  int cur = tc.position();
+  tc.setPosition(_complete_start, QTextCursor::MoveAnchor);
+  setTextCursor(tc);
+
+  // insert text
+  setTextColor(Qt::black);
+
   while ((last = str.indexOf(rx, first)) >= 0)
     {
       if (last > first)
@@ -402,6 +557,26 @@ void Console::print(const QString &str)
     }
 
   insertPlainText(str.mid(first, str.size() - first));
+
+  // adjust cursor position variables
+  tc = textCursor();
+  int len = tc.position() - _complete_start;
+  _complete_start += len;
+  _line_start += len;
+  _mark += len;
+  _prompt_start += len;
+  tc.setPosition(cur + len, QTextCursor::MoveAnchor);
+  setTextCursor(tc);
+}
+
+QSize Console::sizeHint() const
+{
+  QFontMetrics fm(_fmt_normal.font());
+  int left, top, right, bottom;
+  getContentsMargins(&left, &top, &right, &bottom);
+  QSize hint(left + right + fm.width('x') * 81, top + bottom + fm.height() * 25);
+
+  return hint;
 }
 
 }

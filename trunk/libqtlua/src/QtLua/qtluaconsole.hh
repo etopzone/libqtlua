@@ -52,15 +52,18 @@ class Console : public QTextEdit
 public:
 
   /** Create a console widget. */
-  Console(QWidget *parent = 0);
+  Console(const QString &prompt = QString("$"), QWidget *parent = 0);
+
+  /** Create a console widget and restore history */
+  Console(const QStringList &history, const QString &prompt = QString("$"), QWidget *parent = 0);
 
   /** Set console prompt. */
-  void set_prompt(QString p);
+  inline void set_prompt(QString p);
 
   /** Set history entry count. */
   inline void set_history_size(int size);
 
-  /** Get current history content. */
+  /** Get current history. */
   inline const QStringList & get_history() const;
 
   /** Set Qt regular expression used to extract text before cursor to
@@ -92,18 +95,20 @@ public slots:
 private:
 
   QTextCharFormat	_fmt_normal;
-  QTextCharFormat	_fmt_completion;
   int			_complete_start;
   int			_prompt_start;
   int			_line_start;
+  int			_mark;
   QString		_prompt;
   QStringList		_history;
   int			_history_ndx;
   int			_history_max;
   int			_cursor_pos;
-  bool			_color_state;
   QRegExp		_complete_re;
 
+  QSize sizeHint() const;
+
+  void init();
   // Internal actions
   void action_key_complete();
   void action_key_enter();
@@ -111,6 +116,8 @@ private:
   void action_history_down();
   void display_prompt();
   void delete_completion_list();
+  void action_home();
+  void action_end();
 
   // Handle mouse events on console
   void mousePressEvent(QMouseEvent *e);
