@@ -45,6 +45,24 @@ namespace QtLua {
       }
   }
 
+  Value Table::get_value(int n) const
+  {
+    Value key = _entries[n]._key;
+    if (key.is_nil())
+      return key;
+    return _value[_entries[n]._key];
+  }
+
+  void Table::set_value(int n, const Value &value)
+  {
+    Value key = _entries[n]._key;
+    try {
+      if (!key.is_nil())
+	_value[key] = value;
+    } catch (const String &e) {
+    }
+  }
+
   Table * Table::set_table(int n)
   {
     if (!(_attr & TableModel::Recursive))
@@ -59,7 +77,7 @@ namespace QtLua {
       return e->_table;
 
     Table *res = 0;
-    Value value = _value[_entries[n]._index];
+    Value value = get_value(n);
     TableModel::Attributes attr_mask;
 
     switch (value.type())
@@ -70,6 +88,8 @@ namespace QtLua {
 
 	try {
 	  if (!value.to_userdata()->support(UserData::OpIterate))
+	    break;
+	  if (!value.to_userdata()->support(UserData::OpIndex))
 	    break;
 
 	  if (!value.to_userdata()->support(UserData::OpNewindex))
@@ -109,19 +129,7 @@ namespace QtLua {
     }
 
     for (; i != _value.end(); i++)
-      {
-	switch (i.key().type())
-	  {
-	  case Value::TNumber:
-	  case Value::TString: {
-	    _entries.push_back(Entry(i.key().to_string()));
-	    break;
-	  }
-
-	  default:
-	    break;
-	  }
-      }
+      _entries.push_back(Entry(i.key()));
 
     qSort(_entries.begin(), _entries.end());
   }

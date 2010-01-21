@@ -46,10 +46,10 @@ namespace QtLua {
     Table(const Value &val, TableModel::Attributes attr);
     ~Table();
 
-    inline Value get_value(int n) const;
-    inline void set_value(int n, const Value &value);
-    inline const String & get_lua_index(int n) const;
-    inline void set_lua_index(int n, const String &index);
+    Value get_value(int n) const;
+    void set_value(int n, const Value &value);
+    inline const Value & get_key(int n) const;
+    inline void set_key(int n, const Value &key);
     inline size_t count() const;
     inline bool is_table(int n) const;
 
@@ -59,11 +59,11 @@ namespace QtLua {
 
     struct Entry
     {
-      String _index;		// FIXME keep trace of number keys
+      Value _key;
       Table *_table;
       bool _table_chk;
 
-      inline Entry(const String &index = "");
+      inline Entry(const Value &key);
       inline bool operator<(const Entry &e) const;
     };
 

@@ -114,8 +114,13 @@ namespace QtLua {
 
 	  switch (index.column())
 	    {
-	    case ColKey:
-	      return QVariant(t->get_lua_index(index.row()));
+	    case ColKey: {
+	      Value key = t->get_key(index.row());
+	      if ((t->_attr & UnquoteKeys) && key.type() == Value::TString)
+		return QVariant(key.to_string());
+	      else
+		return QVariant(key.to_string_p());
+	    }
 	    case ColType:
 	      return QVariant(t->get_value(index.row()).type_name_u());
 	    case ColValue:
@@ -131,6 +136,33 @@ namespace QtLua {
     }
   }
 
+  Value TableModel::get_value(const QModelIndex &index) const
+  {
+    if (!index.isValid())
+      return Value(_table->_value.get_state());
+
+    Table *t = static_cast<Table*>(index.internalPointer());
+
+    switch (index.column())
+      {
+      case ColKey:
+	return t->get_key(index.row());
+      case ColValue:
+	return t->get_value(index.row());
+      default:
+	return Value(t->_value.get_state());
+      }
+  }
+
+  TableModel::Attributes TableModel::get_attr(const QModelIndex &index) const
+  {
+    if (!index.isValid())
+      return Attributes();
+
+    Table *t = static_cast<Table*>(index.internalPointer());
+    return t->_attr;
+  }
+
   Qt::ItemFlags TableModel::flags(const QModelIndex &index) const
   {
     if (!index.isValid())
@@ -138,7 +170,7 @@ namespace QtLua {
 
     Table *t = static_cast<Table*>(index.internalPointer());
 
-    Qt::ItemFlags res = Qt::ItemIsEnabled;
+    Qt::ItemFlags res = (Qt::ItemFlag)(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
 
     if (t->_attr & Editable)
       {
@@ -146,12 +178,12 @@ namespace QtLua {
 	  {
 	  case ColValue:
 	    if (!t->is_table(index.row()))		// prevent edit if already explored table
-	      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+	      res = res | Qt::ItemIsEditable;
 	    break;
 
 	  case ColKey:
-	    if (t->_attr & EditKey)
-	      res = res | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+	    if (t->_attr & EditKey || t->get_key(index.row()).is_nil())
+	      res = res | Qt::ItemIsEditable;
 	    break;
 	  }
       }
@@ -238,15 +270,12 @@ namespace QtLua {
 	  return true;
 
 	case ColKey: {
-	  String str = newvalue.to_string();
-	  
-	  if (!t->_value[str].is_nil())
+	  if (!t->_value[newvalue].is_nil())
 	    throw String("An entry with the same key already exists.");
 
 	  Value old = t->get_value(index.row());
-
 	  t->set_value(index.row(), Value(state));
-	  t->set_lua_index(index.row(), str);
+	  t->set_key(index.row(), newvalue);
 	  t->set_value(index.row(), old);
 	  return true;
 	}
@@ -266,13 +295,15 @@ namespace QtLua {
   bool TableModel::removeRows(int row, int count, const QModelIndex &parent)
   {
     assert(count);
-    beginRemoveRows(parent, row, row + count - 1);
 
     Table *t = table_from_index(parent);
-    State &state = t->_value.get_state();
 
     if (!(t->_attr & EditRemove))
       return false;
+
+    beginRemoveRows(parent, row, row + count - 1);
+
+    State &state = t->_value.get_state();
 
     // set lua table to nil and delete nested tables
     for (int i = row; i < row + count; i++)
@@ -302,15 +333,18 @@ namespace QtLua {
   bool TableModel::insertRows(int row, int count, const QModelIndex &parent)
   {
     assert(count);
-    beginInsertRows(parent, row, row + count - 1);
 
     Table *t = table_from_index(parent);
 
     if (!(t->_attr & EditInsert))
       return false;
 
+    beginInsertRows(parent, row, row + count - 1);
+
+    State &state = t->_value.get_state();
+
     for (int i = 0; i < count; i++)
-      t->_entries.insert(row, Table::Entry());
+      t->_entries.insert(row, Table::Entry(Value(state)));
 
     for (int i = row + count; i < t->count(); i++)
       if (Table *c = t->_entries[i]._table)

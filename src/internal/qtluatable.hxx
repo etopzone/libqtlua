@@ -24,24 +24,14 @@
 
 namespace QtLua {
 
-  Value Table::get_value(int n) const
+  const Value & Table::get_key(int n) const
   {
-    return _value[_entries[n]._index];
+    return _entries[n]._key;
   }
 
-  void Table::set_value(int n, const Value &value)
+  void Table::set_key(int n, const Value &key)
   {
-    _value[_entries[n]._index] = value;
-  }
-
-  const String & Table::get_lua_index(int n) const
-  {
-    return _entries[n]._index;
-  }
-
-  void Table::set_lua_index(int n, const String &index)
-  {
-    _entries[n]._index = index;
+    _entries[n]._key = key;
   }
 
   bool Table::is_table(int n) const
@@ -54,8 +44,8 @@ namespace QtLua {
     return _entries.count();
   }
 
-  Table::Entry::Entry(const String &index)
-    : _index(index),
+  Table::Entry::Entry(const Value &key)
+    : _key(key),
       _table(0),
       _table_chk(false)
   {
@@ -63,7 +53,7 @@ namespace QtLua {
 
   bool Table::Entry::operator<(const Entry &e) const
   {
-    return _index < e._index;
+    return _key < e._key;
   }
 
 }

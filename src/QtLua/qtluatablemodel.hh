@@ -69,6 +69,7 @@ namespace QtLua {
 	Recursive = 1,		//< Expose nested tables too.
 	UserDataIter = 2,	//< Iterate over UserData objects too.
 	HideType = 256,		//< Do not show entry type in an additionnal column.
+	UnquoteKeys = 512,	//< Strip double quote from string keys
 
 	Editable = 4,		//< Allow editing exposed tables using views.
 	EditFixedType = 8,	//< Prevent value type change when editing.
@@ -96,8 +97,13 @@ namespace QtLua {
 	ColKey = 0, ColValue = 1, ColType = 2,
       };
 
-  private:
+    /** Get lua value at given model index */
+    Value get_value(const QModelIndex &index) const;
 
+    /** Get supported operations for given model index */
+    Attributes get_attr(const QModelIndex &index) const;
+
+  private:
     QModelIndex	index(int row, int column, const QModelIndex &parent) const;
     QModelIndex	parent(const QModelIndex &index) const;
     int		rowCount(const QModelIndex &parent) const;
@@ -109,6 +115,7 @@ namespace QtLua {
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool	removeRows(int row, int count, const QModelIndex &parent);
     bool	insertRows(int row, int count, const QModelIndex &parent);
+
     Table * table_from_index(const QModelIndex &index) const;
 
     Table *_table;
