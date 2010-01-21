@@ -60,7 +60,7 @@
   @list
    @item The @tt print() lua function prints all passed values using the @ref QtLua::State::output signal.
    @item The @tt list() lua function prints list of members of given table or global table if no argument.
-   @item The @tt each() lua function return an @ref QtLua::Iterator based lua iterator for given value.
+   @item The @tt each() lua function returns a lua iterator which can be used to iterate over lua tables and QtLua @ref UserData objects.
    @item The @tt help() lua function can be used to display help about @ref QtLua::Function based objects.
    @item The @tt plugin() function returns a @ref QtLua::Plugin object loaded from given plugin bare file name.
   @end list
@@ -310,16 +310,20 @@
 
   The QtLua project comes with a simple tool to experiment Qt enabled lua scripts.
   
-  Lua script files passed on command line are executed in left to right
-  order. The initial lua environment has all libraries loaded (see @ref
-  QtLua::Library enum), the lua global variable @tt app is wrapping
-  the @ref QApplication object.
-  
+  Lua script files passed on command line are executed in left to
+  right order. Standard lua libraries are loaded along with the
+  @xref{QtLua lua libraries}. the lua global variable @tt app is
+  wrapping the @ref QApplication object.
+
   This tool has an interactive mode which displays a @ref QtLua::Console window.
   This is useful for script debugging and allows playing with Qt objects from lua.
+
   The interactive mode is automatically started if no script are passed
   on command line, it can also be invoked with the @tt -i option on
   the command line and will start after scripts execution.
+
+  When in interactive mode, the @tt{list()} and @tt{help()} commands
+  are useful to get started.
 
  @end section
 
