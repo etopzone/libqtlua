@@ -110,9 +110,17 @@ namespace QtLua {
 
     if (index.isValid())
       {
-	_model->insertRow(index.row(), _model->parent(index));
-	_view->edit(index);
+	QModelIndex parent = _model->parent(index);
+	_model->insertRow(index.row(), parent);
+	index = _model->index(index.row(), TableModel::ColKey, parent);
       }
+    else
+      {
+	_model->insertRow(0, QModelIndex());
+	index = _model->index(0, TableModel::ColKey, QModelIndex());
+      }
+
+    _view->edit(index);
   }
 
   void TableDialog::remove() const
@@ -137,8 +145,13 @@ namespace QtLua {
 
   void TableDialog::currentChanged(const QModelIndex &index) const
   {
+    TableModel::Attributes attr = static_cast<TableModel*>(_model)->get_attr(index);
+
     if (_rb)
-      _rb->setEnabled(index.isValid());
+      _rb->setEnabled(index.isValid() && (attr & TableModel::EditRemove));
+
+    if (_ib)
+      _ib->setEnabled(!index.isValid() || (attr & TableModel::EditInsert));
 
     if (_eb)
       _eb->setEnabled(_model->flags(editable_index(index)) & Qt::ItemIsEditable);
