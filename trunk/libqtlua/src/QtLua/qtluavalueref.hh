@@ -48,28 +48,32 @@ namespace QtLua {
 
   public:
     /** Construct reference with given table and key. */
-    ValueRef(const Value &table, const Value &key);
+    inline ValueRef(const Value &table, const Value &key);
+    /** Construct reference with given table and key. */
+    template <typename T>
+    inline ValueRef(const Value &table, const T &key);
 
     ValueRef(const ValueRef &ref);
 
-    /** Assign new value to reference. */
-    ValueRef & operator=(const Value &v);
-    /** Assign new value to reference. */
-    inline ValueRef & operator=(const ValueRef &v);
-    /** Assign new boolean value to reference. */
-    inline ValueRef & operator=(Bool n);
-    /** Assign new number value to reference. */
-    inline ValueRef & operator=(double n);
-    /** Assign new number value to reference. */
-    inline ValueRef & operator=(int n);
-    /** Assign new string value to reference. */
-    inline ValueRef & operator=(const String &str);
-    /** Assign new user data value to reference. */
-    inline ValueRef & operator=(Ref<UserData> ud);
+    /** Assign new value to referenced value. */
+    const ValueRef & operator=(const Value &v) const;
+    /** Assign new value to referenced value. */
+    inline const ValueRef & operator=(const ValueRef &v) const;
+    /** Assign new boolean to referenced value. */
+    inline const ValueRef & operator=(Bool n) const;
+    /** Assign new number to referenced value. */
+    inline const ValueRef & operator=(double n) const;
+    /** Assign new number to referenced value. */
+    inline const ValueRef & operator=(int n) const;
+    /** Assign new string to referenced value. */
+    inline const ValueRef & operator=(const String &str) const;
+    /** Assign new user data to referenced value. */
+    inline const ValueRef & operator=(Ref<UserData> ud) const;
     /** Assign a wrapped QObject to reference. */
-    inline ValueRef & operator=(QObject *obj);
+    inline const ValueRef & operator=(QObject *obj) const;
 
   private:
+    void init(const Value &table);
     void push_value() const;
 
     Value _key;

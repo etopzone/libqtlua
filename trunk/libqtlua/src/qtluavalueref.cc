@@ -29,12 +29,8 @@ extern "C" {
 
 namespace QtLua {
 
-  ValueRef::ValueRef(const Value &table, const Value &key)
-    : Value(table._st),
-      _key(key)
+  void ValueRef::init(const Value &table)
   {
-    assert(table._st == key._st);
-
     lua_pushlightuserdata(_st, this);
     table.push_value();
 
@@ -75,9 +71,9 @@ namespace QtLua {
     lua_remove(_st, -2);
   }
 
-  ValueRef & ValueRef::operator=(const Value &v)
+  const ValueRef & ValueRef::operator=(const Value &v) const
   {
-    lua_pushlightuserdata(_st, this);
+    lua_pushlightuserdata(_st, (void*)this);
     lua_rawget(_st, LUA_REGISTRYINDEX);
 
     switch (lua_type(_st, -1))
