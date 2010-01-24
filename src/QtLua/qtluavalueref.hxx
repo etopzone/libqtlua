@@ -22,47 +22,66 @@
 #ifndef QTLUAVALUEREF_HXX_
 #define QTLUAVALUEREF_HXX_
 
+#include <cassert>
+
 #include "qtluavalue.hxx"
 
 namespace QtLua {
 
-  ValueRef & ValueRef::operator=(const ValueRef &ref)
+  ValueRef::ValueRef(const Value &table, const Value &key)
+    : Value(table._st),
+      _key(key)
+  {
+    assert(table._st == key._st);
+    init(table);
+  }
+
+  template <typename T>
+  ValueRef::ValueRef(const Value &table, const T &key)
+    : Value(table._st),
+      _key(Value(table._st))
+  {
+    _key = key;
+    init(table);
+  }
+
+  const ValueRef & ValueRef::operator=(const ValueRef &ref) const
   {
     *this = static_cast<const Value &>(ref);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(Bool n)
+  const ValueRef & ValueRef::operator=(Bool n) const
   {
     *this = Value(_st, n);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(double n)
+  const ValueRef & ValueRef::operator=(double n) const
   {
     *this = Value(_st, n);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(int n)
+  const ValueRef & ValueRef::operator=(int n) const
   {
     *this = Value(_st, (double)n);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(const String &str)
+  const ValueRef & ValueRef::operator=(const String &str) const
   {
     *this = Value(_st, str);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(UserData::ptr ud)
+  const ValueRef & ValueRef::operator=(UserData::ptr ud) const
   {
     *this = Value(_st, ud);
     return *this;
   }
 
-  ValueRef & ValueRef::operator=(QObject *obj)
+  const ValueRef & ValueRef::operator=(QObject *obj) const
   {
     *this = Value(_st, obj);
     return *this;
