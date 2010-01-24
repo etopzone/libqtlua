@@ -481,6 +481,7 @@ void Console::keyPressEvent(QKeyEvent * e)
 	  return;
 	}
 
+    case Qt::GroupSwitchModifier:
     case Qt::ShiftModifier:
 
       if (e->key() >= Qt::Key_Space && e->key() <= Qt::Key_AsciiTilde)
