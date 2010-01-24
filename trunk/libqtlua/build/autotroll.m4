@@ -345,12 +345,12 @@ instead" >&AS_MESSAGE_LOG_FD
 
   # Find the CFLAGS of Qt (We can use Qt in C?!)
   AC_CACHE_CHECK([for the CFLAGS to use with Qt], [at_cv_env_QT_CFLAGS],
-  [at_cv_env_QT_CFLAGS=`sed "/^CFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^ ]]*//g" $at_mfile`])
+  [at_cv_env_QT_CFLAGS=`sed "/^CFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^-]]*//g" $at_mfile`])
   AC_SUBST([QT_CFLAGS], [$at_cv_env_QT_CFLAGS])
 
   # Find the CXXFLAGS of Qt.
   AC_CACHE_CHECK([for the CXXFLAGS to use with Qt], [at_cv_env_QT_CXXFLAGS],
-  [at_cv_env_QT_CXXFLAGS=`sed "/^CXXFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^ ]]*//g" $at_mfile`])
+  [at_cv_env_QT_CXXFLAGS=`sed "/^CXXFLAGS[[^A-Z]]*=/!d;$qt_sed_filter;s/-[[^D]][[^-]]*//g" $at_mfile`])
   AC_SUBST([QT_CXXFLAGS], [$at_cv_env_QT_CXXFLAGS])
 
   # Find the INCPATH of Qt.
