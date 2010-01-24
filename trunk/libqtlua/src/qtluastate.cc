@@ -567,6 +567,38 @@ int State::lua_panic(lua_State *st)
   throw err;
 }
 
+Value State::eval_expr(bool use_lua, const String &expr)
+{
+  // Use lua to transform user input to lua value
+  if (use_lua)
+    {
+      Value::List res = exec_statements(String("return ") + expr);
+
+      if (res.empty())
+	throw String("lua expression `%' returned no value").arg(expr);
+
+      return res[0];
+    }
+
+    // Do not use lua, only handle string and number cases
+    else
+      {
+	bool ok = false;
+	double number = expr.toDouble(&ok);
+
+	if (ok)
+	  return Value(*this, number);
+	else
+	  {
+	    // exprip double quotes if any
+	    if (expr.size() > 1 && expr.startsWith('"') && expr.endsWith('"'))
+	      return Value(*this, String(expr.mid(1, expr.size() - 2)));
+	    else
+	      return Value(*this, expr);
+	  }
+      }
+}
+
 struct lua_reader_state_s
 {
   QIODevice *_io;

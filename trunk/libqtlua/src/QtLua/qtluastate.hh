@@ -30,6 +30,12 @@
 #include "qtluavalue.hh"
 #include "qtluavalueref.hh"
 
+#define QTLUA_PROTECT(...)			\
+  try {						\
+    __VA_ARGS__;				\
+  } catch (const String &e) {			\
+  }
+
 struct lua_State;
 
 namespace QtLua {
@@ -191,6 +197,11 @@ public slots:
    * Console widget for default global variables completion behavior.
    */
   void fill_completion_list(const QString &prefix, QStringList &list, int &cursor_offset);
+
+  /**
+   * @internal This function return a lua value from an expression.
+   */
+  Value eval_expr(bool use_lua, const String &expr);
 
 signals:
 
