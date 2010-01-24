@@ -1,4 +1,3 @@
-
 /*
     This file is part of LibQtLua.
 
@@ -21,29 +20,35 @@
 
 #include <QApplication>
 
-#include "tabletreeview.hh"
+#include <QtLua/Value>
+
+#include "tablegridview.hh"
 
 MainWindow::MainWindow()
   : QMainWindow()
 {
 							/* anchor 1 */
   state = new QtLua::State();
-  state->openlib(QtLua::AllLibs);
 
-  // Create a new model and expose lua global table
-  model = new QtLua::TableTreeModel((*state)["_G"], QtLua::TableTreeModel::Recursive);
+  // 2 dimensions array using nested lua tables
+  QtLua::Value table(state->exec_statements(
+    "return { { 1, 2, 3 }, { 4, 5, 6 }, { 7, 8, 9 } }"
+  )[0]);
+
+  // Create a new model and expose lua table
+  model = new QtLua::TableGridModel(table, QtLua::TableGridModel::Editable, true);
 
   // Create Qt view widget
-  treeview = new QTreeView(0);
-  treeview->setModel(model);
+  tableview = new QTableView(0);
+  tableview->setModel(model);
 
-  setCentralWidget(treeview);
+  setCentralWidget(tableview);
 							/* anchor end */
 }
 
 MainWindow::~MainWindow()
 {
-  treeview->setModel(0);
+  tableview->setModel(0);
   delete model;
   delete state;
 }

@@ -19,23 +19,23 @@
 */
 
 
-#ifndef QTLUA_TABLEMODEL_HH_
-#define QTLUA_TABLEMODEL_HH_
+#ifndef QTLUA_TABLETREEMODEL_HH_
+#define QTLUA_TABLETREEMODEL_HH_
 
 #include <QtLua/Value>
 #include <QAbstractItemModel>
 
 namespace QtLua {
 
-  class Table;
+  class TableTreeKeys;
 
   /**
    * @short Qt Model/View lua table model class
-   * @header QtLua/TableModel
+   * @header QtLua/TableTreeModel
    * @module {Model/View}
    *
    * This class can be used to expose lua tables content to Qt view
-   * widgets in a flat (list) or hierarchical (tree) manner.
+   * widgets in a flat or hierarchical manner.
    *
    * Lua tables and @ref UserData objects with valid table operations
    * are handled.
@@ -45,17 +45,17 @@ namespace QtLua {
    * actions are allowed. User input may be evaluated as a lua
    * expression when editing a table entry.
    *
-   * Changes in exposed lua tables may @b not update the model on the
-   * fly and the @ref update function must be called to refresh on
-   * heavy modifications. This is partially due to lack of lua
-   * mechanism to implement efficient table change event.
+   * Lua tables change may @b not update the model on the fly and the
+   * @ref update function must be called to refresh views on heavy
+   * modifications. This is partially due to lack of lua mechanism to
+   * implement efficient table change event.
    *
    * Usage example:
    * @example examples/cpp/mvc/tabletreeview.cc:1
    * @see TableDialog
    */
 
-  class TableModel : public QAbstractItemModel
+  class TableTreeModel : public QAbstractItemModel
   {
     Q_OBJECT;
     Q_ENUMS(Attribute);
@@ -63,6 +63,7 @@ namespace QtLua {
 
   public:
 
+    /** Specifies @ref TableTreeModel behavior for a given lua table */
     enum Attribute
       {
 	Recursive = 1,		//< Expose nested tables too.
@@ -76,35 +77,36 @@ namespace QtLua {
 	EditInsert = 128,	//< Allow insertion of new entries.
 	EditRemove = 256,	//< Allow deletion of existing entries.
 	EditKey = 512,	        //< Allow entry key update.
-	EditAll = 16 + 128 + 256 + 512, //< Editable, EditInsert, EditRemove and EditKey allowed)
+	EditAll = 16 + 128 + 256 + 512, //< Editable, EditInsert, EditRemove and EditKey allowed
       };
 
     Q_DECLARE_FLAGS(Attributes, Attribute);
 
     /** Create a new lua table model. */
-    TableModel(const Value &root, QObject *parent = 0,
-	       Attributes attr = Attributes(Recursive | UserDataIter));
+    TableTreeModel(const Value &root, Attributes attr, QObject *parent = 0);
 
-    ~TableModel();
+    ~TableTreeModel();
 
     /** Clear cached table content and reset model. */
     void update();
 
-    /** Columns ids */
+    /** Get lua value at given model index */
+    Value get_value(const QModelIndex &index) const;
+
+    /** Get supported operations for entry at given @ref QModelIndex */
+    Attributes get_attr(const QModelIndex &index) const;
+
+  public:
+    /** @internal Columns ids */
     enum ColumnId
       {
 	ColKey = 0, ColValue = 1, ColType = 2,
       };
 
-    /** Get lua value at given model index */
-    Value get_value(const QModelIndex &index) const;
-
-    /** Get supported operations for given model index */
-    Attributes get_attr(const QModelIndex &index) const;
-
-  private:
+    /** @multiple @internal */
     QModelIndex	index(int row, int column, const QModelIndex &parent) const;
     QModelIndex	parent(const QModelIndex &index) const;
+    QModelIndex buddy(const QModelIndex &index) const;
     int		rowCount(const QModelIndex &parent) const;
     bool	hasChildren(const QModelIndex & parent) const;
     int		columnCount(const QModelIndex &parent) const;
@@ -114,13 +116,16 @@ namespace QtLua {
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool	removeRows(int row, int count, const QModelIndex &parent);
     bool	insertRows(int row, int count, const QModelIndex &parent);
+    /** */
 
-    Table * table_from_index(const QModelIndex &index) const;
+  private:
 
-    Table *_table;
+    TableTreeKeys * table_from_index(const QModelIndex &index) const;
+
+    TableTreeKeys *_table;
   };
 
-  Q_DECLARE_OPERATORS_FOR_FLAGS(TableModel::Attributes);
+  Q_DECLARE_OPERATORS_FOR_FLAGS(TableTreeModel::Attributes);
 
 }
 

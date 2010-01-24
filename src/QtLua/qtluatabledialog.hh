@@ -25,7 +25,8 @@
 #include <QAbstractItemView>
 #include <QDialog>
 
-#include <QtLua/TableModel>
+#include <QtLua/TableTreeModel>
+#include <QtLua/TableGridModel>
 
 namespace QtLua {
 
@@ -34,44 +35,93 @@ namespace QtLua {
    * @header QtLua/TableDialog
    * @module {Model/View}
    *
-   * This dialog class use the @ref TableModel class to display lua
-   * tables in @ref QTreeView or @ref QTableView widgets.
+   * This dialog class use the @ref TableTreeModel or @ref
+   * TableGridModel classes to show and enable edition of lua tables
+   * in @ref QTreeView or @ref QTableView widgets.
    *
-   * The @ref QtLib lua library provides functions to display lua
-   * tables using @ref TableDialog objects from lua code.
+   * The dialog has some edition buttons depending on model edition
+   * attributes.
    *
-   * @see TableModel
+   * The @ref QtLib lua library provides functions to invoke these
+   * dialogs from lua code.
+   *
+   * @see TableTreeModel @see TableGridModel
    */
 
   class TableDialog : public QDialog
   {
     Q_OBJECT;
+    Q_ENUMS(ViewType);
 
   public:
 
-    /** Create a table dialog. */
-    TableDialog(QWidget *parent, const Value &root,
-		TableModel::Attributes attr, bool tableview);
-    ~TableDialog();
+    /** Specify model and view to use for the @ref TableDialog dialog */
+    enum ViewType
+      {
+	TreeTreeView,		//< Use @ref TableTreeModel with a @ref QTreeView
+	TreeTableView,		//< Use @ref TableTreeModel with a @ref QTableView
+	GridTableView,		//< Use @ref TableGridModel with a @ref QTableView
+      };
 
     /**
-     * Shortcut function to display a modal lua table dialog.
+     * Create a table dialog.
+     *
+     * @param table lua table to expose
+     * @param type dialog type
+     * @param model mvc model to use, a default model is created if @ref NULL.
+     * @param attr model attributes, control display and edit options
+     *
+     * @see tree_tree_dialog @see tree_table_dialog @see grid_table_dialog
+     */
+    TableDialog(const Value &table, enum ViewType type,
+		QAbstractItemModel *model = 0,
+		int attr = 0, QWidget *parent = 0);
+
+    /** Return pointer to model */
+    inline QAbstractItemModel *get_model() const;
+    /** Return pointer to view */
+    inline QAbstractItemView *get_view() const;
+
+    /**
+     * @multiple {2}
+     * Shortcut function to display a modal lua table dialog. A @ref TableTreeModel model is used.
      *
      * @param parent parent widget
-     * @param root lua table value to expose
+     * @param title dialog window title
+     * @param table lua table to expose
      * @param attr model attributes, control display and edit options
-     * @param tableview use a QTableView instead of a QTreeView when set
      */
-    static void table_dialog(QWidget *parent, const Value &root, 
-			     TableModel::Attributes attr = TableModel::Recursive,
-			     const QString &title = "", bool tableview = false);
+    static void tree_tree_dialog(QWidget *parent, const QString &title, const Value &table, 
+				 TableTreeModel::Attributes attr = TableTreeModel::Recursive);
+
+    static void tree_table_dialog(QWidget *parent, const QString &title, const Value &table, 
+				  TableTreeModel::Attributes attr = TableTreeModel::Recursive);
+
+    /**
+     * Shortcut function to display a modal lua table dialog. A @ref TableGridModel model is used.
+     *
+     * @param parent parent widget
+     * @param title dialog window title
+     * @param table lua table to expose
+     * @param attr model attributes, control display and edit options
+     * @param rowkeys list of lua value to use as row keys,
+     *  use @ref TableGridModel::fetch_all_row_keys if @ref NULL.
+     * @param colkeys list of lua value to use as column keys,
+     *  use @ref TableGridModel::fetch_all_column_keys if @ref NULL.
+     */
+    static void grid_table_dialog(QWidget *parent, const QString &title, const Value &table,
+				  TableGridModel::Attributes attr = TableGridModel::Attributes(),
+				  const Value::List *colkeys = 0, const Value::List *rowkeys = 0);
 
   private slots:
     void edit() const;
-    void insert() const;
-    void remove() const;
-    void currentChanged(const QModelIndex & index) const;
-    QModelIndex editable_index(const QModelIndex &index) const;
+    void tree_insert() const;
+    void tree_remove() const;
+    void tree_current_changed(const QModelIndex & index) const;
+
+    void grid_insert_row() const;
+    void grid_remove_row() const;
+    void grid_current_changed(const QModelIndex & index) const;
 
   protected:
     virtual QSize sizeHint() const;

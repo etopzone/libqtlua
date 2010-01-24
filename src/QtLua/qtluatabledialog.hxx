@@ -1,4 +1,3 @@
-
 /*
     This file is part of LibQtLua.
 
@@ -19,42 +18,23 @@
 
 */
 
-#include <QApplication>
 
-#include "tabletreeview.hh"
+#ifndef QTLUA_TABLEDIALOG_HXX_
+#define QTLUA_TABLEDIALOG_HXX_
 
-MainWindow::MainWindow()
-  : QMainWindow()
-{
-							/* anchor 1 */
-  state = new QtLua::State();
-  state->openlib(QtLua::AllLibs);
+namespace QtLua {
 
-  // Create a new model and expose lua global table
-  model = new QtLua::TableTreeModel((*state)["_G"], QtLua::TableTreeModel::Recursive);
+  QAbstractItemModel * TableDialog::get_model() const
+  {
+    return _model;
+  }
 
-  // Create Qt view widget
-  treeview = new QTreeView(0);
-  treeview->setModel(model);
+  QAbstractItemView * TableDialog::get_view() const
+  {
+    return _view;
+  }
 
-  setCentralWidget(treeview);
-							/* anchor end */
 }
 
-MainWindow::~MainWindow()
-{
-  treeview->setModel(0);
-  delete model;
-  delete state;
-}
-
-int main(int argc, char *argv[])
-{
-  QApplication app(argc, argv);
-  MainWindow mainWin;
-
-  mainWin.show();
-  return app.exec();
-}
-
+#endif
 

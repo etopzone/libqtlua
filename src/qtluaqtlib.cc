@@ -869,43 +869,11 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	meta_call_check_args(args, 1, 4, Value::TNone, Value::TString,
-			     Value::TNumber, Value::TBool);
+	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TNumber);
 
-	TableDialog::table_dialog(QApplication::activeWindow(), args[0],
-				  (TableModel::Attributes)get_arg<int>(args, 2, TableModel::Recursive),
-				  get_arg<String>(args, 1, ""),
-				  get_arg<Value::Bool>(args, 3, Value::False)
-				  );
-
-	return Value::List();
-      }
-
-      String get_description() const
-      {
-	return "expose a lua table in a list view";
-      }
-
-      String get_help() const
-      {
-	return ("usage: qt.dialog.show_table( table [ , \"title\", attributes ] )");
-      }
-
-    } dialog_show_table;
-
-    dialog_show_table.register_(ls, "qt.dialog.show_table");
-
-    //////////////////////////////////////////////////////////////////////
-
-    static class : public Function
-    {
-      Value::List meta_call(State &ls, const Value::List &args)
-      {
-	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TBool);
-
-	return Value(ls, new TableDialog(0, args[0],
-					 (TableModel::Attributes)get_arg<int>(args, 1, 0),
-					 get_arg<Value::Bool>(args, 2, Value::False)), true);
+	return Value(ls, new TableDialog(args[0],
+					 (TableDialog::ViewType)get_arg<int>(args, 1), 0,
+					 get_arg<int>(args, 2, 0), 0), true);
       }
 
       String get_description() const
@@ -915,12 +883,120 @@ namespace QtLua {
 
       String get_help() const
       {
-	return ("usage: qt.dialog.new_table_dialog( table [ , recursive, editable ] )");
+	return ("usage: qt.dialog.new_table_dialog( table , viewtype, [ attributes ] )");
       }
 
     } new_table_dialog;
 
     new_table_dialog.register_(ls, "qt.dialog.new_table_dialog");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
+
+	TableDialog::tree_tree_dialog(QApplication::activeWindow(),
+				      get_arg<String>(args, 2, ""), args[0],
+				      (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
+				      );
+
+	return Value::List();
+      }
+
+      String get_description() const
+      {
+	return "expose a lua table in a QTreeView";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.dialog.tree_treeview( table [ , attributes, \"title\" ] )");
+      }
+
+    } dialog_tree_treeview;
+
+    dialog_tree_treeview.register_(ls, "qt.dialog.tree_treeview");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
+
+	TableDialog::tree_table_dialog(QApplication::activeWindow(),
+				      get_arg<String>(args, 2, ""), args[0],
+				      (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
+				      );
+
+	return Value::List();
+      }
+
+      String get_description() const
+      {
+	return "expose a lua table in a QTreeView";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.dialog.tree_tableview( table [ , attributes, \"title\" ] )");
+      }
+
+    } dialog_tree_tableview;
+
+    dialog_tree_tableview.register_(ls, "qt.dialog.tree_tableview");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 5, Value::TNone, Value::TNumber,
+			     Value::TString, Value::TTable, Value::TTable);
+	Value::List rk, *rkptr = 0;
+	Value::List ck, *ckptr = 0;
+
+	if (args.count() >= 5)
+	  {
+	    rk = args[4].to_qlist<Value>();
+	    if (!rk.empty())
+	      rkptr = &rk;
+	  }
+
+	if (args.count() >= 4)
+	  {
+	    ck = args[3].to_qlist<Value>();
+	    if (!ck.empty())
+	      ckptr = &ck;
+	  }
+
+	TableDialog::grid_table_dialog(QApplication::activeWindow(),
+				       get_arg<String>(args, 2, ""), args[0],
+				       (TableGridModel::Attributes)get_arg<int>(args, 1, 0),
+				       ckptr, rkptr
+				       );
+
+	return Value::List();
+      }
+
+      String get_description() const
+      {
+	return "expose 2 dimensions nested lua tables in a QTableView";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.dialog.grid_tableview( table [ , attributes, \"title\", {column keys}, {row keys} ] )");
+      }
+
+    } dialog_grid_tableview;
+
+    dialog_grid_tableview.register_(ls, "qt.dialog.grid_tableview");
 
   }
 

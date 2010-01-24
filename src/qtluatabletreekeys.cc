@@ -19,23 +19,23 @@
 */
 
 #include <QtLua/Value>
-#include <internal/Table>
+#include <internal/TableTreeKeys>
 
 namespace QtLua {
 
-  Table::Table(const Value &val, TableModel::Attributes attr)
+  TableTreeKeys::TableTreeKeys(const Value &val, TableTreeModel::Attributes attr)
     : _value(val),
       _parent(0),
       _attr(attr)
   {
   }
 
-  Table::~Table()
+  TableTreeKeys::~TableTreeKeys()
   {
     clear();
   }
 
-  void Table::clear()
+  void TableTreeKeys::clear()
   {
     while (!_entries.empty())
       {
@@ -45,7 +45,7 @@ namespace QtLua {
       }
   }
 
-  Value Table::get_value(int n) const
+  Value TableTreeKeys::get_value(int n) const
   {
     Value key = _entries[n]._key;
     if (key.is_nil())
@@ -53,7 +53,7 @@ namespace QtLua {
     return _value[_entries[n]._key];
   }
 
-  void Table::set_value(int n, const Value &value)
+  void TableTreeKeys::set_value(int n, const Value &value)
   {
     Value key = _entries[n]._key;
     try {
@@ -63,9 +63,9 @@ namespace QtLua {
     }
   }
 
-  Table * Table::set_table(int n)
+  TableTreeKeys * TableTreeKeys::set_table(int n)
   {
-    if (!(_attr & TableModel::Recursive))
+    if (!(_attr & TableTreeModel::Recursive))
       return NULL;
 
     if (n >= _entries.count())
@@ -76,14 +76,14 @@ namespace QtLua {
     if (e->_table_chk)
       return e->_table;
 
-    Table *res = 0;
+    TableTreeKeys *res = 0;
     Value value = get_value(n);
-    TableModel::Attributes attr_mask;
+    TableTreeModel::Attributes attr_mask;
 
     switch (value.type())
       {
       case Value::TUserData:
-	if (!(_attr & TableModel::UserDataIter))
+	if (!(_attr & TableTreeModel::UserDataIter))
 	  break;
 
 	try {
@@ -93,7 +93,7 @@ namespace QtLua {
 	    break;
 
 	  if (!value.to_userdata()->support(UserData::OpNewindex))
-	    attr_mask |= TableModel::EditAll;
+	    attr_mask |= TableTreeModel::EditAll;
 
 	} catch (const String &e) {
 	  // not a QtLua::UserData userdata
@@ -101,7 +101,7 @@ namespace QtLua {
 	}
 
       case Value::TTable:
-	res = new Table(value, _attr & ~attr_mask);
+	res = new TableTreeKeys(value, _attr & ~attr_mask);
 	res->_parent = this;
 	res->_row = n;
 	e->_table = res;
@@ -115,7 +115,7 @@ namespace QtLua {
     return res;
   }
 
-  void Table::update()
+  void TableTreeKeys::update()
   {
     if (!_entries.empty())
       return;

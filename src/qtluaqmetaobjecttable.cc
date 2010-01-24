@@ -24,7 +24,8 @@
 #include <QtLua/ItemSelectionModel>
 #include <QtLua/ItemModel>
 #include <QtLua/TableDialog>
-#include <QtLua/TableModel>
+#include <QtLua/TableTreeModel>
+#include <QtLua/TableGridModel>
 
 #include <QAbstractItemDelegate>
 #include <QAbstractItemModel>
@@ -131,7 +132,8 @@ const QMetaObject *meta_object_table[] = {
   &QtLua::ItemSelectionModel::staticMetaObject,
   &QtLua::ItemModel::staticMetaObject,
   &QtLua::TableDialog::staticMetaObject,
-  &QtLua::TableModel::staticMetaObject,
+  &QtLua::TableTreeModel::staticMetaObject,
+  &QtLua::TableGridModel::staticMetaObject,
 
   &QAbstractItemDelegate::staticMetaObject,
   &QAbstractItemModel::staticMetaObject,

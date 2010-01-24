@@ -25,7 +25,7 @@
 #include <QTreeView>
 
 #include <QtLua/State>
-#include <QtLua/TableModel>
+#include <QtLua/TableTreeModel>
 
 class MainWindow : public QMainWindow
 {
@@ -38,7 +38,7 @@ public:
 private:
   QtLua::State *state;
   QTreeView *treeview;
-  QtLua::TableModel *model;
+  QtLua::TableTreeModel *model;
 };
 
 #endif

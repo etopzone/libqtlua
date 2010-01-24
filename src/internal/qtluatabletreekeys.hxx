@@ -24,34 +24,34 @@
 
 namespace QtLua {
 
-  const Value & Table::get_key(int n) const
+  const Value & TableTreeKeys::get_key(int n) const
   {
     return _entries[n]._key;
   }
 
-  void Table::set_key(int n, const Value &key)
+  void TableTreeKeys::set_key(int n, const Value &key)
   {
     _entries[n]._key = key;
   }
 
-  bool Table::is_table(int n) const
+  bool TableTreeKeys::is_table(int n) const
   {
     return _entries[n]._table != 0;
   }
 
-  size_t Table::count() const
+  size_t TableTreeKeys::count() const
   {
     return _entries.count();
   }
 
-  Table::Entry::Entry(const Value &key)
+  TableTreeKeys::Entry::Entry(const Value &key)
     : _key(key),
       _table(0),
       _table_chk(false)
   {
   }
 
-  bool Table::Entry::operator<(const Entry &e) const
+  bool TableTreeKeys::Entry::operator<(const Entry &e) const
   {
     return _key < e._key;
   }
