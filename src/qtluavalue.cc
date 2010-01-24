@@ -571,6 +571,37 @@ QByteArray Value::to_bytecode() const
   std::abort();
 }
 
+int Value::len() const
+{
+  size_t res;
+
+  push_value();
+
+  switch (lua_type(_st, -1))
+    {
+    case TString:
+    case TTable:
+      res = lua_objlen(_st, -1);
+      lua_pop(_st, 1);
+      break;
+
+    case TUserData:
+      try {
+	lua_pop(_st, 1);
+	Value::List l(to_userdata()->meta_operation(get_state(), UserData::OpLen, *this, *this));
+	res = l.empty() ? 0 : l[0].to_integer();
+	break;
+      } catch (const String &s) {
+      }
+
+    default:
+      lua_pop(_st, 1);
+      res = 0;
+    }
+
+  return res;
+}
+
 bool Value::operator==(const Value &lv) const
 {
   if (lv._st != _st)

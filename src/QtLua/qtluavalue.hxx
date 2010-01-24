@@ -135,11 +135,14 @@ namespace QtLua {
     ListContainer result;
 
     for (int i = 1; ; i++)
-      try {
-	result.push_back((*this)[i]);
-      } catch (String &e) {
-	return result;
+      {
+	Value v((*this)[i]);
+	if (v.is_nil())
+	  break;
+	result.push_back(v);
       }
+
+    return result;
   }
 
   template <typename X>
@@ -299,6 +302,11 @@ namespace QtLua {
   Value::operator Bool () const
   {
     return to_boolean();
+  }
+
+  Value::List::List(const QList<Value> &list)
+    : QList<Value>(list)
+  {
   }
 
   template <typename X>

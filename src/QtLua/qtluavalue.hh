@@ -163,6 +163,8 @@ public:
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5);
     inline List(const Value &v1, const Value &v2, const Value &v3, const Value &v4, const Value &v5, const Value &v6);
+    /** Create value list from @ref QList of @ref Value objects */
+    inline List(const QList<Value> &list);
 
     /** Create value list from @ref QList content */
     template <typename X>
@@ -469,6 +471,11 @@ public:
   /** Get value type name, if the value is a @ref UserData, the type
       name is extracted using the @ref UserData::get_type_name function. */
   String type_name_u() const;
+
+  /** Return the lua len of tables and strings. Return the result of
+      the @ref OpLen operation on @ref UserData objects or 0 if not
+      supported. */
+  int len() const;
 
   /** Compare lua values. @multiple */
   bool operator<(const Value &lv) const;
