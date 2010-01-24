@@ -31,8 +31,12 @@ namespace QtLua {
    * @header QtLua/UserObject
    * @module {Base}
    *
-   * This base class can be used to create objects with named properties
-   * accessible from lua. Each property can have a @tt set and @tt get
+   * This base class can be used to create C++ objects with named
+   * properties accessible from lua script. This is a lightweight
+   * alternative to writting a @ref QObject based class when only @tt
+   * set/get properties mechanism is needed.
+   *
+   * Each property can have a @tt set and @tt get
    * accessor functions registered through a static const array.
    * Property member and accessor functions can be user defined or declared
    * using the @ref #QTLUA_PROPERTY_GET , @ref #QTLUA_PROPERTY_SET ,
