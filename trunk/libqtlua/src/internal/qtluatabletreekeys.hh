@@ -23,7 +23,7 @@
 #define QTLUA_TABLE_HH_
 
 #include <QList>
-#include <QtLua/qtluatablemodel.hh>
+#include <QtLua/qtluatabletreemodel.hh>
 
 namespace QtLua {
 
@@ -33,18 +33,18 @@ namespace QtLua {
    * @module {Model/View}
    * @internal
    *
-   * This class is used internally by the @ref TableModel class. It is
+   * This class is used internally by the @ref TableTreeModel class. It is
    * used to keep lua tables display attributes and index list as
    * native lua tables can not be accessed randomly using an integer
    * index.
    */
 
-  class Table
+  class TableTreeKeys
   {
-    friend class TableModel;
+    friend class TableTreeModel;
 
-    Table(const Value &val, TableModel::Attributes attr);
-    ~Table();
+    TableTreeKeys(const Value &val, TableTreeModel::Attributes attr);
+    ~TableTreeKeys();
 
     Value get_value(int n) const;
     void set_value(int n, const Value &value);
@@ -53,14 +53,14 @@ namespace QtLua {
     inline size_t count() const;
     inline bool is_table(int n) const;
 
-    Table * set_table(int n);
+    TableTreeKeys * set_table(int n);
     void update();
     void clear();
 
     struct Entry
     {
       Value _key;
-      Table *_table;
+      TableTreeKeys *_table;
       bool _table_chk;
 
       inline Entry(const Value &key);
@@ -68,9 +68,9 @@ namespace QtLua {
     };
 
     Value _value;
-    Table *_parent;
+    TableTreeKeys *_parent;
     int _row;
-    TableModel::Attributes _attr;
+    TableTreeModel::Attributes _attr;
     QList<Entry> _entries;
   };
 
