@@ -56,6 +56,12 @@ class Iterator;
  * Objects derived from this class are subject to lua garbage
  * collection and must be handled by the @ref QtLua::Ref smart pointer
  * class in C++ code.
+ *
+ * @ref UserData base class declaration example:
+ * @example examples/cpp/userdata/ref.cc:1
+ *
+ * @ref UserData objects allocation examples:
+ * @example examples/cpp/userdata/ref.cc:3|5
  */
 
 class UserData : public QtLua::Refobj<UserData>

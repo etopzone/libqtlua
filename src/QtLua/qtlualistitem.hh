@@ -61,7 +61,7 @@ public:
   ~ListItem();
 
   /** Find a child item from name. */
-  inline Item::ptr	get_child(const String &name) const;
+  inline Item::ptr get_child(const String &name) const;
 
   /** Get child items list */
   inline const QList<Item::ptr> & get_list() const;
@@ -77,28 +77,28 @@ protected:
    *
    * @return true if item is allowed to be a child member.
    */
-  virtual bool		accept_child(const Item::ptr &item) const;
-  virtual Value		meta_operation(State &ls, Operation op, const Value &a, const Value &b);
-  virtual bool		support(enum Operation c);
+  virtual bool accept_child(const Item::ptr &item) const;
+  virtual Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
+  virtual bool support(enum Operation c);
 
 private:
 
-  void			meta_newindex(State &ls, const Value &key, const Value &value);
-  Value			meta_index(State &ls, const Value &key);
-  Iterator::ptr		new_iterator(State &ls);
-  void			completion_patch(String &path, String &entry, int &offset);
+  void meta_newindex(State &ls, const Value &key, const Value &value);
+  Value meta_index(State &ls, const Value &key);
+  Iterator::ptr new_iterator(State &ls);
+  void completion_patch(String &path, String &entry, int &offset);
 
-  void			set_model(ItemModel* model);
+  void set_model(ItemModel* model);
 
-  void			change_indexes(int first);
-  void			insert(Item *item, int row);
-  void			insert_name(Item *item);
-  void			remove(Item *item);
-  inline void		remove_name(Item *item);
+  void change_indexes(int first);
+  void insert(Item *item, int row);
+  void insert_name(Item *item);
+  void remove(Item *item);
+  inline void remove_name(Item *item);
 
-  QHash<String,Item*>	_child_hash;
-  QList<Item::ptr>	_child_list;
-  int			_id_counter;
+  QHash<String,Item*> _child_hash;
+  QList<Item::ptr> _child_list;
+  int _id_counter;
 };
 
 }

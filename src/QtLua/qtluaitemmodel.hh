@@ -77,18 +77,20 @@ protected:
   /** Return supported mime type. May be reimplemented to add more types. */
   virtual QStringList mimeTypes() const;
 
+public:
+  QVariant data(const QModelIndex &index, int role) const;
+  Qt::ItemFlags flags(const QModelIndex &index) const;
+  QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+  QModelIndex index(int row, int column, const QModelIndex &parent) const;
+  QModelIndex parent(const QModelIndex &index) const;
+  int rowCount(const QModelIndex &parent) const;
+  int columnCount(const QModelIndex &parent) const;
+  bool setData(const QModelIndex & index, const QVariant & value, int role);
+
 private:
-  QVariant	data(const QModelIndex &index, int role) const;
-  Qt::ItemFlags	flags(const QModelIndex &index) const;
-  QVariant	headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-  QModelIndex	index(int row, int column, const QModelIndex &parent) const;
-  QModelIndex	parent(const QModelIndex &index) const;
-  int		rowCount(const QModelIndex &parent) const;
-  int		columnCount(const QModelIndex &parent) const;
-  bool		setData(const QModelIndex & index, const QVariant & value, int role);
-  bool		dropMimeData(const QMimeData *data, Qt::DropAction action,
-			     int row, int column, const QModelIndex & parent);
-  QMimeData *	mimeData(const QModelIndexList &indexes) const;
+  bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+		    int row, int column, const QModelIndex & parent);
+  QMimeData * mimeData(const QModelIndexList &indexes) const;
   Qt::DropActions supportedDropActions() const;
 
   struct ItemQMimeData : public QMimeData
