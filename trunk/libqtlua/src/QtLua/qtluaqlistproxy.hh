@@ -67,7 +67,7 @@ private:
   {
   public:
     QTLUA_REFTYPE(ProxyIterator);
-    ProxyIterator(State &ls, QListProxyRo::ptr proxy);
+    ProxyIterator(State &ls, const Ref<QListProxyRo> &proxy);
 
   private:
     bool more() const;

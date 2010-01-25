@@ -43,7 +43,7 @@ class ListIterator : public Iterator
 public:
   QTLUA_REFTYPE(ListIterator);
 
-  ListIterator(State &ls, ListItem::ptr list);
+  ListIterator(State &ls, const ListItem::ptr &list);
 
 private:
   bool more() const;

@@ -154,7 +154,7 @@ namespace QtLua {
   }
 
   template <class Container, bool resize>
-  QVectorProxyRo<Container, resize>::ProxyIterator::ProxyIterator(State &ls, QVectorProxyRo::ptr proxy)
+  QVectorProxyRo<Container, resize>::ProxyIterator::ProxyIterator(State &ls, const Ref<QVectorProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(0)

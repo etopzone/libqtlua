@@ -68,7 +68,7 @@ namespace QtLua {
     /** Assign new string to referenced value. */
     inline const ValueRef & operator=(const String &str) const;
     /** Assign new user data to referenced value. */
-    inline const ValueRef & operator=(Ref<UserData> ud) const;
+    inline const ValueRef & operator=(const Ref<UserData> &ud) const;
     /** Assign a wrapped QObject to reference. */
     inline const ValueRef & operator=(QObject *obj) const;
 

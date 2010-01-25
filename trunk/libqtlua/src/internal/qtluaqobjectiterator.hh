@@ -49,7 +49,7 @@ class QObjectIterator : public Iterator
 public:
   QTLUA_REFTYPE(QObjectIterator);
 
-  QObjectIterator(State &ls, Ref<QObjectWrapper> qow);
+  QObjectIterator(State &ls, const Ref<QObjectWrapper> &qow);
   QObjectIterator(State &ls, const QMetaObject *mo);
 
 private:
