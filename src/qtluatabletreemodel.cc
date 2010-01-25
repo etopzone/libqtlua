@@ -209,11 +209,11 @@ namespace QtLua {
 
     State &state = t->_value.get_state();
     String input = value.toString();
-    Value oldvalue(t->get_value(index.row()));
-    Value::ValueType oldtype = oldvalue.type();
 
     try {
 
+      Value oldvalue(t->get_value(index.row()));
+      Value::ValueType oldtype = oldvalue.type();
       Value newvalue(state.eval_expr(t->_attr & EditLuaEval, input));
       Value::ValueType newtype = newvalue.type();
 
@@ -283,10 +283,7 @@ namespace QtLua {
     // set lua table to nil and delete nested tables
     for (int i = row; i < row + count; i++)
       {
-	try {
-	  t->set_value(i, Value(state));
-	} catch (const String &e) {
-	}
+	QTLUA_PROTECT(t->set_value(i, Value(state)));
 
 	if (TableTreeKeys *c = t->_entries[i]._table)
 	  delete c;

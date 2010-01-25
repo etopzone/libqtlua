@@ -5,7 +5,7 @@ pkginclude_HEADERS = \
 	Console qtluaconsole.hh qtluaconsole.hxx \
 	Item qtluaitem.hh qtluaitem.hxx	\
 	TableTreeModel qtluatabletreemodel.hh \
-	TableDialog qtluatabledialog.hh \
+	TableDialog qtluatabledialog.hh qtluatabledialog.hxx \
 	TableGridModel qtluatablegridmodel.hh \
 	ItemModel qtluaitemmodel.hh \
 	ItemSelectionModel qtluaitemselectionmodel.hh qtluaitemselectionmodel.hxx \
