@@ -81,10 +81,10 @@ public:
   ~Item();
 
   /** Insert this item in parent container, remove from existing parent if any */
-  void move(QtLua::Ref<ListItem> parent);
+  void move(const Ref<ListItem> &parent);
 
   /** Insert this item in parent container */
-  void insert(QtLua::Ref<ListItem> parent);
+  void insert(const Ref<ListItem> &parent);
 
   /** Remove this item from its container */
   void remove();

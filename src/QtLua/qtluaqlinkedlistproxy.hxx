@@ -66,7 +66,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  QLinkedListProxy<Container>::ProxyIterator::ProxyIterator(State &ls, QLinkedListProxy::ptr proxy)
+  QLinkedListProxy<Container>::ProxyIterator::ProxyIterator(State &ls, const Ref<QLinkedListProxy> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_linkedlist->begin()),

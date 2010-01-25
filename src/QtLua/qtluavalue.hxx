@@ -67,7 +67,7 @@ namespace QtLua {
     *this = str;
   }
 
-  Value::Value(const State &ls, UserData::ptr item)
+  Value::Value(const State &ls, const Ref<UserData> &item)
     : _st(ls._st)
   {
     *this = item;
@@ -97,7 +97,7 @@ namespace QtLua {
     *this = str;
   }
 
-  Value::Value(lua_State *st, UserData::ptr item)
+  Value::Value(lua_State *st, const Ref<UserData> &item)
     : _st(st)
   {
     *this = item;
@@ -558,7 +558,7 @@ namespace QtLua {
   {
   }
 
-  Value::iterator_::iterator_(Ref<Iterator> i)
+  Value::iterator_::iterator_(const Ref<Iterator> &i)
     : _i(i)
   {
   }
@@ -592,7 +592,7 @@ namespace QtLua {
     return _i->get_key();
   }
 
-  Value::const_iterator::const_iterator(Ref<Iterator> i)
+  Value::const_iterator::const_iterator(const Ref<Iterator> &i)
     : iterator_(i)
   {
   }
@@ -616,7 +616,7 @@ namespace QtLua {
     return _i->get_value();
   }
 
-  Value::iterator::iterator(Ref<Iterator> i)
+  Value::iterator::iterator(const Ref<Iterator> &i)
     : iterator_(i)
   {
   }

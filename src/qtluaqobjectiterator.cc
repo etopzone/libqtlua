@@ -39,7 +39,7 @@ namespace QtLua {
     update();
   }
 
-  QObjectIterator::QObjectIterator(State &ls, QObjectWrapper::ptr qow)
+  QObjectIterator::QObjectIterator(State &ls, const QObjectWrapper::ptr &qow)
     : _ls(ls),
       _qow(qow)
   {

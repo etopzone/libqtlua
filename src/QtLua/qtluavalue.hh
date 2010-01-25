@@ -81,7 +81,7 @@ class Value
     typedef std::forward_iterator_tag iterator_category;
 
     /** @internal */
-    inline iterator_(Ref<Iterator> i);
+    inline iterator_(const Ref<Iterator> &i);
     /** Create a non uninitialized iterator */
     inline iterator_();
     inline iterator_ & operator++();
@@ -110,7 +110,7 @@ public:
   struct iterator : public iterator_
   {
     /** @internal */
-    inline iterator(Ref<Iterator> i);
+    inline iterator(const Ref<Iterator> &i);
     /** Create an uninitialized @ref iterator. */
     inline iterator();
     /** Get modifiable reference to current entry value. */
@@ -133,7 +133,7 @@ public:
   struct const_iterator : public iterator_
   {
     /** @internal */
-    inline const_iterator(Ref<Iterator> i);
+    inline const_iterator(const Ref<Iterator> &i);
     /** Create from non const iterator */
     inline const_iterator(const iterator &i);
     /** Create a non uninitialized @ref const_iterator. */
@@ -235,7 +235,7 @@ public:
    * reference to the @ref UserData object which will be dropped later
    * by the lua garbage collector.
    */
-  inline Value(const State &ls, Ref<UserData> ud);
+  inline Value(const State &ls, const Ref<UserData> &ud);
 
   /**
    * Create a wrapped @ref QObject lua value.
@@ -309,7 +309,7 @@ public:
   /** Assign a string to lua value. */
   Value & operator=(const String &str);
   /** Assign a userdata to lua value. */
-  Value & operator=(Ref<UserData> ud);
+  Value & operator=(const Ref<UserData> &ud);
   /**
    * Assign a QObject to lua value.
    * @xsee{QObject wrapping}
@@ -533,7 +533,7 @@ private:
   inline Value(lua_State *st, ValueType type);
   inline Value(lua_State *st, double n);
   inline Value(lua_State *st, const String &str);
-  inline Value(lua_State *st, Ref<UserData> ud);
+  inline Value(lua_State *st, const Ref<UserData> &ud);
   inline Value(lua_State *st, QObject *obj);
   void init_type_value(ValueType type);
 

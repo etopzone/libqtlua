@@ -75,7 +75,7 @@ namespace QtLua {
     return *this;
   }
 
-  const ValueRef & ValueRef::operator=(UserData::ptr ud) const
+  const ValueRef & ValueRef::operator=(const UserData::ptr &ud) const
   {
     *this = Value(_st, ud);
     return *this;

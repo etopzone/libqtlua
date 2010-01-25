@@ -27,7 +27,7 @@
 
 namespace QtLua {
 
-  ListIterator::ListIterator(State &ls, ListItem::ptr list)
+  ListIterator::ListIterator(State &ls, const ListItem::ptr &list)
     : _ls(ls),
       _list(list),
       _it(_list->get_list().begin())

@@ -150,7 +150,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  QListProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, QListProxyRo::ptr proxy)
+  QListProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, const Ref<QListProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_list->begin()),

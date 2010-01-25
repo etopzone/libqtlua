@@ -137,7 +137,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  QHashProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, QHashProxyRo::ptr proxy)
+  QHashProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, const Ref<QHashProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_hash->begin())
