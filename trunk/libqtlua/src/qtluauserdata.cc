@@ -106,7 +106,7 @@ String UserData::get_value_str() const
   return QString().sprintf("%p", this);
 }
 
-Value UserData::meta_operation(State &ls, Operation op,
+Value UserData::meta_operation(State &ls, Value::Operation op,
 			       const Value &a, const Value &b) 
 {
   throw String("Operation not handled by % type").arg(get_type_name());
@@ -132,7 +132,7 @@ Ref<Iterator> UserData::new_iterator(State &ls)
   throw String("Table iteration not handled by % type").arg(get_type_name());
 }
 
-bool UserData::support(enum Operation c) const
+bool UserData::support(Value::Operation c) const
 {
   return false;
 }

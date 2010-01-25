@@ -66,11 +66,11 @@ void Function::completion_patch(String &path, String &entry, int &offset)
   offset--;
 }
 
-bool Function::support(enum Operation c) const
+bool Function::support(Value::Operation c) const
 {
   switch (c)
     {
-    case UserData::OpCall:
+    case Value::OpCall:
       return true;
     default:
       return false;

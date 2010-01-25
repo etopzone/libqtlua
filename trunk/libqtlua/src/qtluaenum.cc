@@ -41,12 +41,12 @@ namespace QtLua {
     return QTLUA_REFNEW(EnumIterator, ls, _mo->enumerator(_index));
   }
 
-  bool Enum::support(enum Operation c) const
+  bool Enum::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpIterate:
+      case Value::OpIndex:
+      case Value::OpIterate:
 	return true;
       default:
 	return false;

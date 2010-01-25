@@ -162,7 +162,7 @@ namespace QtLua {
   private:
     String get_value_str() const;
     String get_type_name() const;
-    bool support(enum Operation c) const;
+    bool support(Value::Operation c) const;
     void completion_patch(String &path, String &entry, int &offset);
 
     void ref_drop(int count);

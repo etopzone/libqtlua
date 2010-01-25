@@ -67,13 +67,13 @@ namespace QtLua {
   }
 
   template <class T>
-  bool UserObject<T>::support(enum Operation c) const
+  bool UserObject<T>::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpNewindex:
-      case UserData::OpIterate:
+      case Value::OpIndex:
+      case Value::OpNewindex:
+      case Value::OpIterate:
 	return true;
       default:
 	return false;

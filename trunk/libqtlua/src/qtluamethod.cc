@@ -134,11 +134,11 @@ namespace QtLua {
     return String(*t ? t : "void") + " " + _mo->className() + "::" + mm.signature();
   }
 
-  bool Method::support(enum Operation c) const
+  bool Method::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpCall:
+      case Value::OpCall:
 	return true;
       default:
 	return false;

@@ -239,18 +239,18 @@ int State::lua_meta_item_##n(lua_State *st)				\
   return lua_gettop(st) - x;						\
 }
 
-LUA_META_2OP_FUNC(add, UserData::OpAdd)
-LUA_META_2OP_FUNC(sub, UserData::OpSub)
-LUA_META_2OP_FUNC(mul, UserData::OpMul)
-LUA_META_2OP_FUNC(div, UserData::OpDiv)
-LUA_META_2OP_FUNC(mod, UserData::OpMod)
-LUA_META_2OP_FUNC(pow, UserData::OpPow)
-LUA_META_1OP_FUNC(unm, UserData::OpUnm)
-LUA_META_2OP_FUNC(concat, UserData::OpConcat)
-LUA_META_1OP_FUNC(len, UserData::OpLen)
-LUA_META_2OP_FUNC(eq, UserData::OpEq)
-LUA_META_2OP_FUNC(lt, UserData::OpLt)
-LUA_META_2OP_FUNC(le, UserData::OpLe)
+LUA_META_2OP_FUNC(add, Value::OpAdd)
+LUA_META_2OP_FUNC(sub, Value::OpSub)
+LUA_META_2OP_FUNC(mul, Value::OpMul)
+LUA_META_2OP_FUNC(div, Value::OpDiv)
+LUA_META_2OP_FUNC(mod, Value::OpMod)
+LUA_META_2OP_FUNC(pow, Value::OpPow)
+LUA_META_1OP_FUNC(unm, Value::OpUnm)
+LUA_META_2OP_FUNC(concat, Value::OpConcat)
+LUA_META_1OP_FUNC(len, Value::OpLen)
+LUA_META_2OP_FUNC(eq, Value::OpEq)
+LUA_META_2OP_FUNC(lt, Value::OpLt)
+LUA_META_2OP_FUNC(le, Value::OpLe)
 
 int State::lua_meta_item_index(lua_State *st)
 {

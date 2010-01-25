@@ -325,13 +325,13 @@ namespace QtLua {
     return QTLUA_REFNEW(QObjectIterator, ls, *this);
   }
 
-  bool QObjectWrapper::support(enum Operation c) const
+  bool QObjectWrapper::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpNewindex:
-      case UserData::OpIterate:
+      case Value::OpIndex:
+      case Value::OpNewindex:
+      case Value::OpIterate:
 	return true;
       default:
 	return false;

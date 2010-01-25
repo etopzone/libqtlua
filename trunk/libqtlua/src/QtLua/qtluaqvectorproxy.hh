@@ -55,10 +55,10 @@ public:
   /** Attach or detach container. argument may be NULL */
   void set_container(Container *vector);
 
-  Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
+  Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
   Value meta_index(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
-  virtual bool support(enum Operation c) const;
+  virtual bool support(Value::Operation c) const;
 
 private:
 
@@ -133,7 +133,7 @@ public:
   QVectorProxy(Container &vector);
 
   void meta_newindex(State &ls, const Value &key, const Value &value);
-  bool support(enum UserData::Operation c);
+  bool support(enum Value::Operation c);
 };
 
 }

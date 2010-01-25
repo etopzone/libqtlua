@@ -45,12 +45,12 @@ namespace QtLua {
     return QTLUA_REFNEW(QObjectIterator, ls, _mo);
   }
 
-  bool QMetaObjectWrapper::support(enum Operation c) const
+  bool QMetaObjectWrapper::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpIterate:
+      case Value::OpIndex:
+      case Value::OpIterate:
 	return true;
       default:
 	return false;
