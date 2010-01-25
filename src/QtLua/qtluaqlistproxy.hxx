@@ -71,13 +71,13 @@ namespace QtLua {
   }
 
   template <class Container>
-  Value QListProxyRo<Container>::meta_operation(State &ls, Operation op, const Value &a, const Value &b)
+  Value QListProxyRo<Container>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
       {
-      case OpLen:
+      case Value::OpLen:
 	return Value(ls, _list ? _list->size() : 0);
-      case OpUnm:
+      case Value::OpUnm:
 	return _list ? Value(ls, *_list) : Value(ls);
       default:
 	return UserData::meta_operation(ls, op, a, b);
@@ -85,14 +85,14 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QListProxyRo<Container>::support(enum Operation c) const
+  bool QListProxyRo<Container>::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpIterate:
-      case UserData::OpLen:
-      case UserData::OpUnm:
+      case Value::OpIndex:
+      case Value::OpIterate:
+      case Value::OpLen:
+      case Value::OpUnm:
 	return true;
       default:
 	return false;
@@ -100,15 +100,15 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QListProxy<Container>::support(enum UserData::Operation c)
+  bool QListProxy<Container>::support(enum Value::Operation c)
   {
     switch (c)
       {
-      case UserData::OpIndex:
-      case UserData::OpNewindex:
-      case UserData::OpIterate:
-      case UserData::OpLen:
-      case UserData::OpUnm:
+      case Value::OpIndex:
+      case Value::OpNewindex:
+      case Value::OpIterate:
+      case Value::OpLen:
+      case Value::OpUnm:
 	return true;
       default:
 	return false;

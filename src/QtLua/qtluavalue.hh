@@ -202,6 +202,31 @@ public:
     };
 
   /**
+   * Specify lua operations performed on lua values.
+   * @see support @see UserData::meta_operation @see UserData::support
+   */
+  enum Operation
+    {
+      OpAdd,      //< Lua add binary operator @tt +
+      OpSub,      //< Lua subtract binary operator @tt -
+      OpMul,      //< Lua multiply binary operator @tt *
+      OpDiv,      //< Lua divied binary operator @tt /
+      OpMod,      //< Lua modulo binary operator @tt %
+      OpPow,      //< Lua power binary operator @tt ^
+      OpUnm,      //< Lua negative unary operator @tt -
+      OpConcat,   //< Lua concatenation binary operator @tt ..
+      OpLen,      //< Lua length unary operator @tt #
+      OpEq,       //< Lua equal binary operator @tt ==
+      OpLt,       //< Lua less than binary operator @tt <
+      OpLe,       //< Lua less than or equal binary operator @tt <=
+
+      OpIndex, 	  //< Table index operation
+      OpNewindex, //< Table newindex operation
+      OpCall,     //< Function call operation
+      OpIterate,  //< Iteration operation
+    };
+
+  /**
    * @showcontent
    *
    * Boolean type used for Value constructor.
@@ -476,6 +501,9 @@ public:
       the @ref OpLen operation on @ref UserData objects or 0 if not
       supported. */
   int len() const;
+
+  /** Check given operation support. @see UserData::support */
+  bool support(Operation c) const;
 
   /** Compare lua values. @multiple */
   bool operator<(const Value &lv) const;

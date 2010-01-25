@@ -134,7 +134,7 @@ Value::Value(State &ls, QObject *obj, bool delete_, bool reparent)
 Value & Value::operator=(QObject *obj)
 {
   lua_pushlightuserdata(_st, this);
-  QObjectWrapper::get_wrapper(*State::get_this(_st), obj)->push_ud(_st);
+  QObjectWrapper::get_wrapper(get_state(), obj)->push_ud(_st);
   lua_rawset(_st, LUA_REGISTRYINDEX);
   return *this;
 }
@@ -212,7 +212,7 @@ Value::List Value::call (const List &args) const
       if (!ud.valid())
 	throw String("Can not call null lua::userdata value.");
 
-      return ud->meta_call(*State::get_this(_st), args);
+      return ud->meta_call(get_state(), args);
     }
 
     default:
@@ -235,7 +235,7 @@ Value Value::operator[] (const Value &key) const
       if (!ud.valid())
 	throw String("Can not index null lua::userdata value.");
 
-      return ud->meta_index(*State::get_this(_st), key);
+      return ud->meta_index(get_state(), key);
     }
 
     case TTable: {
@@ -264,7 +264,7 @@ Ref<Iterator> Value::new_iterator() const
       if (!ud.valid())
 	throw String("Can not iterate through null lua::userdata value.");
 
-      return ud->new_iterator(*State::get_this(_st));
+      return ud->new_iterator(get_state());
     }
 
     case TTable: {
@@ -575,23 +575,125 @@ int Value::len() const
     case TString:
     case TTable:
       res = lua_objlen(_st, -1);
-      lua_pop(_st, 1);
       break;
 
     case TUserData:
       try {
-	lua_pop(_st, 1);
-	Value::List l(to_userdata()->meta_operation(get_state(), UserData::OpLen, *this, *this));
-	res = l.empty() ? 0 : l[0].to_integer();
+	UserData::ptr ptr = UserData::get_ud(_st, -1);
+	res = ptr->meta_operation(get_state(), Value::OpLen, *this, *this).to_integer();
 	break;
       } catch (const String &s) {
       }
 
     default:
-      lua_pop(_st, 1);
       res = 0;
     }
 
+  lua_pop(_st, 1);
+  return res;
+}
+
+bool Value::support(Operation c) const
+{
+  bool res;
+  push_value();
+
+  switch (lua_type(_st, -1))
+    {
+    case TNone:
+    case TNil:
+      res = false;
+      break;
+
+    case TBool:
+      switch (c)
+	{
+	case Value::OpEq:
+	  res = true;
+	  break;
+	default:
+	  res = false;
+	  break;
+	}
+      break;
+
+    case TNumber:
+      switch (c)
+	{
+	case Value::OpAdd:
+	case Value::OpSub:
+	case Value::OpMul:
+	case Value::OpDiv:
+	case Value::OpMod:
+	case Value::OpPow:
+	case Value::OpUnm:
+	case Value::OpEq:
+	case Value::OpLt:
+	case Value::OpLe:
+	  res = true;
+	  break;
+	default:
+	  res = false;
+	  break;
+	}
+      break;
+
+    case TString:
+      switch (c)
+	{
+	case Value::OpLen:
+	case Value::OpConcat:
+	case Value::OpEq:
+	case Value::OpLt:
+	case Value::OpLe:
+	  res = true;
+	  break;
+	default:
+	  res = false;
+	  break;
+	}
+      break;
+
+    case TTable:
+      switch (c)
+	{
+	case Value::OpEq:
+	case Value::OpLen:
+	case Value::OpIterate:
+	case Value::OpIndex:
+	case Value::OpNewindex:
+	  res = true;
+	  break;
+	default:
+	  res = false;
+	  break;
+	}
+      break;
+
+    case TFunction:
+      switch (c)
+	{
+	case Value::OpEq:
+	case Value::OpCall:
+	  res = true;
+	  break;
+	default:
+	  res = false;
+	  break;
+	}
+      break;
+
+    case TUserData:
+      try {
+	UserData::ptr ptr = UserData::get_ud(_st, -1);
+	res = ptr->support(c);
+      } catch (const String &s) {
+	res = false;
+      }
+      break;
+    }
+
+  lua_pop(_st, 1);
   return res;
 }
 

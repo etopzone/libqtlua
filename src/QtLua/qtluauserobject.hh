@@ -86,7 +86,7 @@ namespace QtLua {
     Value meta_index(State &ls, const Value &key);
     void meta_newindex(State &ls, const Value &key, const Value &value);
     Ref<Iterator> new_iterator(State &ls);
-    bool support(enum Operation c) const;
+    bool support(Value::Operation c) const;
 
     /** 
      * Define a simple inline get accessor function for the specified member

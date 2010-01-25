@@ -73,12 +73,12 @@ namespace QtLua {
 	  try {
 	    UserData::ptr ud(value.to_userdata());
 
-	    if (!ud->support(UserData::OpIterate))
+	    if (!ud->support(Value::OpIterate))
 	      break;
-	    if (!ud->support(UserData::OpIndex))
+	    if (!ud->support(Value::OpIndex))
 	      break;
 
-	    if (!ud->support(UserData::OpNewindex))
+	    if (!ud->support(Value::OpNewindex))
 	      attr_mask |= TableTreeModel::EditAll;
 
 	  } catch (const String &e) {

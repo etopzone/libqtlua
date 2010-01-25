@@ -28,11 +28,11 @@
 
 namespace QtLua {
 
-Value ListItem::meta_operation(State &ls, Operation op, const Value &a, const Value &b)
+Value ListItem::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
 {
   switch (op)
     {
-    case OpLen:
+    case Value::OpLen:
       return Value(ls, get_child_count());
     default:
       return UserData::meta_operation(ls, op, a, b);
@@ -122,14 +122,14 @@ Iterator::ptr ListItem::new_iterator(State &ls)
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
 }
 
-bool ListItem::support(enum Operation c) const
+bool ListItem::support(Value::Operation c) const
 {
   switch (c)
     {
-    case UserData::OpIndex:
-    case UserData::OpNewindex:
-    case UserData::OpIterate:
-    case UserData::OpLen:
+    case Value::OpIndex:
+    case Value::OpNewindex:
+    case Value::OpIterate:
+    case Value::OpLen:
       return true;
     default:
       return false;

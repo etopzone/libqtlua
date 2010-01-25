@@ -54,8 +54,8 @@ public:
 
   Value meta_index(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
-  Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
-  virtual bool support(enum Operation c) const;
+  Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
+  virtual bool support(Value::Operation c) const;
 
 private:
 
@@ -128,7 +128,7 @@ public:
   QListProxy(Container &list);
 
   void meta_newindex(State &ls, const Value &key, const Value &value);
-  bool support(enum UserData::Operation c);
+  bool support(enum Value::Operation c);
 };
 
 }

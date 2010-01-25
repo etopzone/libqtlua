@@ -54,11 +54,11 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QLinkedListProxy<Container>::support(enum Operation c) const
+  bool QLinkedListProxy<Container>::support(Value::Operation c) const
   {
     switch (c)
       {
-      case UserData::OpIterate:
+      case Value::OpIterate:
 	return true;
       default:
 	return false;

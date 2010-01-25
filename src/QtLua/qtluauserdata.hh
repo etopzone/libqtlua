@@ -76,31 +76,6 @@ public:
 
   virtual inline ~UserData();
 
-  /**
-   * Specify lua metatable operations performed on lua @ref UserData objects.
-   * @see meta_operation
-   */
-  enum Operation
-    {
-      OpAdd,      //< Lua add binary operator @tt +
-      OpSub,      //< Lua subtract binary operator @tt -
-      OpMul,      //< Lua multiply binary operator @tt *
-      OpDiv,      //< Lua divied binary operator @tt /
-      OpMod,      //< Lua modulo binary operator @tt %
-      OpPow,      //< Lua power binary operator @tt ^
-      OpUnm,      //< Lua negative unary operator @tt -
-      OpConcat,   //< Lua concatenation binary operator @tt ..
-      OpLen,      //< Lua length unary operator @tt #
-      OpEq,       //< Lua equal binary operator @tt ==
-      OpLt,       //< Lua less than binary operator @tt <
-      OpLe,       //< Lua less than or equal binary operator @tt <=
-
-      OpIndex, 	  //< Table index operation, used by @ref support function only
-      OpNewindex, //< Table newindex operation, used by @ref support function only
-      OpCall,     //< Function call operation, used by @ref support function only
-      OpIterate,  //< Iteration operation, used by @ref support function only
-    };
-
   /** Get a bare C++ typename from type */
   template <class X>
   static String type_name();
@@ -111,12 +86,12 @@ public:
    * message. The @ref support function should be reimplemented along
    * with this function.
    *
-   * @param op Specify invoked lua operator (see @ref Operation).
+   * @param op Specify invoked lua operator (see @ref Value::Operation).
    * @param a First value involved in operation.
    * @param b Second value involved in operation for binary operators.
    * @returns Operation result value.
    */
-  virtual Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
+  virtual Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
 
   /** 
    * This functions is called when a table read access operation is
@@ -177,8 +152,8 @@ public:
    */
   virtual String get_value_str() const;
 
-  /** Check given operation support */
-  virtual bool support(enum Operation c) const;
+  /** Check given operation support. @see Value::support */
+  virtual bool support(enum Value::Operation c) const;
 
   /** Userdata compare for equality, default implementation compares the @tt this pointers */
   virtual bool operator==(const UserData &ud);
