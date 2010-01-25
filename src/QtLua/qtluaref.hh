@@ -233,6 +233,20 @@ namespace QtLua {
       return Ref<const T, T>(dynamic_cast<const T*>(_obj));
     }
 
+    /** Static cast Ref to Ref of given type */
+    template <class T>
+    Ref<T, T> staticcast() const
+    {
+      return Ref<T, T>(static_cast<T*>(_obj));
+    }
+
+    /** Static cast Ref to const Ref of given type */
+    template <class T>
+    Ref<const T, T> staticcast_const() const
+    {
+      return Ref<const T, T>(static_cast<const T*>(_obj));
+    }
+
     /** Drop a Ref */
     ~Ref()
     {
