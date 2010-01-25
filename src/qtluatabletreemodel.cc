@@ -25,7 +25,8 @@
 namespace QtLua {
 
   TableTreeModel::TableTreeModel(const Value &root, Attributes attr, QObject *parent)
-    : _table(new TableTreeKeys(root, attr))
+    : _st(root.get_state()),
+      _table(new TableTreeKeys(root, attr))
   {
   }
 
@@ -139,7 +140,7 @@ namespace QtLua {
   Value TableTreeModel::get_value(const QModelIndex &index) const
   {
     if (!index.isValid())
-      return Value(_table->_value.get_state());
+      return Value(_st);
 
     TableTreeKeys *t = static_cast<TableTreeKeys*>(index.internalPointer());
 
@@ -150,7 +151,7 @@ namespace QtLua {
       case ColValue:
 	return t->get_value(index.row());
       default:
-	return Value(t->_value.get_state());
+	return Value(_st);
       }
   }
 
@@ -207,14 +208,13 @@ namespace QtLua {
 
     TableTreeKeys *t = static_cast<TableTreeKeys*>(index.internalPointer());
 
-    State &state = t->_value.get_state();
     String input = value.toString();
 
     try {
 
       Value oldvalue(t->get_value(index.row()));
       Value::ValueType oldtype = oldvalue.type();
-      Value newvalue(state.eval_expr(t->_attr & EditLuaEval, input));
+      Value newvalue(_st.eval_expr(t->_attr & EditLuaEval, input));
       Value::ValueType newtype = newvalue.type();
 
       switch (index.column())
@@ -250,7 +250,7 @@ namespace QtLua {
 	    throw String("An entry with the same key already exists.");
 
 	  Value old = t->get_value(index.row());
-	  t->set_value(index.row(), Value(state));
+	  t->set_value(index.row(), Value(_st));
 	  t->set_key(index.row(), newvalue);
 	  t->set_value(index.row(), old);
 	  return true;
@@ -278,12 +278,10 @@ namespace QtLua {
 
     beginRemoveRows(parent, row, row + count - 1);
 
-    State &state = t->_value.get_state();
-
     // set lua table to nil and delete nested tables
     for (int i = row; i < row + count; i++)
       {
-	QTLUA_PROTECT(t->set_value(i, Value(state)));
+	QTLUA_PROTECT(t->set_value(i, Value(_st)));
 
 	if (TableTreeKeys *c = t->_entries[i]._table)
 	  delete c;
@@ -313,10 +311,8 @@ namespace QtLua {
 
     beginInsertRows(parent, row, row + count - 1);
 
-    State &state = t->_value.get_state();
-
     for (int i = 0; i < count; i++)
-      t->_entries.insert(row, TableTreeKeys::Entry(Value(state)));
+      t->_entries.insert(row, TableTreeKeys::Entry(Value(_st)));
 
     for (int i = row + count; i < t->count(); i++)
       if (TableTreeKeys *c = t->_entries[i]._table)
