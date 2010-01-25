@@ -223,8 +223,12 @@ protected:
 
 private:
 
+  template <bool pop>
+  static QtLua::Ref<UserData> get_ud_(lua_State *st, int i);
   /** Get @ref QtLua::UserData reference from lua stack element. */
   static QtLua::Ref<UserData> get_ud(lua_State *st, int i);
+  /** Get @ref QtLua::UserData reference from lua stack element and pop stack */
+  static QtLua::Ref<UserData> pop_ud(lua_State *st);
   /** Push a reference to QtLua::UserData on lua stack. */
   void push_ud(lua_State *st);
 };
