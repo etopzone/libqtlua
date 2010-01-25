@@ -46,8 +46,8 @@ namespace QtLua {
     TableTreeKeys(const Value &val, TableTreeModel::Attributes attr);
     ~TableTreeKeys();
 
-    Value get_value(int n) const;
-    void set_value(int n, const Value &value);
+    inline Value get_value(int n) const;
+    inline void set_value(int n, const Value &value);
     inline const Value & get_key(int n) const;
     inline void set_key(int n, const Value &key);
     inline size_t count() const;

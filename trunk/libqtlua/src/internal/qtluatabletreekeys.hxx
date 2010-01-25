@@ -18,6 +18,7 @@
 
 */
 
+#include <cassert>
 
 #ifndef QTLUA_TABLE_HXX_
 #define QTLUA_TABLE_HXX_
@@ -32,6 +33,18 @@ namespace QtLua {
   void TableTreeKeys::set_key(int n, const Value &key)
   {
     _entries[n]._key = key;
+  }
+
+  Value TableTreeKeys::get_value(int n) const
+  {
+    assert(n < _entries.size());
+    return _value[_entries[n]._key];
+  }
+
+  void TableTreeKeys::set_value(int n, const Value &value)
+  {
+    assert(n < _entries.size());
+    _value[_entries[n]._key] = value;
   }
 
   bool TableTreeKeys::is_table(int n) const

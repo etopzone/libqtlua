@@ -45,24 +45,6 @@ namespace QtLua {
       }
   }
 
-  Value TableTreeKeys::get_value(int n) const
-  {
-    Value key = _entries[n]._key;
-    if (key.is_nil())
-      return key;
-    return _value[_entries[n]._key];
-  }
-
-  void TableTreeKeys::set_value(int n, const Value &value)
-  {
-    Value key = _entries[n]._key;
-    try {
-      if (!key.is_nil())
-	_value[key] = value;
-    } catch (const String &e) {
-    }
-  }
-
   TableTreeKeys * TableTreeKeys::set_table(int n)
   {
     if (!(_attr & TableTreeModel::Recursive))
@@ -77,38 +59,45 @@ namespace QtLua {
       return e->_table;
 
     TableTreeKeys *res = 0;
-    Value value = get_value(n);
-    TableTreeModel::Attributes attr_mask;
 
-    switch (value.type())
-      {
-      case Value::TUserData:
-	if (!(_attr & TableTreeModel::UserDataIter))
-	  break;
+    try {
+      Value value = get_value(n);
+      TableTreeModel::Attributes attr_mask;
 
-	try {
-	  if (!value.to_userdata()->support(UserData::OpIterate))
-	    break;
-	  if (!value.to_userdata()->support(UserData::OpIndex))
+      switch (value.type())
+	{
+	case Value::TUserData:
+	  if (!(_attr & TableTreeModel::UserDataIter))
 	    break;
 
-	  if (!value.to_userdata()->support(UserData::OpNewindex))
-	    attr_mask |= TableTreeModel::EditAll;
+	  try {
+	    UserData::ptr ud(value.to_userdata());
 
-	} catch (const String &e) {
-	  // not a QtLua::UserData userdata
+	    if (!ud->support(UserData::OpIterate))
+	      break;
+	    if (!ud->support(UserData::OpIndex))
+	      break;
+
+	    if (!ud->support(UserData::OpNewindex))
+	      attr_mask |= TableTreeModel::EditAll;
+
+	  } catch (const String &e) {
+	    // not a QtLua::UserData userdata
+	    break;
+	  }
+
+	case Value::TTable:
+	  res = new TableTreeKeys(value, _attr & ~attr_mask);
+	  res->_parent = this;
+	  res->_row = n;
+	  e->_table = res;
+
+	default:
 	  break;
 	}
 
-      case Value::TTable:
-	res = new TableTreeKeys(value, _attr & ~attr_mask);
-	res->_parent = this;
-	res->_row = n;
-	e->_table = res;
-
-      default:
-	break;
-      }
+    } catch (const String &e) {
+    }
 
     e->_table_chk = true;
 
@@ -123,13 +112,10 @@ namespace QtLua {
     Value::const_iterator i;
 
     try {
-      i = _value.begin();
+      for (i = _value.begin(); i != _value.end(); i++)
+	_entries.push_back(Entry(i.key()));
     } catch (const String &e) {
-      return;
     }
-
-    for (; i != _value.end(); i++)
-      _entries.push_back(Entry(i.key()));
 
     qSort(_entries.begin(), _entries.end());
   }

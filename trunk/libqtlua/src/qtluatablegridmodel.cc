@@ -53,41 +53,51 @@ namespace QtLua {
 
   void TableGridModel::fetch_all_row_keys()
   {
-    if (_attr & NumKeysRows)
-      {
-	_num_row_count = _table.len();
-      }
-    else
-      {
-	_row_keys.clear();
-	for (Value::const_iterator i = _table.begin(); i != _table.end(); i++)
-	  _row_keys.push_back(i.key());
-      }
+    try {
+      if (_attr & NumKeysRows)
+	{
+	  _num_row_count = _table.len();
+	}
+      else
+	{
+	  _row_keys.clear();
+	  for (Value::const_iterator i = _table.begin(); i != _table.end(); i++)
+	    _row_keys.push_back(i.key());
+	}
+    } catch (const String &e) {
+    }
   }
 
   void TableGridModel::fetch_all_column_keys()
   {
-    Value first = _table[1];
+    Value first(_table.get_state());
 
-    if (!(_attr & NumKeysRows))
-      {
-	if (_row_keys.empty())
-	  return;
-	first = _table[_row_keys[0]];
-      }
+    try {
+      if (_attr & NumKeysRows)
+	{
+	  first = _table[1];
+	}
+      else
+	{
+	  if (_row_keys.empty())
+	    return;
+	  first = _table[_row_keys[0]];
+	}
 
-    if (_attr & NumKeysCols)
-      {
-	_num_col_count = first.len();
-      }
-    else
-      {
-	_col_keys.clear();
+      if (_attr & NumKeysCols)
+	{
+	  _num_col_count = first.len();
+	}
+      else
+	{
+	  _col_keys.clear();
 
-	if (!first.is_nil())
-	  for (Value::const_iterator i = first.begin(); i != first.end(); i++)
-	    _col_keys.push_back(i.key());
-      }
+	  if (!first.is_nil())
+	    for (Value::const_iterator i = first.begin(); i != first.end(); i++)
+	      _col_keys.push_back(i.key());
+	}
+    } catch (const String &e) {
+    }
   }
 
   void TableGridModel::set_row_count(int c)
@@ -304,18 +314,24 @@ namespace QtLua {
     if (!value.canConvert(QVariant::ByteArray))
       return false;
 
-    switch (orientation)
-      {
-      case Qt::Vertical:
-	if (_attr & NumKeysRows)
-	  return set_value_ref(ValueRef(_table, section + 1), value.toByteArray());
-	else
-	  return set_value_ref(ValueRef(_table, _row_keys[section]), value.toByteArray());
+    try {
 
-      case Qt::Horizontal:
-	// Not implemented yet
-	break;
-      }
+      switch (orientation)
+	{
+	case Qt::Vertical:
+	  if (_attr & NumKeysRows)
+	    return set_value_ref(ValueRef(_table, section + 1), value.toByteArray());
+	  else
+	    return set_value_ref(ValueRef(_table, _row_keys[section]), value.toByteArray());
+
+	case Qt::Horizontal:
+	  // Not implemented yet
+	  break;
+	}
+
+    } catch (const String &e) {
+      return false;
+    }
 
     return false;
   }
@@ -407,9 +423,9 @@ namespace QtLua {
 
 	    // find nil key
 	    QTLUA_PROTECT(
-	    for (; !_table[k].is_nil(); k++)
-	      ;
-	    );
+			  for (; !_table[k].is_nil(); k++)
+			    ;
+			  );
 
 	    _row_keys.insert(row + i, Value(state, k));
 	    QTLUA_PROTECT(_table[k] = new_row_table(state));
