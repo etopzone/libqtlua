@@ -34,15 +34,7 @@
 
 namespace QtLua {
 
-Console::Console(const QString &prompt, QWidget *parent)
-  : QTextEdit(parent),
-    _prompt(prompt),
-    _complete_re("[_.:a-zA-Z0-9]+$")
-{
-  init();
-}
-
-Console::Console(const QStringList &history, const QString &prompt, QWidget *parent)
+Console::Console(QWidget *parent, const QString &prompt, const QStringList &history)
   : QTextEdit(parent),
     _prompt(prompt),
     _history(history),
@@ -62,7 +54,7 @@ void Console::init()
   setWordWrapMode(QTextOption::WrapAnywhere);
   setContextMenuPolicy(Qt::NoContextMenu);
 
-  _history_ndx = 0;
+  _history_ndx = _history.size();
   _history_max = 100;
   _history.append("");
 
@@ -86,6 +78,13 @@ void Console::display_prompt()
 
   _mark = _line_start = tc.position();
   setUndoRedoEnabled(true);
+}
+
+void Console::set_history(const QStringList &h)
+{
+  _history = h;
+  _history_ndx = _history.size();
+  _history.append("");
 }
 
 void Console::action_history_up()
@@ -119,6 +118,44 @@ void Console::action_history_down()
   _history.replace(_history_ndx, tc.selectedText());
 
   tc.insertText(_history[++_history_ndx]);
+  setUndoRedoEnabled(true);
+}
+
+void Console::action_history_find(int direction)
+{
+  setUndoRedoEnabled(false);
+  QTextCursor tc = textCursor();
+  QString str;
+  bool hs;
+
+  if ((hs = tc.hasSelection()))
+    str = tc.selectedText();
+
+  tc.setPosition(_line_start, QTextCursor::MoveAnchor);
+  tc.movePosition(QTextCursor::End, QTextCursor::KeepAnchor, 1);
+
+  if (!hs)
+    str = tc.selectedText().trimmed();
+
+  if (str.size() > 0)
+    {
+      for (int i = _history_ndx + direction;
+	   i >= 0 && i < _history.size(); i += direction)
+	{
+	  int ndx = _history[i].indexOf(str);
+
+	  if (ndx >= 0)
+	    {
+	      _history_ndx = i;
+	      tc.insertText(_history[i]);
+	      tc.setPosition(_line_start + ndx, QTextCursor::MoveAnchor);
+	      tc.setPosition(_line_start + ndx + str.size(), QTextCursor::KeepAnchor);
+	      setTextCursor(tc);
+	      break;
+	    }
+	}
+    }
+
   setUndoRedoEnabled(true);
 }
 
@@ -326,6 +363,13 @@ void Console::keyPressEvent(QKeyEvent * e)
 	  delete_completion_list();
 	  display_prompt();
 	} break;
+
+	case Qt::Key_R:
+	  action_history_find(-1);
+	  break;
+	case Qt::Key_F:
+	  action_history_find(1);
+	  break;
 
 	case Qt::Key_Y:
 	case Qt::Key_V:

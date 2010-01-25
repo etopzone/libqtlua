@@ -51,11 +51,9 @@ class Console : public QTextEdit
 
 public:
 
-  /** Create a console widget. */
-  Console(const QString &prompt = QString("$"), QWidget *parent = 0);
-
   /** Create a console widget and restore history */
-  Console(const QStringList &history, const QString &prompt = QString("$"), QWidget *parent = 0);
+  Console(QWidget *parent = 0, const QString &prompt = QString("$"),
+	  const QStringList &history = QStringList());
 
   /** Set console prompt. */
   inline void set_prompt(QString p);
@@ -65,6 +63,9 @@ public:
 
   /** Get current history. */
   inline const QStringList & get_history() const;
+
+  /** Get current history. */
+  void set_history(const QStringList &h);
 
   /** Set Qt regular expression used to extract text before cursor to
     * pass to completion signal.
@@ -114,6 +115,7 @@ private:
   void action_key_enter();
   void action_history_up();
   void action_history_down();
+  void action_history_find(int direction);
   void display_prompt();
   void delete_completion_list();
   void action_home();
