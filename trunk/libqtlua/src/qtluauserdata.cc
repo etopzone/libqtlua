@@ -47,7 +47,8 @@ void UserData::push_ud(lua_State *st)
   lua_setmetatable(st, -2);
 }
 
-QtLua::Ref<UserData> UserData::get_ud(lua_State *st, int i)
+template <bool pop>
+inline QtLua::Ref<UserData> UserData::get_ud_(lua_State *st, int i)
 {
 #ifndef QTLUA_NO_USERDATA_CHECK
   if (lua_getmetatable(st, i))
@@ -60,6 +61,10 @@ QtLua::Ref<UserData> UserData::get_ud(lua_State *st, int i)
 	  lua_pop(st, 2);
 #endif
 	  UserData::ptr	*item = static_cast<UserData::ptr *>(lua_touserdata(st, i));
+
+	  if (pop)
+	    lua_pop(st, 1);
+
 	  return *item;
 #ifndef QTLUA_NO_USERDATA_CHECK
 	}
@@ -69,8 +74,21 @@ QtLua::Ref<UserData> UserData::get_ud(lua_State *st, int i)
 
   lua_pop(st, 1);
 
+  if (pop)
+    lua_pop(st, 1);
+
   throw String("Lua userdata is not a QtLua::UserData.");
 #endif
+}
+
+QtLua::Ref<UserData> UserData::get_ud(lua_State *st, int i)
+{
+  return get_ud_<false>(st, i);
+}
+
+QtLua::Ref<UserData> UserData::pop_ud(lua_State *st)
+{
+  return get_ud_<true>(st, -1);
 }
 
 String UserData::get_type_name() const

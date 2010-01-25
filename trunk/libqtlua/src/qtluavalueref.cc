@@ -61,14 +61,35 @@ namespace QtLua {
 
   void ValueRef::push_value() const
   {
-    // table
+    // get table object
     lua_pushlightuserdata(_st, (void*)this);
     lua_rawget(_st, LUA_REGISTRYINDEX);  
-    // key
-    _key.push_value();
 
-    lua_gettable(_st, -2);
-    lua_remove(_st, -2);
+    int t = lua_type(_st, -1);
+
+    switch (t)
+      {
+      case TUserData:
+	try {
+	  UserData::ptr ud = UserData::get_ud(_st, -1);
+	  ud->meta_index(*State::get_this(_st), _key).push_value();
+	  lua_remove(_st, -2);
+
+	} catch (const String &e) {
+	  lua_pop(_st, 1);
+	  lua_pushnil(_st);
+	}
+	break;
+
+      case TTable:
+	_key.push_value();
+	lua_gettable(_st, -2);
+	lua_remove(_st, -2);
+	break;
+
+      default:
+	abort();
+      }
   }
 
   const ValueRef & ValueRef::operator=(const Value &v) const
@@ -79,8 +100,7 @@ namespace QtLua {
     switch (lua_type(_st, -1))
       {
       case TUserData: {
-	UserData::ptr ud = UserData::get_ud(_st, -1);
-	lua_pop(_st, 1);
+	UserData::ptr ud = UserData::pop_ud(_st);
 	ud->meta_newindex(*State::get_this(_st), _key, v);
 	break;
       }
