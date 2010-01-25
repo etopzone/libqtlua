@@ -122,7 +122,7 @@ Iterator::ptr ListItem::new_iterator(State &ls)
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
 }
 
-bool ListItem::support(enum Operation c)
+bool ListItem::support(enum Operation c) const
 {
   switch (c)
     {

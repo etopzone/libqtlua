@@ -67,7 +67,7 @@ namespace QtLua {
   }
 
   template <class T>
-  bool UserObject<T>::support(enum Operation c)
+  bool UserObject<T>::support(enum Operation c) const
   {
     switch (c)
       {

@@ -47,7 +47,7 @@ namespace QtLua {
 
   private:
     Value::List meta_call(State &ls, const Value::List &args);
-    bool support(enum Operation c);
+    bool support(enum Operation c) const;
     String get_type_name() const;
     String get_value_str() const;
     void completion_patch(String &path, String &entry, int &offset);

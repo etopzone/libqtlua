@@ -55,7 +55,7 @@ public:
   Value meta_index(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
   Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
-  virtual bool support(enum Operation c);
+  virtual bool support(enum Operation c) const;
 
 private:
   virtual void completion_patch(String &path, String &entry, int &offset);

@@ -85,7 +85,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QListProxyRo<Container>::support(enum Operation c)
+  bool QListProxyRo<Container>::support(enum Operation c) const
   {
     switch (c)
       {

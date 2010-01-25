@@ -41,7 +41,7 @@ namespace QtLua {
     return QTLUA_REFNEW(EnumIterator, ls, _mo->enumerator(_index));
   }
 
-  bool Enum::support(enum Operation c)
+  bool Enum::support(enum Operation c) const
   {
     switch (c)
       {

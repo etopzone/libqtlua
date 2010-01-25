@@ -58,7 +58,7 @@ public:
   Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
   Value meta_index(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
-  virtual bool support(enum Operation c);
+  virtual bool support(enum Operation c) const;
 
 private:
 

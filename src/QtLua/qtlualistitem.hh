@@ -79,7 +79,7 @@ protected:
    */
   virtual bool accept_child(const Item::ptr &item) const;
   virtual Value meta_operation(State &ls, Operation op, const Value &a, const Value &b);
-  virtual bool support(enum Operation c);
+  virtual bool support(enum Operation c) const;
 
 private:
 

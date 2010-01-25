@@ -66,7 +66,7 @@ void Function::completion_patch(String &path, String &entry, int &offset)
   offset--;
 }
 
-bool Function::support(enum Operation c)
+bool Function::support(enum Operation c) const
 {
   switch (c)
     {

@@ -85,7 +85,7 @@ namespace QtLua {
   }
 
   template <class Container, bool resize>
-  bool QVectorProxyRo<Container, resize>::support(enum Operation c)
+  bool QVectorProxyRo<Container, resize>::support(enum Operation c) const
   {
     switch (c)
       {

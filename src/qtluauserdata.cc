@@ -132,7 +132,7 @@ Ref<Iterator> UserData::new_iterator(State &ls)
   throw String("Table iteration not handled by % type").arg(get_type_name());
 }
 
-bool UserData::support(enum Operation c)
+bool UserData::support(enum Operation c) const
 {
   return false;
 }

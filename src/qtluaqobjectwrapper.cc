@@ -325,7 +325,7 @@ namespace QtLua {
     return QTLUA_REFNEW(QObjectIterator, ls, *this);
   }
 
-  bool QObjectWrapper::support(enum Operation c)
+  bool QObjectWrapper::support(enum Operation c) const
   {
     switch (c)
       {
