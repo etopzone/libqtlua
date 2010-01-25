@@ -122,6 +122,7 @@ namespace QtLua {
 
     TableTreeKeys * table_from_index(const QModelIndex &index) const;
 
+    State &_st;
     TableTreeKeys *_table;
   };
 

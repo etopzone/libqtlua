@@ -19,8 +19,8 @@
 */
 
 
-#ifndef QTLUA_TABLETREEMODELGRID_HH_
-#define QTLUA_TABLETREEMODELGRID_HH_
+#ifndef QTLUA_TABLEGRIDMODEL_HH_
+#define QTLUA_TABLEGRIDMODEL_HH_
 
 #include <QAbstractItemModel>
 
@@ -166,6 +166,7 @@ namespace QtLua {
   private:
     bool set_value_ref(const ValueRef &ref, const QByteArray &input);
 
+    State &_st;
     Attributes _attr;
     Value _table;
     QList<Value> _row_keys;
