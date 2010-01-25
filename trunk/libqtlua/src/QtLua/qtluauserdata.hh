@@ -178,7 +178,7 @@ public:
   virtual String get_value_str() const;
 
   /** Check given operation support */
-  virtual bool support(enum Operation c);
+  virtual bool support(enum Operation c) const;
 
   /** Userdata compare for equality, default implementation compares the @tt this pointers */
   virtual bool operator==(const UserData &ud);

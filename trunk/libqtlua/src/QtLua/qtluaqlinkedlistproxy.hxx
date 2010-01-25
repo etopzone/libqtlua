@@ -54,7 +54,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QLinkedListProxy<Container>::support(enum Operation c)
+  bool QLinkedListProxy<Container>::support(enum Operation c) const
   {
     switch (c)
       {

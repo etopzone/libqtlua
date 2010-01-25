@@ -134,7 +134,7 @@ namespace QtLua {
     return String(*t ? t : "void") + " " + _mo->className() + "::" + mm.signature();
   }
 
-  bool Method::support(enum Operation c)
+  bool Method::support(enum Operation c) const
   {
     switch (c)
       {

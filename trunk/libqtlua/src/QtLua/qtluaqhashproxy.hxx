@@ -85,7 +85,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QHashProxyRo<Container>::support(enum Operation c)
+  bool QHashProxyRo<Container>::support(enum Operation c) const
   {
     switch (c)
       {
