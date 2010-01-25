@@ -82,7 +82,7 @@ int main(int argc, char *argv[])
 
     if (interactive)
       {
-	QtLua::Console *console = new QtLua::Console(">>");
+	QtLua::Console *console = new QtLua::Console(0, ">>");
 
 	QObject::connect(console, SIGNAL(line_validate(const QString&)),
 			 &state, SLOT(exec(const QString&)));
