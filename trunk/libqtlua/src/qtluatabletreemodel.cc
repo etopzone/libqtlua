@@ -25,7 +25,8 @@
 namespace QtLua {
 
   TableTreeModel::TableTreeModel(const Value &root, Attributes attr, QObject *parent)
-    : _st(root.get_state()),
+    : QAbstractItemModel(parent),
+      _st(root.get_state()),
       _table(new TableTreeKeys(root, attr))
   {
   }
@@ -283,7 +284,7 @@ namespace QtLua {
       }
 
     // update tail rows indexes
-    for (int i = row + count; i < t->count(); i++)
+    for (int i = row + count; i < (int)t->count(); i++)
       if (TableTreeKeys *c = t->_entries[i]._table)
 	c->_row -= count;
 
@@ -309,7 +310,7 @@ namespace QtLua {
     for (int i = 0; i < count; i++)
       t->_entries.insert(row, TableTreeKeys::Entry(Value(_st)));
 
-    for (int i = row + count; i < t->count(); i++)
+    for (int i = row + count; i < (int)t->count(); i++)
       if (TableTreeKeys *c = t->_entries[i]._table)
 	c->_row += count;
 
@@ -348,6 +349,7 @@ namespace QtLua {
 
     switch (index.column())
       {
+      default:
       case ColValue:
 	return index;
 

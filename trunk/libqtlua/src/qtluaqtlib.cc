@@ -364,7 +364,7 @@ namespace QtLua {
 	QAction *action;
 	QMenu *menu = 0;
 
-	if (action = dynamic_cast<QAction*>(&obj))
+	if ((action = dynamic_cast<QAction*>(&obj)))
 	  ;
 	else if ((menu = dynamic_cast<QMenu*>(&obj)))
 	  action = menu->menuAction();

@@ -35,7 +35,9 @@ namespace QtLua {
 			   int attr, QWidget *parent)
     : QDialog(parent),
       _model(model),
-      _eb(0), _rb(0), _ib(0), _rc(0), _ic(0)
+      _eb(0), _rb(0), _ib(0), _rc(0), _ic(0),
+      _resize_on_expand(true),
+      _column_margin_factor(1.15f)
   {
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -48,6 +50,9 @@ namespace QtLua {
 	QTreeView *view = new QTreeView();
 	view->setRootIsDecorated(attr & TableTreeModel::Recursive);
 	_view = view;
+
+	connect(view, SIGNAL(expanded(const QModelIndex&)),
+		this, SLOT(tree_expanded()));
 	break;
       }
 
@@ -208,6 +213,22 @@ namespace QtLua {
       _eb->setEnabled(_model->flags(index) & Qt::ItemIsEditable);
   }
 
+  void TableDialog::tree_expanded() const
+  {
+    QTreeView *tv = static_cast<QTreeView*>(_view);
+
+    if (_resize_on_expand)
+      {
+	for (int i = 0; i <= TableTreeModel::ColValue; i++)
+	  {
+	    tv->resizeColumnToContents(i);
+
+	    if (_column_margin_factor > 1)
+	      tv->setColumnWidth(i, tv->columnWidth(i) *
+				 _column_margin_factor);
+	  }
+      }
+  }
 
   void TableDialog::grid_current_changed(const QModelIndex &index) const
   {
@@ -321,8 +342,8 @@ namespace QtLua {
 	  {
 	    tv->resizeColumnToContents(i);
 	    // Leave room for expand
-	    if (i == TableTreeModel::ColKey)
-	      tv->setColumnWidth(i, tv->columnWidth(i) * 1.5);
+	    if (_column_margin_factor > 1)
+	      tv->setColumnWidth(i, tv->columnWidth(i) * _column_margin_factor);
 
 	    hint.rwidth() += tv->columnWidth(i);
 	  }
@@ -332,11 +353,33 @@ namespace QtLua {
 	for (int i = 0; i < colcount; i++)
 	  {
 	    tv->resizeColumnToContents(i);
+	    if (_column_margin_factor > 1)
+	      tv->setColumnWidth(i, tv->columnWidth(i) * _column_margin_factor);
 	    hint.rwidth() += tv->columnWidth(i);
 	  }
       }
 
     return hint;
+  }
+
+  void TableDialog::set_resize_on_expand(bool roe)
+  {
+    _resize_on_expand = roe;
+  }
+
+  bool TableDialog::get_resize_on_expand() const
+  {
+    return _resize_on_expand;
+  }
+
+  void TableDialog::set_column_margin_factor(float cmf)
+  {
+    _column_margin_factor = cmf;
+  }
+
+  float TableDialog::get_column_margin_factor() const
+  {
+    return _column_margin_factor;
   }
 
 }

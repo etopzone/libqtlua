@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
 
     state["app"] = QtLua::Value(state, &app, false);
 
-    for (unsigned int i = 1; i < argc; i++)
+    for (int i = 1; i < argc; i++)
       {
 	QByteArray arg(argv[i]);
 
