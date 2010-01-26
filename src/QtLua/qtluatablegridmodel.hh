@@ -67,6 +67,9 @@ namespace QtLua {
    *
    * Usage example:
    * @example examples/cpp/mvc/tablegridview.cc:1
+   *
+   * @image doc/qtlua_tablegridmodel.png
+   *
    * @see TableDialog
    */
 

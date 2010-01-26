@@ -52,6 +52,9 @@ namespace QtLua {
    *
    * Usage example:
    * @example examples/cpp/mvc/tabletreeview.cc:1
+   *
+   * @image doc/qtlua_tabletreemodel.png
+   *
    * @see TableDialog
    */
 
