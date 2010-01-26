@@ -221,7 +221,7 @@ namespace QtLua {
       {
       case Qt::DisplayRole:
 	try {
-	  return QVariant(get_value_ref(index).to_string_p());
+	  return QVariant(get_value_ref(index).to_string_p(!(_attr & UnquoteValues)));
 	} catch (const String &e) {
 	  return QVariant();	  
 	}
@@ -244,7 +244,7 @@ namespace QtLua {
 	  oldtype == Value::TString &&
 	  newtype != Value::TString)
 	{
-	  newvalue = newvalue.to_string_p();
+	  newvalue = newvalue.to_string_p(false);
 	  newtype = Value::TString;
 	}
 
@@ -293,14 +293,14 @@ namespace QtLua {
 	if (_attr & NumKeysRows)
 	  return QVariant(section + 1);
 	else if (section < _row_keys.count())
-	  return QVariant(_row_keys[section].to_string_p());
+	  return QVariant(_row_keys[section].to_string_p(!(_attr & UnquoteHeader)));
 	break;
 
       case Qt::Horizontal:
 	if (_attr & NumKeysCols)
 	  return QVariant(section + 1);
 	else if (section < _col_keys.count())
-	  return QVariant(_col_keys[section].to_string_p());
+	  return QVariant(_col_keys[section].to_string_p(!(_attr & UnquoteHeader)));
 	break;
       }
 

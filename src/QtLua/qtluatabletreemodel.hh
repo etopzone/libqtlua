@@ -66,18 +66,19 @@ namespace QtLua {
     /** Specifies @ref TableTreeModel behavior for a given lua table */
     enum Attribute
       {
-	Recursive = 1,		//< Expose nested tables too.
-	UserDataIter = 2,	//< Iterate over UserData objects too.
-	HideType = 4,		//< Do not show entry type in an additionnal column.
-	UnquoteKeys = 8,	//< Strip double quote from string keys
+	Recursive	= 0x00000001,	//< Expose nested tables too.
+	UserDataIter	= 0x00000002,	//< Iterate over UserData objects too.
+	HideType	= 0x00000004,	//< Do not show entry type in an additionnal column.
+	UnquoteKeys	= 0x00000008,	//< Strip double quote from string keys
+	UnquoteValues	= 0x00000010,	//< Strip double quote from string keys
 
-	Editable = 16,		//< Allow editing exposed tables using views.
-	EditFixedType = 32,	//< Prevent value type change when editing.
-	EditLuaEval = 64,	//< Evaluate user input as a lua expression.
-	EditInsert = 128,	//< Allow insertion of new entries.
-	EditRemove = 256,	//< Allow deletion of existing entries.
-	EditKey = 512,	        //< Allow entry key update.
-	EditAll = 16 + 128 + 256 + 512, //< Editable, EditInsert, EditRemove and EditKey allowed
+	Editable	= 0x00001000,	//< Allow editing exposed tables using views.
+	EditFixedType	= 0x00002000,	//< Prevent value type change when editing.
+	EditLuaEval	= 0x00004000,	//< Evaluate user input as a lua expression.
+	EditInsert	= 0x00008000,	//< Allow insertion of new entries.
+	EditRemove	= 0x00010000,	//< Allow deletion of existing entries.
+	EditKey		= 0x00020000,	//< Allow entry key update.
+	EditAll		= 0x00040000,	//< Editable, EditInsert, EditRemove and EditKey allowed
       };
 
     Q_DECLARE_FLAGS(Attributes, Attribute);

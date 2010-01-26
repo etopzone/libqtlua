@@ -403,7 +403,7 @@ public:
 
   /** Convert any type to a string representation suitable for pretty
       printing. Never throw. */
-  String to_string_p() const;
+  String to_string_p(bool quote_string = true) const;
 
   /**
    * Create a @ref QList with elements from lua table. Table keys are
@@ -551,7 +551,7 @@ private:
   /** push value on lua stack. */
   virtual void push_value() const;
 
-  static String to_string_p(lua_State *st, int index);
+  static String to_string_p(lua_State *st, int index, bool quote_string);
 
   /** construct from value on lua stack. */
   Value(lua_State *st, int index);
