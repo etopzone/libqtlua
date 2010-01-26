@@ -81,17 +81,19 @@ namespace QtLua {
     /** Specifies @ref TableGridModel behavior for a given lua table */
     enum Attribute
       {
-	UnquoteKeys   = 1,	//< Strip double quote from string keys
-//	Fliped        = 4,	//< Flip rows and columns
-	NumKeysCols   = 8,	//< Columns use numeric keys
-	NumKeysRows   = 16,	//< Rows use numeric keys
-	Editable      = 32,	//< Allow editing exposed tables using views.
-	EditFixedType = 64,	//< Prevent value type change when editing.
-	EditLuaEval   = 128,	//< Evaluate user input as a lua expression.
-	EditInsertRow = 256,	//< Allow insertion of new rows.
-//	EditInsertCol = 512,	//< Allow insertion of new columns.
-	EditRemoveRow = 1024,	//< Allow deletion of existing rows.
-//	EditRemoveCol = 2048,	//< Allow deletion of existing columns.
+	NumKeysCols   = 0x00000001,	//< Columns use numeric keys
+	NumKeysRows   = 0x00000002,	//< Rows use numeric keys
+//	Fliped        = 0x00000004,	//< Flip rows and columns
+	UnquoteHeader = 0x00000008,	//< Strip double quote from string keys
+	UnquoteValues = 0x00000010,	//< Strip double quote from string keys
+
+	Editable      = 0x00001000,	//< Allow editing exposed tables using views.
+	EditFixedType = 0x00002000,	//< Prevent value type change when editing.
+	EditLuaEval   = 0x00004000,	//< Evaluate user input as a lua expression.
+	EditInsertRow = 0x00008000,	//< Allow insertion of new rows.
+//	EditInsertCol = 0x00010000,	//< Allow insertion of new columns.
+	EditRemoveRow = 0x00020000,	//< Allow deletion of existing rows.
+//	EditRemoveCol = 0x00040000,	//< Allow deletion of existing columns.
       };
 
     Q_DECLARE_FLAGS(Attributes, Attribute);

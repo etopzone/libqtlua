@@ -106,7 +106,7 @@ int State::lua_cmd_print(lua_State *st)
 
     for (int i = 1; i <= lua_gettop(st); i++)
       {
-	String s = Value::to_string_p(st, i);
+	String s = Value::to_string_p(st, i, true);
 	this_->output(s);
 	this_->output("\n");
 	qDebug("QtLua print:%s", s.constData());
@@ -155,7 +155,7 @@ int State::lua_cmd_list(lua_State *st)
     for (Value::const_iterator i = t.begin(); i != t.end(); i++)
       {
 	this_->output(QString("\033[18m") + i.value().type_name_u() + "\033[2m " +
-		      i.key().to_string_p() + " = " + i.value().to_string_p() + "\n");
+		      i.key().to_string_p(false) + " = " + i.value().to_string_p(true) + "\n");
       }
 
   } catch (String &e) {

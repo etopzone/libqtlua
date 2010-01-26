@@ -435,15 +435,15 @@ String Value::to_string() const
   std::abort();
 }
 
-String Value::to_string_p() const
+String Value::to_string_p(bool quote_string) const
 {
   push_value();
-  String res(to_string_p(_st, -1));
+  String res(to_string_p(_st, -1, quote_string));
   lua_pop(_st, 1);
   return res;
 }
 
-String Value::to_string_p(lua_State *st, int index)
+String Value::to_string_p(lua_State *st, int index, bool quote_string)
 {
   switch (lua_type(st, index))
     {
@@ -465,7 +465,10 @@ String Value::to_string_p(lua_State *st, int index)
     }
 
     case TString:
-      return String("\"") + lua_tostring(st, index) + "\"";
+      if (quote_string)
+	return String("\"") + lua_tostring(st, index) + "\"";
+      else
+	return String(lua_tostring(st, index));
 
     case TUserData: {
 #ifndef QTLUA_NO_USERDATA_CHECK

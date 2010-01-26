@@ -115,17 +115,12 @@ namespace QtLua {
 
 	  switch (index.column())
 	    {
-	    case ColKey: {
-	      Value key = t->get_key(index.row());
-	      if ((t->_attr & UnquoteKeys) && key.type() == Value::TString)
-		return QVariant(key.to_string());
-	      else
-		return QVariant(key.to_string_p());
-	    }
+	    case ColKey:
+	      return QVariant(t->get_key(index.row()).to_string_p(!(t->_attr & UnquoteKeys)));
 	    case ColType:
 	      return QVariant(t->get_value(index.row()).type_name_u());
 	    case ColValue:
-	      return QVariant(t->get_value(index.row()).to_string_p());
+	      return QVariant(t->get_value(index.row()).to_string_p(!(t->_attr & UnquoteValues)));
 	    }
 
 	default:
@@ -229,7 +224,7 @@ namespace QtLua {
 	      oldtype == Value::TString &&
 	      newtype != Value::TString)
 	    {
-	      newvalue = newvalue.to_string_p();
+	      newvalue = newvalue.to_string_p(false);
 	      newtype = Value::TString;
 	    }
 
