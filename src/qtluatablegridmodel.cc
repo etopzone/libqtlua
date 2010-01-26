@@ -25,7 +25,8 @@ namespace QtLua {
 
   TableGridModel::TableGridModel(const Value &table, Attributes attr,
 				 bool find_keys, QObject *parent)
-    : _st(table.get_state()),
+    : QAbstractItemModel(parent),
+      _st(table.get_state()),
       _attr(attr),
       _table(table),
       _num_row_count(0),
@@ -40,7 +41,8 @@ namespace QtLua {
 
   TableGridModel::TableGridModel(const Value &table, int row_count, int col_count,
 				 Attributes attr, QObject *parent)
-    : _st(table.get_state()),
+    : QAbstractItemModel(parent),
+      _st(table.get_state()),
       _attr(attr),
       _table(table),
       _num_row_count(row_count),

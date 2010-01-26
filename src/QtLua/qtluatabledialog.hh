@@ -52,6 +52,8 @@ namespace QtLua {
   {
     Q_OBJECT;
     Q_ENUMS(ViewType);
+    Q_PROPERTY(bool resize_on_expand READ get_resize_on_expand WRITE set_resize_on_expand);
+    Q_PROPERTY(float column_margin_factor READ get_column_margin_factor WRITE set_column_margin_factor);
 
   public:
 
@@ -82,6 +84,16 @@ namespace QtLua {
     /** Return pointer to view */
     inline QAbstractItemView *get_view() const;
 
+    /** Set keys column resize to content on node expand */
+    void set_resize_on_expand(bool roe);
+    /** Get current resize on expand state */
+    bool get_resize_on_expand() const;
+
+    /** Set additionnal column width factor */
+    void set_column_margin_factor(float cmf);
+    /** Get additionnal column width factor */
+    float get_column_margin_factor() const;
+
     /**
      * @multiple {2}
      * Shortcut function to display a modal lua table dialog. A @ref TableTreeModel model is used.
@@ -104,10 +116,10 @@ namespace QtLua {
      * @param title dialog window title
      * @param table lua table to expose
      * @param attr model attributes, control display and edit options
-     * @param rowkeys list of lua value to use as row keys,
-     *  use @ref TableGridModel::fetch_all_row_keys if @ref NULL.
      * @param colkeys list of lua value to use as column keys,
      *  use @ref TableGridModel::fetch_all_column_keys if @ref NULL.
+     * @param rowkeys list of lua value to use as row keys,
+     *  use @ref TableGridModel::fetch_all_row_keys if @ref NULL.
      */
     static void grid_table_dialog(QWidget *parent, const QString &title, const Value &table,
 				  TableGridModel::Attributes attr = TableGridModel::Attributes(),
@@ -118,6 +130,7 @@ namespace QtLua {
     void tree_insert() const;
     void tree_remove() const;
     void tree_current_changed(const QModelIndex & index) const;
+    void tree_expanded() const;
 
     void grid_insert_row() const;
     void grid_remove_row() const;
@@ -130,7 +143,9 @@ namespace QtLua {
 
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
-    QPushButton *_eb, *_rb, *_ib, *_ic, *_rc;
+    QPushButton *_eb, *_rb, *_ib, *_rc, *_ic;
+    bool _resize_on_expand;
+    float _column_margin_factor;
   };
 
 }
