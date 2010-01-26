@@ -38,7 +38,9 @@ Console::Console(QWidget *parent, const QString &prompt, const QStringList &hist
   : QTextEdit(parent),
     _prompt(prompt),
     _history(history),
-    _complete_re("[_.:a-zA-Z0-9]+$")
+    _complete_re("[_.:a-zA-Z0-9]+$"),
+    _text_width(80),
+    _text_height(25)
 {
   init();
 }
@@ -55,7 +57,7 @@ void Console::init()
   setContextMenuPolicy(Qt::NoContextMenu);
 
   _history_ndx = _history.size();
-  _history_max = 100;
+  _history_size = 100;
   _history.append("");
 
   display_prompt();
@@ -264,6 +266,65 @@ void Console::action_key_complete()
     }
 }
 
+void Console::set_prompt(const QString &p)
+{
+#if 0
+  int diff = p.size() - _prompt.size();
+#endif
+  _prompt = p;
+
+#if 0
+  // replace current prompt
+  // FIXME missing color
+  QTextCursor	tc = textCursor();
+  tc.setPosition(_prompt_start, QTextCursor::MoveAnchor);
+  tc.setPosition(_line_start, QTextCursor::KeepAnchor);
+  tc.insertText(p + " ");
+
+  _line_start += diff;
+  _mark += diff;
+#endif
+}
+
+const QString & Console::get_prompt() const
+{
+  return _prompt;
+}
+
+void Console::set_text_width(int width)
+{
+  _text_width = width;
+}
+
+int Console::get_text_width() const
+{
+  return _text_width;
+}
+
+void Console::set_text_height(int height)
+{
+  _text_height = height;
+}
+
+int Console::get_text_height() const
+{
+  return _text_height;
+}
+
+void Console::set_history_size(int history_size)
+{
+  _history_size = history_size;
+
+  // strip _history if too long
+  while (_history.size() > _history_size)
+    _history.removeFirst();
+}
+
+int Console::get_history_size() const
+{
+  return _history_size;
+}
+
 void Console::action_key_enter()
 {
   QTextCursor	tc = textCursor();
@@ -275,7 +336,7 @@ void Console::action_key_enter()
   QString	line = tc.selectedText().trimmed();
 
   // strip _history if too long
-  while (_history.size() > _history_max)
+  while (_history.size() > _history_size)
     _history.removeFirst();
 
   // skip empty strings
@@ -619,7 +680,8 @@ QSize Console::sizeHint() const
   QFontMetrics fm(_fmt_normal.font());
   int left, top, right, bottom;
   getContentsMargins(&left, &top, &right, &bottom);
-  QSize hint(left + right + fm.width('x') * 81, top + bottom + fm.height() * 25);
+  QSize hint(left + right + fm.width('x') * _text_width,
+	     top + bottom + fm.height() * _text_height);
 
   return hint;
 }
