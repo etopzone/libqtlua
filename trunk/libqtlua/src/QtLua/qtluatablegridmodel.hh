@@ -83,7 +83,7 @@ namespace QtLua {
       {
 	NumKeysCols   = 0x00000001,	//< Columns use numeric keys
 	NumKeysRows   = 0x00000002,	//< Rows use numeric keys
-//	Fliped        = 0x00000004,	//< Flip rows and columns
+	RowColSwap    = 0x00000004,	//< Swap rows and columns in views
 	UnquoteHeader = 0x00000008,	//< Strip double quote from string keys
 	UnquoteValues = 0x00000010,	//< Strip double quote from string keys
 
@@ -91,9 +91,9 @@ namespace QtLua {
 	EditFixedType = 0x00002000,	//< Prevent value type change when editing.
 	EditLuaEval   = 0x00004000,	//< Evaluate user input as a lua expression.
 	EditInsertRow = 0x00008000,	//< Allow insertion of new rows.
-//	EditInsertCol = 0x00010000,	//< Allow insertion of new columns.
+	EditInsertCol = 0x00010000,	//< Allow insertion of new columns.
 	EditRemoveRow = 0x00020000,	//< Allow deletion of existing rows.
-//	EditRemoveCol = 0x00040000,	//< Allow deletion of existing columns.
+	EditRemoveCol = 0x00040000,	//< Allow deletion of existing columns.
       };
 
     Q_DECLARE_FLAGS(Attributes, Attribute);
@@ -163,9 +163,18 @@ namespace QtLua {
     Qt::ItemFlags flags(const QModelIndex &index) const;
     bool removeRows(int row, int count, const QModelIndex &parent);
     bool insertRows(int row, int count, const QModelIndex &parent);
+    bool removeColumns(int column, int count, const QModelIndex &parent);
+    bool insertColumns(int column, int count, const QModelIndex &parent);
     /** */
 
   private:
+    int row_count() const;
+    int column_count() const;
+    bool remove_rows(int row, int count, const QModelIndex &parent);
+    bool insert_rows(int row, int count, const QModelIndex &parent);
+    bool remove_columns(int column, int count, const QModelIndex &parent);
+    bool insert_columns(int column, int count, const QModelIndex &parent);
+
     bool set_value_ref(const ValueRef &ref, const QByteArray &input);
 
     State &_st;

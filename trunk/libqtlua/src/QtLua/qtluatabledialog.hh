@@ -121,6 +121,8 @@ namespace QtLua {
 
     void grid_insert_row() const;
     void grid_remove_row() const;
+    void grid_insert_column() const;
+    void grid_remove_column() const;
     void grid_current_changed(const QModelIndex & index) const;
 
   protected:
@@ -128,7 +130,7 @@ namespace QtLua {
 
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
-    QPushButton *_eb, *_rb, *_ib;
+    QPushButton *_eb, *_rb, *_ib, *_ic, *_rc;
   };
 
 }
