@@ -48,6 +48,8 @@ class State;
    *
    * Usage example:
    * @example examples/cpp/mvc/itemtreeview.cc:1
+   *
+   * @image doc/qtlua_itemmodel.png
    */
 
 class ItemModel : public QAbstractItemModel
@@ -78,6 +80,7 @@ protected:
   virtual QStringList mimeTypes() const;
 
 public:
+  /** @multiple @internal */
   QVariant data(const QModelIndex &index, int role) const;
   Qt::ItemFlags flags(const QModelIndex &index) const;
   QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
@@ -86,6 +89,7 @@ public:
   int rowCount(const QModelIndex &parent) const;
   int columnCount(const QModelIndex &parent) const;
   bool setData(const QModelIndex & index, const QVariant & value, int role);
+  /** */
 
 private:
   bool dropMimeData(const QMimeData *data, Qt::DropAction action,
