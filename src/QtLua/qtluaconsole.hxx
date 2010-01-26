@@ -24,13 +24,6 @@
 
 namespace QtLua {
 
-  /** Set history entry count */
-  inline void Console::set_history_size(int size)
-  {
-    _history_max = size;
-  }
-
-  /** Get current history */
   inline const QStringList & Console::get_history() const
   {
     return _history; 
@@ -39,11 +32,6 @@ namespace QtLua {
   void Console::set_completion_regexp(const QRegExp &regexp)
   {
     _complete_re = regexp;
-  }
-
-  void Console::set_prompt(QString p)
-  {
-    _prompt = p;
   }
 
 }

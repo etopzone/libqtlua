@@ -48,6 +48,10 @@ namespace QtLua {
 class Console : public QTextEdit
 {
   Q_OBJECT;
+  Q_PROPERTY(int history_size READ get_history_size WRITE set_history_size);
+  Q_PROPERTY(int text_width READ get_text_width WRITE set_text_width);
+  Q_PROPERTY(int text_height READ get_text_height WRITE set_text_height);
+  Q_PROPERTY(QString prompt READ get_prompt WRITE set_prompt);
 
 public:
 
@@ -56,10 +60,24 @@ public:
 	  const QStringList &history = QStringList());
 
   /** Set console prompt. */
-  inline void set_prompt(QString p);
+  void set_prompt(const QString &p);
+  /** Get console prompt. */
+  const QString & get_prompt() const;
 
-  /** Set history entry count. */
-  inline void set_history_size(int size);
+  /** Set console width in character count */
+  void set_text_width(int width);
+  /** Get console width in character count */
+  int get_text_width() const;
+
+  /** Set console height in character count */
+  void set_text_height(int height);
+  /** Get console height in character count */
+  int get_text_height() const;
+
+  /** Set console max history entries count */
+  void set_history_size(int history_size);
+  /** Get console max history entries count */
+  int get_history_size() const;
 
   /** Get current history. */
   inline const QStringList & get_history() const;
@@ -103,9 +121,11 @@ private:
   QString		_prompt;
   QStringList		_history;
   int			_history_ndx;
-  int			_history_max;
+  int			_history_size;
   int			_cursor_pos;
   QRegExp		_complete_re;
+  int			_text_width;
+  int			_text_height;
 
   QSize sizeHint() const;
 
