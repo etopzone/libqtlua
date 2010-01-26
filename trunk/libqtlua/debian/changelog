@@ -1,3 +1,11 @@
+libqtlua (1.2-1) stable; urgency=low
+
+  * License changed to LGPL
+  * Added Qt MVC model classes to expose lua tables in Qt view widgets
+  * Minor fixes and API changes
+
+ -- Alexandre Becoulet <alexandre.becoulet@free.fr>  Thu, 13 Nov 2008 02:43:18 +0100
+
 libqtlua (1.0.0-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>
