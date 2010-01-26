@@ -35,7 +35,7 @@ namespace QtLua {
 			   int attr, QWidget *parent)
     : QDialog(parent),
       _model(model),
-      _eb(0), _rb(0), _ib(0) //, _rc(0), _ic(0)
+      _eb(0), _rb(0), _ib(0), _rc(0), _ic(0)
   {
     QDialogButtonBox *buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
     connect(buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
@@ -125,21 +125,18 @@ namespace QtLua {
 	    connect(_ib, SIGNAL(clicked()), this, SLOT(grid_insert_row()));
 	  }
 
-#if 0
 	if (attr & TableGridModel::EditRemoveCol)
 	  {
 	    _rc = buttonBox->addButton(tr("Remove column"), QDialogButtonBox::ActionRole);
 	    _rc->setEnabled(false);
-	    connect(_rc, SIGNAL(clicked()), this, SLOT(grid_remove_col()));
+	    connect(_rc, SIGNAL(clicked()), this, SLOT(grid_remove_column()));
 	  }
 
 	if (attr & TableGridModel::EditInsertCol)
 	  {
 	    _ic = buttonBox->addButton(tr("Insert column"), QDialogButtonBox::ActionRole);
-	    _ic->setEnabled(false);
-	    connect(_ic, SIGNAL(clicked()), this, SLOT(grid_insert_col()));
+	    connect(_ic, SIGNAL(clicked()), this, SLOT(grid_insert_column()));
 	  }
-#endif
 
 	connect(_view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
 		this, SLOT(grid_current_changed(const QModelIndex&)));
@@ -217,12 +214,8 @@ namespace QtLua {
     if (_rb)
       _rb->setEnabled(index.isValid());
 
-#if 0
     if (_rc)
       _rc->setEnabled(index.isValid());
-    if (_ic)
-      _ic->setEnabled(index.isValid());
-#endif
 
     if (_eb)
       _eb->setEnabled(index.isValid());
@@ -237,11 +230,12 @@ namespace QtLua {
     if (index.isValid())
       row = index.row();
 
-    _model->insertRow(row, QModelIndex());
-
-    index = _model->index(row, 0, QModelIndex());
-    if (index.isValid())
-      _view->scrollTo(index);
+    if (_model->insertRow(row, QModelIndex()))
+      {
+	index = _model->index(row, 0, QModelIndex());
+	if (index.isValid())
+	  _view->scrollTo(index);
+      }
   }
 
   void TableDialog::grid_remove_row() const
@@ -252,23 +246,30 @@ namespace QtLua {
       _model->removeRow(index.row(), QModelIndex());
   }
 
-#if 0
-  void TableDialog::grid_insert_col() const
+  void TableDialog::grid_insert_column() const
   {
     QModelIndex index = _view->currentIndex();
+    int column = _model->columnCount(QModelIndex());
 
-    _model->insertColumn(index.column(), QModelIndex());
-    _view->scrollTo(index);
+    // FIXME should be able to insert as last column
+    if (index.isValid())
+      column = index.column();
+
+    if (_model->insertColumn(column, QModelIndex()))
+      {
+	index = _model->index(0, column, QModelIndex());
+	if (index.isValid())
+	  _view->scrollTo(index);
+      }
   }
 
-  void TableDialog::grid_remove_col() const
+  void TableDialog::grid_remove_column() const
   {
     QModelIndex index = _view->currentIndex();
 
     if (index.isValid())
       _model->removeColumn(index.column(), QModelIndex());
   }
-#endif
 
   void TableDialog::tree_tree_dialog(QWidget *parent, const QString &title, const Value &table, 
 				     TableTreeModel::Attributes attr)

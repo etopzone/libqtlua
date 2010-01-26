@@ -143,10 +143,10 @@ namespace QtLua {
     if (parent.isValid())
       return QModelIndex();
 
-    if (row >= rowCount(QModelIndex()))
+    if ((_attr & RowColSwap ? column : row) >= row_count())
       return QModelIndex();
 
-    if (column >= columnCount(QModelIndex()))
+    if ((_attr & RowColSwap ? row : column) >= column_count())
       return QModelIndex();
 
     return createIndex(row, column, 0);
@@ -157,14 +157,24 @@ namespace QtLua {
     return QModelIndex();
   }
 
+  int TableGridModel::row_count() const
+  {
+      return _attr & NumKeysRows ? _num_row_count : _row_keys.count();
+  }
+
+  int TableGridModel::column_count() const
+  {
+      return _attr & NumKeysCols ? _num_col_count : _col_keys.count();
+  }
+
   int TableGridModel::rowCount(const QModelIndex &parent) const
   {
-    return _attr & NumKeysRows ? _num_row_count : _row_keys.count();
+    return _attr & RowColSwap ? column_count() : row_count();
   }
 
   int TableGridModel::columnCount(const QModelIndex &parent) const
   {
-    return _attr & NumKeysCols ? _num_col_count : _col_keys.count();
+    return _attr & RowColSwap ? row_count() : column_count();
   }
 
   bool TableGridModel::hasChildren(const QModelIndex & parent) const
@@ -174,38 +184,44 @@ namespace QtLua {
 
   ValueRef TableGridModel::get_value_ref(const QModelIndex &index) const
   {
+    int row = index.row();
+    int col = index.column();
+
+    if (_attr & RowColSwap)
+      std::swap(row, col);
+
     // check column bounds
     if (_attr & NumKeysCols)
       {
-	if (index.column() >= _num_col_count)
+	if (col >= _num_col_count)
 	  goto bound_err;
       }
     else
       {
-	if (index.column() >= _col_keys.count())
+	if (col >= _col_keys.count())
 	  goto bound_err;
       }
 
     // check row bounds and build valueref
     if (_attr & NumKeysRows)
       {
-	if (index.row() >= _num_row_count)
+	if (row >= _num_row_count)
 	  goto bound_err;
 
 	if (_attr & NumKeysCols)
-	  return ValueRef(_table[index.row() + 1], index.column() + 1);
+	  return ValueRef(_table[row + 1], col + 1);
 	else
-	  return ValueRef(_table[index.row() + 1], _col_keys[index.column()]);
+	  return ValueRef(_table[row + 1], _col_keys[col]);
       }
     else
       {
-	if (index.row() >= _row_keys.count())
+	if (row >= _row_keys.count())
 	  goto bound_err;
 
 	if (_attr & NumKeysCols)
-	  return ValueRef(_table[_row_keys[index.row()]], index.column() + 1);
+	  return ValueRef(_table[_row_keys[row]], col + 1);
 	else
-	  return ValueRef(_table[_row_keys[index.row()]], _col_keys[index.column()]);
+	  return ValueRef(_table[_row_keys[row]], _col_keys[col]);
       }
 
   bound_err:
@@ -287,6 +303,14 @@ namespace QtLua {
     if (role != Qt::DisplayRole)
       return QVariant();
 
+    if (_attr & RowColSwap)
+      {
+	if (orientation == Qt::Vertical)
+	  orientation = Qt::Horizontal;
+	else
+	  orientation = Qt::Vertical;
+      }
+
     switch (orientation)
       {
       case Qt::Vertical:
@@ -314,6 +338,14 @@ namespace QtLua {
 
     if (!value.canConvert(QVariant::ByteArray))
       return false;
+
+    if (_attr & RowColSwap)
+      {
+	if (orientation == Qt::Vertical)
+	  orientation = Qt::Horizontal;
+	else
+	  orientation = Qt::Vertical;
+      }
 
     try {
 
@@ -352,13 +384,48 @@ namespace QtLua {
 
   bool TableGridModel::removeRows(int row, int count, const QModelIndex &parent)
   {
+    if (_attr & RowColSwap)
+      return remove_columns(row, count, parent);
+    else
+      return remove_rows(row, count, parent);
+  }
+
+  bool TableGridModel::insertRows(int row, int count, const QModelIndex &parent)
+  {
+    if (_attr & RowColSwap)
+      return insert_columns(row, count, parent);
+    else
+      return insert_rows(row, count, parent);
+  }
+
+  bool TableGridModel::removeColumns(int column, int count, const QModelIndex &parent)
+  {
+    if (_attr & RowColSwap)
+      return remove_rows(column, count, parent);
+    else
+      return remove_columns(column, count, parent);
+  }
+
+  bool TableGridModel::insertColumns(int column, int count, const QModelIndex &parent)
+  {
+    if (_attr & RowColSwap)
+      return insert_rows(column, count, parent);
+    else
+      return insert_columns(column, count, parent);
+  }
+
+  bool TableGridModel::remove_rows(int row, int count, const QModelIndex &parent)
+  {
     if (!(_attr & EditRemoveRow))
       return false;
 
     if (parent.isValid())
       return false;
 
-    beginRemoveRows(parent, row, row + count - 1);
+    if (_attr & RowColSwap)
+      beginRemoveColumns(parent, row, row + count - 1);
+    else
+      beginRemoveRows(parent, row, row + count - 1);
 
     if (_attr & NumKeysRows)
       {
@@ -380,7 +447,10 @@ namespace QtLua {
 	_row_keys.removeAt(row);
       }
 
-    endRemoveRows();
+    if (_attr & RowColSwap)
+      endRemoveColumns();
+    else
+      endRemoveRows();
 
     return true;
   }
@@ -390,7 +460,7 @@ namespace QtLua {
     return Value(st, Value::TTable);
   }
 
-  bool TableGridModel::insertRows(int row, int count, const QModelIndex &parent)
+  bool TableGridModel::insert_rows(int row, int count, const QModelIndex &parent)
   { 
     if (!(_attr & EditInsertRow))
       return false;
@@ -398,7 +468,10 @@ namespace QtLua {
     if (parent.isValid())
       return false;
 
-    beginInsertRows(parent, row, row + count - 1);
+    if (_attr & RowColSwap)
+      beginInsertColumns(parent, row, row + count - 1);
+    else
+      beginInsertRows(parent, row, row + count - 1);
 
     if (_attr & NumKeysRows)
       {
@@ -429,9 +502,24 @@ namespace QtLua {
 	  }
       }
 
-    endInsertRows();
+    if (_attr & RowColSwap)
+      endInsertColumns();
+    else
+      endInsertRows();
 
     return true;
+  }
+
+  bool TableGridModel::remove_columns(int row, int count, const QModelIndex &parent)
+  { 
+    // FIXME not implemented yet
+    return false;
+  }
+
+  bool TableGridModel::insert_columns(int row, int count, const QModelIndex &parent)
+  { 
+    // FIXME not implemented yet
+    return false;
   }
 
 }
