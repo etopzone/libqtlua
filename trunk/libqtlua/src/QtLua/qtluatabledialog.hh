@@ -141,6 +141,7 @@ namespace QtLua {
   protected:
     virtual QSize sizeHint() const;
 
+  private:
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
     QPushButton *_eb, *_rb, *_ib, *_rc, *_ic;
