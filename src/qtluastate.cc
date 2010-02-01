@@ -18,7 +18,7 @@
 
 */
 
-#include "../config.hh"
+#include "config.hh"
 
 #include <cstdlib>
 
