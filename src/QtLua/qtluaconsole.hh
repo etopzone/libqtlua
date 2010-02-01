@@ -39,6 +39,8 @@ namespace QtLua {
    * This widget is a general purpose console widget with history and
    * completion capabilities.
    *
+   * @xref{The qtlua interpreter tool} uses this widget.
+   *
    * When used with a @ref QtLua::State lua interpreter object, it
    * only needs a few signals connections to get a working lua based
    * shell:
