@@ -709,48 +709,52 @@ State * State::get_this(lua_State *st)
   return static_cast<State*>(data);
 }
 
+#define QTLUA_LUA_CALL(st, f)		\
+  lua_pushcfunction(st, f);		\
+  lua_call(st, 0, 0);
+
 void State::openlib(Library lib)
 {
   switch (lib)
     {
     case BaseLib:
-      luaopen_base(_st);
+      QTLUA_LUA_CALL(_st, luaopen_base);
       return;
-#ifdef HAVE_LUA_PACKAGELIB
     case PackageLib:
-      luaopen_package(_st);
-      return;
+#ifdef HAVE_LUA_PACKAGELIB
+      QTLUA_LUA_CALL(_st, luaopen_package);
 #endif
+      return;
     case StringLib:
-      luaopen_string(_st);
+      QTLUA_LUA_CALL(_st, luaopen_string);
       return;
     case TableLib:
-      luaopen_table(_st);
+      QTLUA_LUA_CALL(_st, luaopen_table);
       return;
     case MathLib:
-      luaopen_math(_st);
+      QTLUA_LUA_CALL(_st, luaopen_math);
       return;
     case IoLib:
-      luaopen_io(_st);
+      QTLUA_LUA_CALL(_st, luaopen_io);
       return;
 #ifdef HAVE_LUA_OSLIB
     case OsLib:
-      luaopen_os(_st);
+      QTLUA_LUA_CALL(_st, luaopen_os);
       return;
 #endif
     case DebugLib:
-      luaopen_debug(_st);
+      QTLUA_LUA_CALL(_st, luaopen_debug);
       return;
     case AllLibs:
 #ifdef HAVE_LUA_OPENLIBS
       luaL_openlibs(_st);
 #else
-      luaopen_base(_st);
-      luaopen_string(_st);
-      luaopen_table(_st);
-      luaopen_math(_st);
-      luaopen_io(_st);
-      luaopen_debug(_st);
+      QTLUA_LUA_CALL(_st, luaopen_base);
+      QTLUA_LUA_CALL(_st, luaopen_string);
+      QTLUA_LUA_CALL(_st, luaopen_table);
+      QTLUA_LUA_CALL(_st, luaopen_math);
+      QTLUA_LUA_CALL(_st, luaopen_io);
+      QTLUA_LUA_CALL(_st, luaopen_debug);
 #endif
       qtluaopen_qt(*this);
     case QtLuaLib:
