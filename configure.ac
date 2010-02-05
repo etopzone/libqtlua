@@ -54,6 +54,7 @@ AC_CHECK_HEADER(lualib.h, , AC_MSG_ERROR([can not find lualib.h; try --with-lua*
 AC_CHECK_HEADER(lauxlib.h, , AC_MSG_ERROR([can not find lauxlib.h; try --with-lua* arguments]))
 
 AC_CHECK_LIB(m, cosf, , AC_MSG_ERROR([can not find m library]))
+AC_CHECK_LIB(dl, dlopen, , )
 AC_CHECK_LIB($luaname, lua_pushnil, , AC_MSG_ERROR([can not find $luaname library; try --with-lua* arguments]))
 AC_CHECK_LIB($luaname, lua_gc, AC_DEFINE(HAVE_LUA_GC, 1, [lua_gc function is available]))
 
