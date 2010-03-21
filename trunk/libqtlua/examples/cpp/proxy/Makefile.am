@@ -40,6 +40,3 @@ qlinkedlistproxy_string_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 qlinkedlistproxy_string_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
 qlinkedlistproxy_string_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
 qlinkedlistproxy_string_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
-
-#BUILT_SOURCES = 
-

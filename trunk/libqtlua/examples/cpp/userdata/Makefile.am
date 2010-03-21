@@ -20,6 +20,3 @@ ref_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 ref_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
 ref_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
 ref_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
-
-#BUILT_SOURCES = 
-
