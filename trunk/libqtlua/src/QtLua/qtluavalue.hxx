@@ -286,7 +286,12 @@ namespace QtLua {
 
   Value::operator QString () const
   {
-    return to_string();
+    return to_string().to_qstring();
+  }
+
+  QString Value::to_qstring() const
+  {
+    return to_string().to_qstring();
   }
 
   Value::operator double () const

@@ -315,7 +315,7 @@ namespace QtLua {
       {
 	QObjectWrapper::ptr qow = value.to_userdata_cast<QObjectWrapper>();
 	QObject &child = qow->get_object();
-	child.setObjectName(skey);
+	child.setObjectName(skey.to_qstring());
 	qow->reparent(&obj);
       }
   }

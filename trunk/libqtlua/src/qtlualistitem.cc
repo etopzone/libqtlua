@@ -175,16 +175,16 @@ void ListItem::insert(Item *item, int row)
 
 void ListItem::insert_name(Item *item)
 {
-  String &name = item->_name;
+  QString name = item->_name;
 
   if (name.size() == 0)
     name += "noname";
   else
-    name = QString(name).replace(QRegExp("[^A-Za-z0-9_]"), "_");
+    name = name.replace(QRegExp("[^A-Za-z0-9_]"), "_");
 
   if (_child_hash.contains(name))
     {
-      String basename = QString(name).remove(QRegExp("_[0-9]+$"));
+      String basename = name.remove(QRegExp("_[0-9]+$"));
       do {
 	name = QString().sprintf("%s_%u", basename.constData(), _id_counter++);
       } while (_child_hash.contains(name));

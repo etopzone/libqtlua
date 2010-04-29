@@ -276,7 +276,7 @@ namespace QtLua {
       return true;
 
     } catch (const String &s) {
-      QMessageBox::critical(0, "Error", String("Value update error: ") + s);
+      QMessageBox::critical(0, "Error", QString("Value update error: ") + s.to_qstring());
 
       return false;
     }

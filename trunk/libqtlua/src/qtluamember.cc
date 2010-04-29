@@ -209,13 +209,13 @@ namespace QtLua {
 	*reinterpret_cast<QChar*>(data) = QChar((unsigned short)v.to_number());
 	return true;
       case QMetaType::QString:
-	*reinterpret_cast<QString*>(data) = v.to_string();
+	*reinterpret_cast<QString*>(data) = v.to_qstring();
 	return true;
       case QMetaType::QStringList: {
 	QStringList *qsl = reinterpret_cast<QStringList*>(data);
 	try {
 	  for (int i = 1; ; i++)
-	    qsl->push_back(v[i].to_string());
+	    qsl->push_back(v[i].to_qstring());
 	} catch (String &e) {
 	}
 	return true;

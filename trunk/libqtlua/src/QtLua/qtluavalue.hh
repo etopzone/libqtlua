@@ -394,6 +394,7 @@ public:
   /** Convert a lua string value to a @ref String object.
       Throw exception if conversion fails. @multiple */
   String to_string() const;
+  inline QString to_qstring() const;
   inline operator String () const;
   inline operator QString () const;
 
