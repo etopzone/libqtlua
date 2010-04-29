@@ -107,8 +107,8 @@ int State::lua_cmd_print(lua_State *st)
     for (int i = 1; i <= lua_gettop(st); i++)
       {
 	String s = Value::to_string_p(st, i, true);
-	this_->output(s);
-	this_->output("\n");
+	this_->output_str(s);
+	this_->output_str("\n");
 	qDebug("QtLua print:%s", s.constData());
       }
 
@@ -127,7 +127,7 @@ int State::lua_cmd_plugin(lua_State *st)
 
     if (lua_gettop(st) < 1 || !lua_isstring(st, 1))
       {
-	this_->output("Usage: plugin(\"library_filename_without_ext\")\n");
+	this_->output_str("Usage: plugin(\"library_filename_without_ext\")\n");
 	return 0;
       }
 
@@ -154,7 +154,7 @@ int State::lua_cmd_list(lua_State *st)
 
     for (Value::const_iterator i = t.begin(); i != t.end(); i++)
       {
-	this_->output(QString("\033[18m") + i.value().type_name_u() + "\033[2m " +
+	this_->output_str(String("\033[18m") + i.value().type_name_u() + "\033[2m " +
 		      i.key().to_string_p(false) + " = " + i.value().to_string_p(true) + "\n");
       }
 
@@ -172,7 +172,7 @@ int State::lua_cmd_help(lua_State *st)
 
   if (lua_gettop(st) < 1)
     {
-      this_->output("Usage: help(function)\n");
+      this_->output_str("Usage: help(function)\n");
       return 0;
     }
 
@@ -184,12 +184,12 @@ int State::lua_cmd_help(lua_State *st)
 
       if (cmd.valid())
 	{
-	  this_->output(cmd->get_help() + "\n");
+	  this_->output_str(cmd->get_help() + "\n");
 	  return 0;
 	}
     }
 
-  this_->output("Help is only available for QtLua::Function objects\n");
+  this_->output_str("Help is only available for QtLua::Function objects\n");
   return 0;
 }
 
@@ -675,7 +675,7 @@ void State::exec(const QString &statement)
     exec_statements(statement);
 
   } catch (QtLua::String &e) {
-    output(QString("\033[7merror\033[2m: ") + e.constData() + "\n");
+    output_str(String("\033[7merror\033[2m: ") + e.constData() + "\n");
   }
 
   gc_collect();
@@ -819,13 +819,13 @@ void State::fill_completion_list_r(String &path, const String &prefix,
 		}
 
 	      lastentry = entry;
-	      list.push_back(path + entry);
+	      list.push_back(path.to_qstring() + entry.to_qstring());
 	    }
 	}
 
       // apply path patch only if single match
       if (list.size() == 1)
-	list[0] = tpath + lastentry;
+	list[0] = tpath.to_qstring() + lastentry.to_qstring();
     }
 
   if (list.empty())

@@ -206,7 +206,7 @@ namespace QtLua {
 	      throw String("Parent QObject is not a QWidget.");
 	  }
 
-	QFile f(args[0].to_string());
+	QFile f(args[0].to_qstring());
 	QObject *w = uil.load(&f, p);
 
 	if (!w)
@@ -253,7 +253,7 @@ namespace QtLua {
 	if (args.size() > 1)
 	  name = args[1].to_string();
 
-	QObject *w = uil.createWidget(classname, p, name);
+	QObject *w = uil.createWidget(classname.to_qstring(), p, name.to_qstring());
 
 	if (!w)
 	  throw String("Unable to create % type widget.").arg(classname);
@@ -289,13 +289,13 @@ namespace QtLua {
 	String name = args[1].to_string();
 
 	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
-	  result = menu->addMenu(name);
+	  result = menu->addMenu(name.to_qstring());
 	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
-	  result = menubar->addMenu(name);
+	  result = menubar->addMenu(name.to_qstring());
 	else
 	  throw String("Bad menu owner object type");
 
-	result->setObjectName(QString("menu") + name);
+	result->setObjectName(QString("menu") + name.to_qstring());
 	return QtLua::Value(ls, result, false);
       }
 
@@ -327,13 +327,13 @@ namespace QtLua {
 	String name = args[1].to_string();
 
 	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
-	  result = menu->addAction(name);
+	  result = menu->addAction(name.to_qstring());
 	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
-	  result = menubar->addAction(name);
+	  result = menubar->addAction(name.to_qstring());
 	else
 	  throw String("Bad menu owner object type");
 
-	result->setObjectName(QString("action") + name);
+	result->setObjectName(QString("action") + name.to_qstring());
 	return QtLua::Value(ls, result, false);
       }
 
@@ -426,8 +426,8 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getExistingDirectory(QApplication::activeWindow(),
-			   get_arg<String>(args, 0, ""),
-			   get_arg<String>(args, 1, ""),
+			   get_arg<QString>(args, 0, ""),
+			   get_arg<QString>(args, 1, ""),
 			   (QFileDialog::Option)get_arg<int>(args, 2, QFileDialog::ShowDirsOnly)
 			 ));
       }
@@ -453,9 +453,9 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getOpenFileName(QApplication::activeWindow(),
-			   get_arg<String>(args, 0, ""),
-			   get_arg<String>(args, 1, ""),
-			   get_arg<String>(args, 2, ""), 0,
+			   get_arg<QString>(args, 0, ""),
+			   get_arg<QString>(args, 1, ""),
+			   get_arg<QString>(args, 2, ""), 0,
 			   (QFileDialog::Option)get_arg<int>(args, 3, 0)
 			 ));
       }
@@ -481,9 +481,9 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getOpenFileNames(QApplication::activeWindow(),
-			   get_arg<String>(args, 0, ""),
-			   get_arg<String>(args, 1, ""),
-			   get_arg<String>(args, 2, ""), 0,
+			   get_arg<QString>(args, 0, ""),
+			   get_arg<QString>(args, 1, ""),
+			   get_arg<QString>(args, 2, ""), 0,
 			   (QFileDialog::Option)get_arg<int>(args, 3, 0)
 			 ));
       }
@@ -509,9 +509,9 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getSaveFileName(QApplication::activeWindow(),
-			   get_arg<String>(args, 0, ""),
-			   get_arg<String>(args, 1, ""),
-			   get_arg<String>(args, 2, ""), 0,
+			   get_arg<QString>(args, 0, ""),
+			   get_arg<QString>(args, 1, ""),
+			   get_arg<QString>(args, 2, ""), 0,
 			   (QFileDialog::Option)get_arg<int>(args, 3, 0)
 			 ));
       }
@@ -587,8 +587,8 @@ namespace QtLua {
       {
 	bool ok;
 	double v = QInputDialog::getDouble(QApplication::activeWindow(),
-				 get_arg<String>(args, 0, ""),
-				 get_arg<String>(args, 1, ""),
+				 get_arg<QString>(args, 0, ""),
+				 get_arg<QString>(args, 1, ""),
 				 get_arg<double>(args, 2, 0),
 				 get_arg<double>(args, 3, -2147483647),
 				 get_arg<double>(args, 4, 2147483647),
@@ -620,8 +620,8 @@ namespace QtLua {
       {
 	bool ok;
 	int v = QInputDialog::getInteger(QApplication::activeWindow(),
-				 get_arg<String>(args, 0, ""),
-				 get_arg<String>(args, 1, ""),
+				 get_arg<QString>(args, 0, ""),
+				 get_arg<QString>(args, 1, ""),
 				 get_arg<int>(args, 2, 0),
 				 get_arg<int>(args, 3, -2147483647),
 				 get_arg<int>(args, 4, 2147483647),
@@ -653,10 +653,10 @@ namespace QtLua {
       {
 	bool ok;
 	QString v = QInputDialog::getText(QApplication::activeWindow(),
-				 get_arg<String>(args, 0, ""),
-				 get_arg<String>(args, 1, ""),
+				 get_arg<QString>(args, 0, ""),
+				 get_arg<QString>(args, 1, ""),
 				 QLineEdit::Normal,
-				 get_arg<String>(args, 2, ""),
+				 get_arg<QString>(args, 2, ""),
 				 &ok
 				 );
 	return ok ? Value(ls, v) : Value(ls);
@@ -684,8 +684,8 @@ namespace QtLua {
       {
 	bool ok;
 	QString v = QInputDialog::getItem(QApplication::activeWindow(),
-				 get_arg<String>(args, 3, ""),
-				 get_arg<String>(args, 4, ""),
+				 get_arg<QString>(args, 3, ""),
+				 get_arg<QString>(args, 4, ""),
 				 get_arg<QList<QString> >(args, 0),
 				 get_arg<int>(args, 1, 0),
 				 get_arg<Value::Bool>(args, 2, Value::False),
@@ -737,7 +737,9 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	QMessageBox::about(QApplication::activeWindow(), get_arg<String>(args, 1, ""), get_arg<String>(args, 0));
+	QMessageBox::about(QApplication::activeWindow(),
+			   get_arg<QString>(args, 1, ""),
+			   get_arg<QString>(args, 0));
 	return Value(ls);
       }
 
@@ -762,8 +764,8 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::critical(QApplication::activeWindow(),
-					       get_arg<String>(args, 1, ""),
-					       get_arg<String>(args, 0),
+					       get_arg<QString>(args, 1, ""),
+					       get_arg<QString>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
 					       (QMessageBox::StandardButton)get_arg<int>(args, 3, QMessageBox::NoButton)));
       }
@@ -789,8 +791,8 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::information(QApplication::activeWindow(),
-					       get_arg<String>(args, 1, ""),
-					       get_arg<String>(args, 0),
+					       get_arg<QString>(args, 1, ""),
+					       get_arg<QString>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
 					       (QMessageBox::StandardButton)get_arg<int>(args, 3, QMessageBox::NoButton)));
       }
@@ -816,8 +818,8 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::question(QApplication::activeWindow(),
-					       get_arg<String>(args, 1, ""),
-					       get_arg<String>(args, 0),
+					       get_arg<QString>(args, 1, ""),
+					       get_arg<QString>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
 					       (QMessageBox::StandardButton)get_arg<int>(args, 3, QMessageBox::NoButton)));
       }
@@ -843,8 +845,8 @@ namespace QtLua {
       Value::List meta_call(State &ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::warning(QApplication::activeWindow(),
-					       get_arg<String>(args, 1, ""),
-					       get_arg<String>(args, 0),
+					       get_arg<QString>(args, 1, ""),
+					       get_arg<QString>(args, 0),
 					       (QMessageBox::StandardButtons)get_arg<int>(args, 2, QMessageBox::Ok),
 					       (QMessageBox::StandardButton)get_arg<int>(args, 3, QMessageBox::NoButton)));
       }
@@ -899,7 +901,7 @@ namespace QtLua {
 	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
 	TableDialog::tree_tree_dialog(QApplication::activeWindow(),
-				      get_arg<String>(args, 2, ""), args[0],
+				      get_arg<QString>(args, 2, ""), args[0],
 				      (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
 				      );
 
@@ -929,7 +931,7 @@ namespace QtLua {
 	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
 	TableDialog::tree_table_dialog(QApplication::activeWindow(),
-				      get_arg<String>(args, 2, ""), args[0],
+				      get_arg<QString>(args, 2, ""), args[0],
 				      (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
 				      );
 
@@ -976,7 +978,7 @@ namespace QtLua {
 	  }
 
 	TableDialog::grid_table_dialog(QApplication::activeWindow(),
-				       get_arg<String>(args, 2, ""), args[0],
+				       get_arg<QString>(args, 2, ""), args[0],
 				       (TableGridModel::Attributes)get_arg<int>(args, 1, 0),
 				       ckptr, rkptr
 				       );
@@ -997,6 +999,29 @@ namespace QtLua {
     } dialog_grid_tableview;
 
     dialog_grid_tableview.register_(ls, "qt.dialog.grid_tableview");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	return Value(ls, QObject::trUtf8(get_arg<String>(args, 0), 0, get_arg<int>(args, 1, -1)));
+      }
+
+      String get_description() const
+      {
+	return "translate utf8 text";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.tr(\"text\" [ , n ])");
+      }
+
+    } qt_tr;
+
+    qt_tr.register_(ls, "qt.tr");
 
   }
 

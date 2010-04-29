@@ -213,6 +213,8 @@ signals:
 
 private:
 
+  inline void output_str(const String &str);
+
   // get pointer to lua state object from lua state
   static State *get_this(lua_State *st);
 
