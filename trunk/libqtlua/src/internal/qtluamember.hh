@@ -26,6 +26,7 @@
 #include <QPointer>
 
 #include <QtLua/qtluauserdata.hh>
+#include <QtLua/qtluametatype.hh>
 
 namespace QtLua {
 
