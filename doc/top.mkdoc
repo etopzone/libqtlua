@@ -1,4 +1,6 @@
 
+@scope {QtLua}
+
 @insert title
 
 @section TP {Copying this document}
@@ -217,7 +219,10 @@
    @item Not handled Qt meta types
   @end table
 
- @end section
+  The @ref MetaType class enables registration of user defined
+  handlers to handle other types. Other types can be user defined
+  types or not yet handled Qt meta types.
+@end section
 
 @end section
 
@@ -249,7 +254,7 @@
 
    The following rules apply:
    @list
-    @item There is a single wrapper instance for a given @ref QObject.
+    @item There is a single wrapper instance for a given @ref QObject instance.
     @item The wrapper is created when the @ref QObject is first exposed as a lua value through a @ref QtLua::Value object.
     @item A delete flag is carried by the wrapper.
     @item The wrapper will delete the associated @ref QObject when garbage collected only if its delete flag is set.
@@ -340,7 +345,7 @@
   
   Lua script file content:
   
-  @example examples/lua/hello/hello.lua
+  @example examples/lua/hello/hello.lua R
   
   This window is displayed when the script is executed with the @tt qtlua interpreter tool:
   
@@ -368,14 +373,15 @@
 @c @insert all_modules_sections
 
 @section TPH {API documentation}
- @section {Modules list}
+  All QtLua libray symbols are located in the @ref ::QtLua namespace.
+  @section {Modules list}
   @insert modules_table
  @end section
  @section {Classes list}
-  @insert {bymodules} classes_table
+  @insert classes_table_by_module
  @end section
- @insert {TP} all_classes_sections
- @insert {TP} all_namespaces_sections
+ @insert {PU} all_classes_sections
+ @insert {QtLua} {PU} compound_section
 @end section
 
 @section TP {GNU Free Documentation License}

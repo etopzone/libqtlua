@@ -36,7 +36,7 @@ namespace QtLua {
    * @module {Model/View}
    *
    * This dialog class use the @ref TableTreeModel or @ref
-   * TableGridModel classes to show and enable edition of lua tables
+   * TableGridModel classes to enable display and edition of lua tables
    * in @ref QTreeView or @ref QTableView widgets.
    *
    * The dialog has some edition buttons depending on model edition
