@@ -1,13 +1,13 @@
 
-AC_INIT(libqtlua, 1.2.1)
-PACKAGE_VERSION=1.2.1
-LIBRARY_VERSION=1.2
+AC_INIT(libqtlua, 1.3)
+PACKAGE_VERSION=1.3
+LIBRARY_VERSION=1.3
 AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(LIBRARY_VERSION)
 
 AC_CONFIG_AUX_DIR([build])
 
-AM_INIT_AUTOMAKE(libqtlua, 1.2.1)
+AM_INIT_AUTOMAKE(libqtlua, 1.3)
 AC_CONFIG_HEADERS(config.hh)
 
 AC_PROG_CXX
@@ -35,6 +35,7 @@ AC_CONFIG_FILES([
     examples/cpp/mvc/Makefile
     examples/cpp/value/Makefile
     examples/cpp/plugin/Makefile
+    examples/cpp/types/Makefile
     test/Makefile
     doc/Makefile
 ])
