@@ -63,7 +63,7 @@ public:
 private:
 
   /**
-   * @short QVectorProxyRo iterator class (internal)
+   * @short QVectorProxyRo iterator class
    * @internal
    */
   class ProxyIterator : public Iterator

@@ -61,7 +61,7 @@ private:
   virtual void completion_patch(String &path, String &entry, int &offset);
 
   /**
-   * @short QHashProxyRo iterator class (internal)
+   * @short QHashProxyRo iterator class
    * @internal
    */
   class ProxyIterator : public Iterator

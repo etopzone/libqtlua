@@ -34,7 +34,7 @@ namespace QtLua {
   class Value;
 
 /**
- * @short Qt meta member wrappers class (internal)
+ * @short Qt meta member wrappers class
  * @header internal/Member
  * @module {QObject wrapping}
  * @internal
