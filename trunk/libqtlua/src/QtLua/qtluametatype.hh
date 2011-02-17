@@ -108,7 +108,7 @@ namespace QtLua {
       : public QtLua::MetaType<typename_>			\
     {								\
       name()							\
-	: MetaType(#typename_) {}				\
+	: QtLua::MetaType<typename_>(#typename_) {}		\
 								\
       inline QtLua::Value qt2lua(QtLua::State &ls,		\
 				 typename_ const * qtvalue);	\
@@ -123,7 +123,7 @@ namespace QtLua {
       : public QtLua::MetaType<typename_>			\
     {								\
       name()							\
-	: MetaType((int)typeid_) {}				\
+	: QtLua::MetaType<typename_>((int)typeid_) {}		\
 								\
       inline QtLua::Value qt2lua(QtLua::State &ls,		\
 				 typename_ const * qtvalue);	\
