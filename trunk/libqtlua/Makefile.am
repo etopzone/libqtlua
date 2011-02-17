@@ -7,7 +7,7 @@ if EXAMPLES
 SUBDIRS += examples
 endif
 
-EXTRA_DIST = bootstrap COPYING.LESSER
+EXTRA_DIST = bootstrap COPYING.LESSER CMakeLists.txt config.hh.cmake
 
 doc: doc/manual doc/internals
 
