@@ -3,20 +3,17 @@
 
 @insert title
 
-@section T {Copying this document}
+@section U {Copying this document}
  Copyright (c) @insert author.  Permission is granted to copy,
  distribute and/or modify this document under the terms of the GNU Free
  Documentation License, Version 1.3 or any later version published by
  the Free Software Foundation; with no Invariant Sections, no
  Front-Cover Texts, and no Back-Cover Texts.  A copy of the license is
  included in the section entitled @xref{GNU Free Documentation License}.
-
- This document was generated against svn revision @rcs $Rev$ of
- the project.
 @end section
 
 @ifopt doc_format {html}
- @section PH {Table of contents}
+ @section PHU {Table of contents}
   @insert toc
  @end section
 @end ifopt
@@ -79,6 +76,13 @@
    @item The @tt qt.meta table contains all wrapped Qt meta objects, useful to access Qt enums and other meta data without @ref QObject instance.
    @item The @tt qt.new_widget() function returns a new widget of given class name using the @ref QUiLoader::createWidget function.
   @end list
+
+  The @tt help function can be used to display usage information on all functions in this library:
+  @code R
+>> help(qt.connect)
+usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_name")
+       qt.connect(qobjectwrapper, "qt_signal_name", lua_function)
+  @end code
 
  @end section
 @end section
