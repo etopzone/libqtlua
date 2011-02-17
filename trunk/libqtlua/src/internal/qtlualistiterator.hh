@@ -27,7 +27,7 @@
 namespace QtLua {
 
 /**
- * @short Qt Model/View list item iterator class (internal)
+ * @short Qt Model/View list item iterator class
  * @header internal/ListIterator
  * @module {Model/View}
  * @internal

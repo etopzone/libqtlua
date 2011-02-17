@@ -60,7 +60,7 @@ public:
 private:
 
   /**
-   * @short QLinkedListProxy iterator class (internal)
+   * @short QLinkedListProxy iterator class
    * @internal
    */
   class ProxyIterator : public Iterator

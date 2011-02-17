@@ -60,7 +60,7 @@ public:
 private:
 
   /**
-   * @short QListProxyRo iterator class (internal)
+   * @short QListProxyRo iterator class
    * @internal
    */
   class ProxyIterator : public Iterator

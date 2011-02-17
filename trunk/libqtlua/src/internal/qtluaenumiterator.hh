@@ -28,7 +28,7 @@
 namespace QtLua {
 
 /**
- * @short Qt enum iterator class (internal)
+ * @short Qt enum iterator class
  * @header internal/EnumIterator
  * @module {QObject wrapping}
  * @internal

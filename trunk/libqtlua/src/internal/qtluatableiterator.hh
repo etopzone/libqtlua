@@ -26,7 +26,7 @@
 namespace QtLua {
 
 /**
- * @short Lua table iterator class (internal)
+ * @short Lua table iterator class
  * @header internal/TableIterator
  * @module {Base}
  * @internal

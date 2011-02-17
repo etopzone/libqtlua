@@ -70,7 +70,7 @@ class Value
 
   /**
    * @internal 
-   * @short Value iterator base class (internal)
+   * @short Value iterator base class
    */
   class iterator_
   {
@@ -82,7 +82,7 @@ class Value
 
     /** @internal */
     inline iterator_(const Ref<Iterator> &i);
-    /** Create a non uninitialized iterator */
+    /** Create a non initialized iterator */
     inline iterator_();
     inline iterator_ & operator++();
     inline iterator_ operator++(int);

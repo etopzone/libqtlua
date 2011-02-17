@@ -32,7 +32,7 @@ namespace QtLua {
   class QObjectWrapper;
 
 /**
- * @short Lua QObject children and meta members iterator class (internal)
+ * @short Lua QObject children and meta members iterator class
  * @header internal/QObjectIterator
  * @module {QObject wrapping}
  * @internal

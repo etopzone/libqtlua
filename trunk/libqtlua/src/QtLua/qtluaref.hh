@@ -29,7 +29,7 @@ namespace QtLua {
 #ifndef QTLUA_NO_DEBUG
 
   /**
-   * @short Guard class, assert allocated RefObj based objects get free'd (internal)
+   * @short Guard class, assert allocated RefObj based objects get free'd
    * @module {Base}
    * @internal
    * @header QtLua/Ref
@@ -321,7 +321,7 @@ namespace QtLua {
 
 
   /**
-   * @short Referenced objects base class (internal)
+   * @short Referenced objects base class
    * @header QtLua/Ref
    * @module {Base}
    * @internal
