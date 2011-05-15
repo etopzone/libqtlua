@@ -41,7 +41,7 @@ namespace QtLua {
    * matches an entry in the provided lua table, and each column
    * describe keys used to access nested tables.
    *
-   * Columns and row keys can be independently handled as numerical
+   * Column and row keys can be independently handled as numerical
    * indexes or as plain lua value. When in numerical key mode, all
    * keys are assumed to be numbers, first key is 1 and keys order is
    * preserved when inserting or deleting entries.

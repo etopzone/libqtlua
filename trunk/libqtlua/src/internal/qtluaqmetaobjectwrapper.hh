@@ -27,6 +27,7 @@
 
 namespace QtLua {
 
+  /** @internal */
   extern const QMetaObject *meta_object_table[];
 
 /**
