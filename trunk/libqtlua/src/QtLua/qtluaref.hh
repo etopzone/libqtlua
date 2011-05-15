@@ -367,7 +367,10 @@ namespace QtLua {
     void _inc() const
     {
       Refobj<X> *y = const_cast<Refobj<X>*>(this);
+#if 0
       y->ref_inc(++y->_qtlua_Ref_count);
+#endif
+      ++y->_qtlua_Ref_count;
     }
 
     /** @internal */
@@ -389,13 +392,16 @@ namespace QtLua {
       y->ref_drop(count);
     }
 
-    /** This function is called when reference count has just increased.
+#if 0
+    /* This function is called when reference count has just increased.
 
 	@param Count new reference count.
     */
+
     virtual void ref_inc(int count)
     {
     }
+#endif
 
     /** This functions is called when reference count has just decreased.
 
