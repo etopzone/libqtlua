@@ -28,27 +28,6 @@
 
 @end section
 
-@moduledef {Base}
- @short Lua base classes
-@end group
-
-@moduledef {Functions export}
- @short Expose C++ functions to lua
-@end group
-
-@moduledef {Model/View}
- @short Lua / Qt model view hierarchic data structure classes
-@end group
-
-@moduledef {Container proxies}
- @short Lua / Qt containers wrapper classes
-@end group
-
-@moduledef {QObject wrapping}
- @short QObject meta wrapper classes
- @internal
-@end group
-
 @section TP {QtLua lua libraries}
 
  QtLua comes with two lua libraries: a few general purpose global lua functions useful when running lua script
@@ -378,14 +357,17 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
 
 @section TPH {API documentation}
   All QtLua libray symbols are located in the @ref ::QtLua namespace.
+
   @section {Modules list}
-  @insert modules_table
- @end section
- @section {Classes list}
-  @insert classes_table_by_module
- @end section
- @insert {PU} all_classes_sections
- @insert {QtLua} {PU} compound_section
+    @insert {module} compound_table
+  @end section
+
+  @section {Classes list}
+    @insert {class} {module} grouped_compound_table
+  @end section
+
+  @insert {class} {PU} all_compound_sections
+  @insert {QtLua} {PU} compound_section
 @end section
 
 @section TP {GNU Free Documentation License}
