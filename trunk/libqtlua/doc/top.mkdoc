@@ -1,4 +1,7 @@
 
+@include modules.mkdoc
+@include template.mkdoc
+
 @scope {QtLua}
 
 @insert title
@@ -263,7 +266,7 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
    The @tt qt.connect lua function can be used to
    connect a Qt slot either to a Qt signal or to a lua function:
 
-   @code
+   @code R
    -- connect signal and slot of given Qt objects
    qt.connect(qobjectwrapper1, "qt_signal_name", qobjectwrapper2, "qt_slot_name")
 
@@ -278,7 +281,7 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
    The @tt qt.disconnect lua functions can be used to
    disconnect a Qt slot:
 
-   @code
+   @code R
    -- disconnect signal and slot of given Qt objects
    qt.disconnect(qobjectwrapper1, "qt_signal_name", qobjectwrapper2, "qt_slot_name")
 
@@ -319,8 +322,8 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
 
   This simple example contains two files: a lua script file and an user
   interface file created with the Qt @tt designer tool:
-  
-  @code
+
+  @code R
   $ cd examples/lua/hello/
   $ ls
   hello.lua  hello.ui
@@ -332,7 +335,7 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
   
   This window is displayed when the script is executed with the @tt qtlua interpreter tool:
   
-  @image doc/hello_ui.png
+  @image hello_ui.png
 
  @end section
 
@@ -343,11 +346,11 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
 
   The first screenshot partially shows the list of available fields in a newly created @ref QSpinBox widget:
 
-  @image doc/qtlua_console_1.png
+  @image qtlua_console_1.png
 
   The second screenshot shows how to update the spinbox buttons style property using the right Qt enumeration value:
 
-  @image doc/qtlua_console_2.png
+  @image qtlua_console_2.png
 
  @end section
 
@@ -366,8 +369,8 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
     @insert {class} {module} grouped_compound_table
   @end section
 
-  @insert {class} {PU} all_compound_sections
-  @insert {QtLua} {PU} compound_section
+  @insert {class} all_compound_sections
+  @insert {QtLua} compound_section
 @end section
 
 @section TP {GNU Free Documentation License}
