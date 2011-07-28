@@ -49,7 +49,7 @@ class State;
    * Usage example:
    * @example examples/cpp/mvc/itemtreeview.cc:1
    *
-   * @image doc/qtlua_itemmodel.png
+   * @image qtlua_itemmodel.png
    */
 
 class ItemModel : public QAbstractItemModel
