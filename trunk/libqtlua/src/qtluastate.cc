@@ -834,7 +834,9 @@ void State::fill_completion_list_r(String &path, const String &prefix,
       String next = prefix.mid(0, len);
 
       try {
-	path += next + prefix[len];
+	path += next;
+	if (len < prefix.size())
+	  path += prefix[len];
 	fill_completion_list_r(path, prefix.mid(len + 1), list, tbl[next], cursor_offset);
       } catch (...) {
       }
