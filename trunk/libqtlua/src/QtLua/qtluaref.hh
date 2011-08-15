@@ -400,6 +400,7 @@ namespace QtLua {
 
     virtual void ref_inc(int count)
     {
+      Q_UNUSED(count);
     }
 #endif
 
@@ -409,6 +410,7 @@ namespace QtLua {
     */
     virtual void ref_drop(int count)
     {
+      Q_UNUSED(count);
     }
 
     /** Get object current reference count */

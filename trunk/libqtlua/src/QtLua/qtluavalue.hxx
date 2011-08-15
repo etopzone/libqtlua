@@ -109,12 +109,6 @@ namespace QtLua {
     *this = obj;
   }
 
-  Value::Value(lua_State *st, ValueType type)
-    : _st(_st)
-  {
-    init_type_value(type);
-  }
-
   Value::Value(const State &ls, ValueType type)
     : _st(ls._st)
   {
