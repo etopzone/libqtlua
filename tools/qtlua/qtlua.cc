@@ -32,7 +32,7 @@
 
 #include "config.hh"
 
-#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2010, Alexandre Becoulet"
+#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2011, Alexandre Becoulet"
 
 int main(int argc, char *argv[])
 {
@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
 		console, SLOT(print(const QString&)));
 
 	console->print(QTLUA_COPYRIGHT "\n");
+	console->print("You may type: help(), list() and use TAB completion.\n");
 	console->show();
       }
 

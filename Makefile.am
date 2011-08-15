@@ -9,7 +9,7 @@ endif
 
 EXTRA_DIST = bootstrap COPYING.LESSER CMakeLists.txt config.hh.cmake
 
-doc: doc/manual doc/internals
+doc: manual internals
 
 manual:
 	mkdoc -I src qt_4.5.mkdoclib --conf-file manual.conf src/QtLua/*.hh src/internal/*.hh

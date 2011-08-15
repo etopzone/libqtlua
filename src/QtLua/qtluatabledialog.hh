@@ -70,7 +70,7 @@ namespace QtLua {
      *
      * @param table lua table to expose
      * @param type dialog type
-     * @param model mvc model to use, a default model is created if @ref NULL.
+     * @param model mvc model to use, a default model is created if @tt NULL.
      * @param attr model attributes, control display and edit options
      *
      * @see tree_tree_dialog @see tree_table_dialog @see grid_table_dialog
@@ -117,9 +117,9 @@ namespace QtLua {
      * @param table lua table to expose
      * @param attr model attributes, control display and edit options
      * @param colkeys list of lua value to use as column keys,
-     *  use @ref TableGridModel::fetch_all_column_keys if @ref NULL.
+     *  use @ref TableGridModel::fetch_all_column_keys if @tt NULL.
      * @param rowkeys list of lua value to use as row keys,
-     *  use @ref TableGridModel::fetch_all_row_keys if @ref NULL.
+     *  use @ref TableGridModel::fetch_all_row_keys if @tt NULL.
      */
     static void grid_table_dialog(QWidget *parent, const QString &title, const Value &table,
 				  TableGridModel::Attributes attr = TableGridModel::Attributes(),
