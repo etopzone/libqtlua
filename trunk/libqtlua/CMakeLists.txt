@@ -56,8 +56,8 @@
 
 		SET(PACKAGE_NAME "\"libqtlua\"")
 		SET(PACKAGE_TARNAME "\"libqtlua\"")
-		SET(PACKAGE_VERSION "\"1.2.1\"")
-		SET(PACKAGE_STRING "\"libqtlua 1.2.1\"")
+		SET(PACKAGE_VERSION "\"1.3\"")
+		SET(PACKAGE_STRING "\"libqtlua 1.3\"")
 		SET(PACKAGE_BUGREPORT "\"\"")
 		SET(PACKAGE_URL "\"http://www.nongnu.org/libqtlua/\"")
 

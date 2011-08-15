@@ -6,19 +6,20 @@
 
 @macro _member_doc id
   @insert {@id@} decl_warn_sentence
-  @insert {@id@} decl_location_sentence
-  @insert {@id@} decl_homonyms_sentence
-  @insert {@id@} decl_cpp_condition_sentence
-  @insert {@id@} decl_involved_macros_sentence
-
+  @ifnopt hide_internal
+    @insert {@id@} decl_location_sentence
+    @insert {@id@} decl_homonyms_sentence
+    @insert {@id@} decl_cpp_condition_sentence
+    @insert {@id@} decl_involved_macros_sentence
+  @end if
   @insert {@id@} decl_access_sentence
   @insert {@id@} decl_specialization_sentence
   @insert {@id@} decl_override_sentence
   @insert {@id@} decl_qt_sentence
-
   @insert {@id@} decl_inline_doc
   @insert {@id@} decl_content
   @insert {@id@} see_related_typedefs
+  @insert {No documentation available} on_empty_section
 @end macro
 
 @c ===== members detail =====
@@ -81,6 +82,7 @@
     @section e {Inheritance}
       @insert {@id@} ancestors_list
     @end section
+
     @section e {Class specializations}
       @insert {@id@} specializations_table
     @end section
