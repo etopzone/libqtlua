@@ -72,7 +72,7 @@
 	ADD_DEFINITIONS(-DQTLUAREF_DEBUG)
 
 	INCLUDE_DIRECTORIES (${CMAKE_CURRENT_BINARY_DIR})
-	INCLUDE_DIRECTORIES( src src/internal src/QtLua)
+	INCLUDE_DIRECTORIES( src )
 
 	SET(QTLUA_LIB_SRCS src/qtluaconsole.cc src/qtluaenum.cc
 		src/qtluaenumiterator.cc src/qtluafunction.cc
