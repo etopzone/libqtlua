@@ -503,6 +503,15 @@ namespace QtLua {
   }
 
   template <class X>
+  inline X *Value::to_qobject_cast() const
+  {
+    X *p = qobject_cast<X*>(to_qobject());
+    if(!p)
+      throw String("Can not cast QObject to %.").arg(X::staticMetaObject.className());
+    return p;
+  }
+
+  template <class X>
   inline QtLua::Ref<X> Value::to_userdata_cast() const
   {
     UserData::ptr ud = to_userdata_null();
