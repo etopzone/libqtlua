@@ -542,6 +542,16 @@ UserData::ptr Value::to_userdata_null() const
   return UserData::ptr();
 }
 
+QObject *Value::to_qobject() const
+{
+  QObjectWrapper::ptr ow = to_userdata_cast<QObjectWrapper>();
+
+  if (!ow.valid())
+    throw String("Can not convert % type to QObject.").arg(type_name());
+
+  return &ow->get_object();
+}
+
 static int lua_writer(lua_State *L, const void* p, size_t sz, void* pv)
 {
   QByteArray *ba = (QByteArray*)pv;

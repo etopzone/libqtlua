@@ -449,6 +449,22 @@ public:
   operator QMap<Key, Val> () const;
 
   /**
+   * Convert a lua value to a @ref QObject pointer.
+   * Throw exception if conversion or cast fails.
+   * @see to_qobject_cast
+   */
+  QObject *to_qobject() const;
+
+  /**
+   * Convert a lua value to a @ref QObject subclass pointer. Subclass
+   * must have the @tt Q_OBJECT macro in it's definition.
+   * Throw exception if conversion or cast fails.
+   * @see to_qobject
+   */
+  template <class X>
+  inline X *to_qobject_cast() const;
+
+  /**
    * Convert a lua value to a @ref Ref pointer to an @ref UserData.
    * Throw exception if conversion fails.
    * @see to_userdata_null
