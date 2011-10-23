@@ -13,8 +13,8 @@
 	SET(INSTALL_INC include CACHE PATH "Where to install headers to.")
 
 # Find Qt4
-	FIND_PACKAGE(Qt4 REQUIRED)
 	SET(QT_USE_QTUITOOLS 1)
+	FIND_PACKAGE(Qt4 REQUIRED)
 	INCLUDE(${QT_USE_FILE})
 
 # Find Lua 
@@ -161,7 +161,7 @@
 		      src/QtLua/QLinkedListProxy
 		      src/QtLua/qtluaqlinkedlistproxy.hh
 		      src/QtLua/qtluaqlinkedlistproxy.hxx
-	      DESTINATION ${INSTALL_INC})
+              DESTINATION ${INSTALL_INC}/QtLua)
 	
 # tests
 #	INCLUDE_DIRECTORIES( test )
