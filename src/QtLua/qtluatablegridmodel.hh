@@ -23,6 +23,7 @@
 #define QTLUA_TABLEGRIDMODEL_HH_
 
 #include <QAbstractItemModel>
+#include <QPointer>
 
 #include <QtLua/Value>
 #include <QtLua/ValueRef>
@@ -81,7 +82,7 @@ namespace QtLua {
 
   public:
 
-    /** Specifies @ref TableGridModel behavior for a given lua table */
+    /** Specifies @ref TableGridModel behavior for a given lua table @showvalue */
     enum Attribute
       {
 	NumKeysCols   = 0x00000001,	//< Columns use numeric keys
@@ -171,6 +172,8 @@ namespace QtLua {
     /** */
 
   private:
+    void check_state() const;
+
     int row_count() const;
     int column_count() const;
     bool remove_rows(int row, int count, const QModelIndex &parent);
@@ -180,7 +183,7 @@ namespace QtLua {
 
     bool set_value_ref(const ValueRef &ref, const QByteArray &input);
 
-    State &_st;
+    QPointer<State> _st;
     Attributes _attr;
     Value _table;
     QList<Value> _row_keys;

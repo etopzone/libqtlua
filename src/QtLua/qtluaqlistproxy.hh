@@ -21,6 +21,8 @@
 #ifndef QTLUALISTPROXY_HH_
 #define QTLUALISTPROXY_HH_
 
+#include <QPointer>
+
 #include "qtluauserdata.hh"
 #include "qtluaiterator.hh"
 
@@ -67,7 +69,7 @@ private:
   {
   public:
     QTLUA_REFTYPE(ProxyIterator);
-    ProxyIterator(State &ls, const Ref<QListProxyRo> &proxy);
+    ProxyIterator(State *ls, const Ref<QListProxyRo> &proxy);
 
   private:
     bool more() const;
@@ -76,7 +78,7 @@ private:
     Value get_value() const;
     ValueRef get_value_ref();
 
-    State &_ls;
+    QPointer<State> _ls;
     typename QListProxyRo::ptr _proxy;
     typename Container::const_iterator _it;
     unsigned int _i;

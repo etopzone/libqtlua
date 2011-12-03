@@ -133,11 +133,11 @@ namespace QtLua {
     if (!_hash)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
   }
 
   template <class Container>
-  QHashProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, const Ref<QHashProxyRo> &proxy)
+  QHashProxyRo<Container>::ProxyIterator::ProxyIterator(State *ls, const Ref<QHashProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_hash->begin())

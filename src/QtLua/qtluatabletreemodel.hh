@@ -22,8 +22,10 @@
 #ifndef QTLUA_TABLETREEMODEL_HH_
 #define QTLUA_TABLETREEMODEL_HH_
 
-#include <QtLua/Value>
 #include <QAbstractItemModel>
+#include <QPointer>
+
+#include <QtLua/Value>
 
 namespace QtLua {
 
@@ -66,7 +68,7 @@ namespace QtLua {
 
   public:
 
-    /** Specifies @ref TableTreeModel behavior for a given lua table */
+    /** Specifies @ref TableTreeModel behavior for a given lua table @showvalue */
     enum Attribute
       {
 	Recursive	= 0x00000001,	//< Expose nested tables too.
@@ -124,9 +126,10 @@ namespace QtLua {
 
   private:
 
+    void check_state() const;
     TableTreeKeys * table_from_index(const QModelIndex &index) const;
 
-    State &_st;
+    QPointer<State> _st;
     TableTreeKeys *_table;
   };
 

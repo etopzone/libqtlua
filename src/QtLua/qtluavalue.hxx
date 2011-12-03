@@ -33,56 +33,91 @@
 
 namespace QtLua {
 
-  Value::Value(const State &ls)
-    : _st(ls._st)
+  Value::Value()
+    : _st(0)
   {
   }
 
-  Value::Value(lua_State *st)
-    : _st(st)
+  Value::Value(const State &ls)
+    : _st(const_cast<State*>(&ls))
+  {
+  }
+
+  Value::Value(const State *ls)
+    : _st(const_cast<State*>(ls))
   {
   }
 
   Value::Value(const State &ls, Bool n)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = n;
+  }
+
+  Value::Value(const State *ls, Bool n)
+    : _st(const_cast<State*>(ls))
   {
     *this = n;
   }
 
   Value::Value(const State &ls, double n)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = n;
+  }
+
+  Value::Value(const State *ls, double n)
+    : _st(const_cast<State*>(ls))
   {
     *this = n;
   }
 
   Value::Value(const State &ls, int n)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = (double)n;
+  }
+
+  Value::Value(const State *ls, int n)
+    : _st(const_cast<State*>(ls))
   {
     *this = (double)n;
   }
 
   Value::Value(const State &ls, const String &str)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = str;
+  }
+
+  Value::Value(const State *ls, const String &str)
+    : _st(const_cast<State*>(ls))
   {
     *this = str;
   }
 
   Value::Value(const State &ls, const Ref<UserData> &item)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = item;
+  }
+
+  Value::Value(const State *ls, const Ref<UserData> &item)
+    : _st(const_cast<State*>(ls))
   {
     *this = item;
   }
 
   Value::Value(const State &ls, QObject *obj)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     *this = obj;
   }
 
-  Value::Value(lua_State *st, double n)
-    : _st(st)
+  Value::Value(const State *ls, QObject *obj)
+    : _st(const_cast<State*>(ls))
   {
-    *this = n;
+    *this = obj;
   }
 
   Value & Value::operator=(int n)
@@ -91,26 +126,8 @@ namespace QtLua {
     return *this;
   }
 
-  Value::Value(lua_State *st, const String &str)
-    : _st(st)
-  {
-    *this = str;
-  }
-
-  Value::Value(lua_State *st, const Ref<UserData> &item)
-    : _st(st)
-  {
-    *this = item;
-  }
-
-  Value::Value(lua_State *st, QObject *obj)
-    : _st(st)
-  {
-    *this = obj;
-  }
-
   Value::Value(const State &ls, ValueType type)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     init_type_value(type);
   }
@@ -141,14 +158,14 @@ namespace QtLua {
 
   template <typename X>
   inline Value::Value(const State &ls, const QList<X> &list)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_list<const QList<X> >(ls, list);
   }
 
   template <typename X>
   inline Value::Value(const State &ls, QList<X> &list)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_list<QList<X> >(ls, list);
   }
@@ -167,14 +184,14 @@ namespace QtLua {
 
   template <typename X>
   inline Value::Value(const State &ls, const QVector<X> &vector)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_list<const QVector<X> >(ls, vector);
   }
 
   template <typename X>
   inline Value::Value(const State &ls, QVector<X> &vector)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_list<QVector<X> >(ls, vector);
   }
@@ -218,28 +235,28 @@ namespace QtLua {
 
   template <typename Key, typename Val>
   inline Value::Value(const State &ls, const QHash<Key, Val> &hash)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_hash<const QHash<Key, Val> >(ls, hash);
   }
 
   template <typename Key, typename Val>
   inline Value::Value(const State &ls, const QMap<Key, Val> &map)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_hash<const QMap<Key, Val> >(ls, map);
   }
 
   template <typename Key, typename Val>
   inline Value::Value(const State &ls, QHash<Key, Val> &hash)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_hash<QHash<Key, Val> >(ls, hash);
   }
 
   template <typename Key, typename Val>
   inline Value::Value(const State &ls, QMap<Key, Val> &map)
-    : _st(ls._st)
+    : _st(const_cast<State*>(&ls))
   {
     from_hash<QMap<Key, Val> >(ls, map);
   }
@@ -452,7 +469,7 @@ namespace QtLua {
 
   Value Value::operator[] (const String &key) const
   {
-    return (*this)[Value(_st, key)];
+    return (*this)[Value(*_st, key)];
   }
 
   Value Value::operator[] (const char *key) const
@@ -463,7 +480,7 @@ namespace QtLua {
 
   Value Value::operator[] (double key) const
   {
-    return (*this)[Value(_st, key)];
+    return (*this)[Value(*_st, key)];
   }
 
   Value Value::operator[] (int key) const
@@ -478,7 +495,7 @@ namespace QtLua {
 
   ValueRef Value::operator[] (const String &key)
   {
-    return (*this)[Value(_st, key)];
+    return (*this)[Value(*_st, key)];
   }
 
   ValueRef Value::operator[] (const char *key)
@@ -489,7 +506,7 @@ namespace QtLua {
 
   ValueRef Value::operator[] (double key)
   {
-    return (*this)[Value(_st, (double)key)];
+    return (*this)[Value(*_st, (double)key)];
   }
 
   ValueRef Value::operator[] (int key)
@@ -533,9 +550,9 @@ namespace QtLua {
     return to_userdata_cast<X>();
   }
 
-  State & Value::get_state() const
+  State * Value::get_state() const
   {
-    return *State::get_this(_st);
+    return _st.data();
   }
 
   Value::iterator Value::begin()

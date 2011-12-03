@@ -146,11 +146,11 @@ namespace QtLua {
     if (!_list)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
   }
 
   template <class Container>
-  QListProxyRo<Container>::ProxyIterator::ProxyIterator(State &ls, const Ref<QListProxyRo> &proxy)
+  QListProxyRo<Container>::ProxyIterator::ProxyIterator(State *ls, const Ref<QListProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_list->begin()),

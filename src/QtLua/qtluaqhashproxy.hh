@@ -21,6 +21,8 @@
 #ifndef QTLUAQHASHPROXY_HH_
 #define QTLUAQHASHPROXY_HH_
 
+#include <QPointer>
+
 #include "qtluauserdata.hh"
 #include "qtluaiterator.hh"
 
@@ -68,7 +70,7 @@ private:
   {
   public:
     QTLUA_REFTYPE(ProxyIterator);
-    ProxyIterator(State &ls, const Ref<QHashProxyRo> &proxy);
+    ProxyIterator(State *ls, const Ref<QHashProxyRo> &proxy);
 
   private:
     bool more() const;
@@ -77,7 +79,7 @@ private:
     Value get_value() const;
     ValueRef get_value_ref();
 
-    State &_ls;
+    QPointer<State> _ls;
     typename QHashProxyRo::ptr _proxy;
     typename Container::iterator _it;
   };
