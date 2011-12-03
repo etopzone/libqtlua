@@ -22,6 +22,8 @@
 #ifndef QTLUAREF_HH_
 #define QTLUAREF_HH_
 
+#include <QtGlobal> // for Q_UNUSED
+
 #include <cassert>
 
 namespace QtLua {

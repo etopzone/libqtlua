@@ -53,7 +53,8 @@ char State::_key_this;
 int State::lua_cmd_iterator(lua_State *st)
 {
   try {
-    Iterator::ptr	i = Value(st, 1).to_userdata_cast<Iterator>();
+    State		*this_ = get_this(st);
+    Iterator::ptr	i = Value(1, this_).to_userdata_cast<Iterator>();
 
     if (i->more())
       {
@@ -84,7 +85,8 @@ int State::lua_cmd_each(lua_State *st)
     idx = LUA_GLOBALSINDEX;
 
   try {
-    Value		table(st, idx);
+    State		*this_ = get_this(st);
+    Value		table(idx, this_);
     Iterator::ptr	i = table.new_iterator();
 
     lua_pushcfunction(st, lua_cmd_iterator);
@@ -150,7 +152,7 @@ int State::lua_cmd_list(lua_State *st)
     int idx = lua_gettop(st) > 0 ? 1 : LUA_GLOBALSINDEX;
 
     // display table object content
-    const Value	t = Value(st, idx);
+    const Value	t = Value(idx, this_);
 
     for (Value::const_iterator i = t.begin(); i != t.end(); i++)
       {
@@ -176,7 +178,7 @@ int State::lua_cmd_help(lua_State *st)
       return 0;
     }
 
-  Value v(st, 1);
+  Value v(1, this_);
 
   if (v.type() == Value::TUserData)
     {
@@ -200,17 +202,18 @@ int State::lua_cmd_help(lua_State *st)
 int State::lua_meta_item_##n(lua_State *st)				\
 {									\
   int		x = lua_gettop(st);					\
+  State		*this_ = get_this(st);					\
 									\
   try {									\
-    Value	a(st, 1);						\
-    Value	b(st, 2);						\
+    Value	a(1, this_);						\
+    Value	b(2, this_);						\
 									\
     if (a.type() == Value::TUserData)					\
-      a.to_userdata()->meta_operation(*get_this(st), op, a, b).push_value();	\
+      a.to_userdata()->meta_operation(*this_, op, a, b).push_value();	\
     else if (b.type() == Value::TUserData)				\
-      b.to_userdata()->meta_operation(*get_this(st), op, a, b).push_value();	\
+      b.to_userdata()->meta_operation(*this_, op, a, b).push_value();	\
     else								\
-      std::abort();								\
+      std::abort();							\
 									\
   } catch (String &e) {							\
     lua_pushstring(st, e.constData());					\
@@ -225,11 +228,12 @@ int State::lua_meta_item_##n(lua_State *st)				\
 int State::lua_meta_item_##n(lua_State *st)				\
 {									\
   int		x = lua_gettop(st);					\
+  State		*this_ = get_this(st);					\
 									\
   try {									\
-    Value	a(st, 1);						\
+    Value	a(1, this_);						\
 									\
-     a.to_userdata()->meta_operation(*get_this(st), op, a, a).push_value();	\
+     a.to_userdata()->meta_operation(*this_, op, a, a).push_value();	\
 									\
   } catch (String &e) {							\
     lua_pushstring(st, e.constData());					\
@@ -255,6 +259,7 @@ LUA_META_2OP_FUNC(le, Value::OpLe)
 int State::lua_meta_item_index(lua_State *st)
 {
   int		x = lua_gettop(st);
+  State		*this_ = get_this(st);
 
   try {
     UserData::ptr ud = UserData::get_ud(st, 1);
@@ -262,10 +267,10 @@ int State::lua_meta_item_index(lua_State *st)
     if (!ud.valid())
       throw String("Can not index null lua::userdata value.");
 
-    Value	op(st, 2);
+    Value	op(2, this_);
 
-    Value v = ud->meta_index(*get_this(st), op);
-    assert(v._st == st);
+    Value v = ud->meta_index(*this_, op);
+    assert(v._st->_lst == st);
     v.push_value();
 
   } catch (String &e) {
@@ -279,6 +284,7 @@ int State::lua_meta_item_index(lua_State *st)
 int State::lua_meta_item_newindex(lua_State *st)
 {
   int		x = lua_gettop(st);
+  State		*this_ = get_this(st);
 
   try {
     UserData::ptr ud = UserData::get_ud(st, 1);
@@ -286,10 +292,10 @@ int State::lua_meta_item_newindex(lua_State *st)
     if (!ud.valid())
       throw String("Can not index null lua::userdata value.");
 
-    Value	op1(st, 2);
-    Value	op2(st, 3);
+    Value	op1(2, this_);
+    Value	op2(3, this_);
 
-    ud->meta_newindex(*get_this(st), op1, op2);
+    ud->meta_newindex(*this_, op1, op2);
 
   } catch (String &e) {
     lua_pushstring(st, e.constData());
@@ -301,7 +307,8 @@ int State::lua_meta_item_newindex(lua_State *st)
 
 int State::lua_meta_item_call(lua_State *st)
 {
-  int			n = lua_gettop(st);
+  int		n = lua_gettop(st);
+  State		*this_ = get_this(st);
 
   try {
     UserData::ptr ud = UserData::get_ud(st, 1);
@@ -312,16 +319,16 @@ int State::lua_meta_item_call(lua_State *st)
     Value::List	args;
 
     for (int i = 2; i <= lua_gettop(st); i++)
-      args.append(Value(st, i));
+      args.append(Value(i, this_));
 
-    args = ud->meta_call(*get_this(st), args);
+    args = ud->meta_call(*this_, args);
 
     if (!lua_checkstack(st, args.size()))
       throw String("Unable to extend lua stack to handle % return values").arg(args.size());
 
     foreach(const Value &v, args)
       {
-	assert(v._st == st);
+	assert(v._st->_lst == st);
 	v.push_value();
       }
 
@@ -349,9 +356,9 @@ bool State::set_global_r(const String &name, const Value &value, int tblidx)
   if (len < 0)
     {
       // set value in table if last
-      lua_pushstring(_st, name.constData());
+      lua_pushstring(_lst, name.constData());
       value.push_value();
-      lua_settable(_st, tblidx);
+      lua_settable(_lst, tblidx);
 
       return true;
     }
@@ -360,38 +367,38 @@ bool State::set_global_r(const String &name, const Value &value, int tblidx)
       // find intermediate value in path
       String prefix(name.mid(0, len));
 
-      lua_pushstring(_st, prefix.constData());
-      lua_gettable(_st, tblidx);
+      lua_pushstring(_lst, prefix.constData());
+      lua_gettable(_lst, tblidx);
 
-      if (lua_isnil(_st, -1))
+      if (lua_isnil(_lst, -1))
 	{
 	  // create intermediate table
-	  lua_pop(_st, 1);
-	  lua_pushstring(_st, prefix.constData());
-	  lua_newtable(_st);
+	  lua_pop(_lst, 1);
+	  lua_pushstring(_lst, prefix.constData());
+	  lua_newtable(_lst);
 
-	  if (set_global_r(name.mid(len + 1), value, lua_gettop(_st)))
+	  if (set_global_r(name.mid(len + 1), value, lua_gettop(_lst)))
 	    {
-	      lua_settable(_st, tblidx);
+	      lua_settable(_lst, tblidx);
 	      return true;
 	    }
 	  else
 	    {
-	      lua_pop(_st, 2);
+	      lua_pop(_lst, 2);
 	      return false;
 	    }
 	}
-      else if (lua_istable(_st, -1))
+      else if (lua_istable(_lst, -1))
 	{
 	  // use existing intermediate table
-	  bool res = set_global_r(name.mid(len + 1), value, lua_gettop(_st));
-	  lua_pop(_st, 1);
+	  bool res = set_global_r(name.mid(len + 1), value, lua_gettop(_lst));
+	  lua_pop(_lst, 1);
 	  return res;
 	}
       else
 	{
 	  // bad existing intermediate value
-	  lua_pop(_st, 1);
+	  lua_pop(_lst, 1);
 	  return false;
 	}
     }
@@ -410,26 +417,26 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
   if (len < 0)
     {
       // get value from table if last
-      lua_pushstring(_st, name.constData());
-      lua_gettable(_st, tblidx);
-      value = Value(_st, -1);
-      lua_pop(_st, 1);
+      lua_pushstring(_lst, name.constData());
+      lua_gettable(_lst, tblidx);
+      value = Value(-1, this);
+      lua_pop(_lst, 1);
     }
   else
     {
       // find intermediate value in path
       String prefix(name.mid(0, len));
 
-      lua_pushstring(_st, prefix.constData());
-      lua_gettable(_st, tblidx);
+      lua_pushstring(_lst, prefix.constData());
+      lua_gettable(_lst, tblidx);
 
-      if (lua_istable(_st, -1))
+      if (lua_istable(_lst, -1))
 	{
-	  get_global_r(name.mid(len + 1), value, lua_gettop(_st));
-	  lua_pop(_st, 1);
+	  get_global_r(name.mid(len + 1), value, lua_gettop(_lst));
+	  lua_pop(_lst, 1);
 	}
 
-      lua_pop(_st, 1);
+      lua_pop(_lst, 1);
     }
 }
 
@@ -443,15 +450,15 @@ Value State::get_global(const String &path) const
 Value State::operator[] (const Value &key) const
 {
   key.push_value();
-  lua_gettable(_st, LUA_GLOBALSINDEX);
-  Value res(_st, -1);
-  lua_pop(_st, 1);
+  lua_gettable(_lst, LUA_GLOBALSINDEX);
+  Value res(-1, this);
+  lua_pop(_lst, 1);
   return res;
 }
 
 ValueRef State::operator[] (const Value &key)
 {
-  return ValueRef(Value(_st, LUA_GLOBALSINDEX), key);
+  return ValueRef(Value(LUA_GLOBALSINDEX, this), key);
 }
 
 State::State()
@@ -465,22 +472,22 @@ State::State()
   assert(Value::TFunction == LUA_TFUNCTION);
   assert(Value::TUserData == LUA_TUSERDATA);
 
-  _st = lua_open();
+  _lst = lua_open();
 
-  if (!_st)
+  if (!_lst)
     throw std::bad_alloc();
 
-  //lua_atpanic(_st, lua_panic);
+  //lua_atpanic(_lst, lua_panic);
 
   // creat metatable for UserData events
 
-  lua_pushlightuserdata(_st, &_key_item_metatable);
-  lua_newtable(_st);
+  lua_pushlightuserdata(_lst, &_key_item_metatable);
+  lua_newtable(_lst);
 
 #define LUA_META_BIND(n)			\
-  lua_pushstring(_st, "__" #n);			\
-  lua_pushcfunction(_st, lua_meta_item_##n);	\
-  lua_rawset(_st, -3);
+  lua_pushstring(_lst, "__" #n);			\
+  lua_pushcfunction(_lst, lua_meta_item_##n);	\
+  lua_rawset(_lst, -3);
 
   LUA_META_BIND(add);
   LUA_META_BIND(sub);
@@ -499,65 +506,25 @@ State::State()
   LUA_META_BIND(call);
   LUA_META_BIND(gc);
 
-  lua_rawset(_st, LUA_REGISTRYINDEX);
+  lua_rawset(_lst, LUA_REGISTRYINDEX);
 
   // pointer to this
 
-  lua_pushlightuserdata(_st, &_key_this);
-  lua_pushlightuserdata(_st, this);
-  lua_rawset(_st, LUA_REGISTRYINDEX);
+  lua_pushlightuserdata(_lst, &_key_this);
+  lua_pushlightuserdata(_lst, this);
+  lua_rawset(_lst, LUA_REGISTRYINDEX);
 }
 
 State::~State()
 {
-  // clear all global variables
-  while (1)
-    {
-      lua_pushnil(_st);
-      if (!lua_next(_st, LUA_GLOBALSINDEX))
-	break;
-      lua_pop(_st, 1);
-      lua_pushnil(_st);
-      lua_rawset(_st, LUA_GLOBALSINDEX);
-    }
+  // lua state close
+  lua_close(_lst);
 
-  gc_collect();
-
-  // wipe remaining QObjectWrapper objects
+  // wipe QObjectWrapper objects
   wrapper_hash_t::const_iterator i;
 
   while ((i = _whash.begin()) != _whash.end())
     i.value()->_drop();
-
-#ifndef QTLUA_NO_DEBUG
-  // check for existing Value objects
-  lua_pushlightuserdata(_st, &_key_this);
-  lua_pushnil(_st);
-  lua_rawset(_st, LUA_REGISTRYINDEX);
-
-  lua_pushlightuserdata(_st, &_key_item_metatable);
-  lua_pushnil(_st);
-  lua_rawset(_st, LUA_REGISTRYINDEX);
-
-  bool bad = false;
-
-  lua_pushnil(_st);
-  while (lua_next(_st, LUA_REGISTRYINDEX))
-    {
-      if (lua_islightuserdata(_st, -2))
-	{
-	  qCritical("QtLua::Value<%s> at %p still refers to lua state being free'd.",
-		    lua_typename(_st, -1), lua_touserdata(_st, -2));
-	  bad = true;
-	}
-      lua_pop(_st, 1);
-    }
-
-  if (bad)
-    abort();
-#endif
-
-  lua_close(_st);
 }
 
 int State::lua_panic(lua_State *st)
@@ -619,52 +586,52 @@ Value::List State::exec_chunk(QIODevice &io)
   struct lua_reader_state_s rst;
   rst._io = &io;
 
-  if (lua_load(_st, &lua_reader, &rst, ""))
+  if (lua_load(_lst, &lua_reader, &rst, ""))
     {
-      String err(lua_tostring(_st, -1));
-      lua_pop(_st, 1);
+      String err(lua_tostring(_lst, -1));
+      lua_pop(_lst, 1);
       throw err;
     }
 
-  int oldtop = lua_gettop(_st);
+  int oldtop = lua_gettop(_lst);
 
-  if (lua_pcall(_st, 0, LUA_MULTRET, 0))
+  if (lua_pcall(_lst, 0, LUA_MULTRET, 0))
     {
-      String err(lua_tostring(_st, -1));
-      lua_pop(_st, 1);
+      String err(lua_tostring(_lst, -1));
+      lua_pop(_lst, 1);
       throw err;
     }
 
   Value::List res;
-  for (int i = oldtop; i <= lua_gettop(_st); i++)
-    res += Value(_st, i);
-  lua_pop(_st, lua_gettop(_st) - oldtop + 1);
+  for (int i = oldtop; i <= lua_gettop(_lst); i++)
+    res += Value(i, this);
+  lua_pop(_lst, lua_gettop(_lst) - oldtop + 1);
 
   return res;
 }
 
 Value::List State::exec_statements(const String & statement)
 {
-  if (luaL_loadbuffer(_st, statement.constData(), statement.size(), ""))
+  if (luaL_loadbuffer(_lst, statement.constData(), statement.size(), ""))
     {
-      String err(lua_tostring(_st, -1));
-      lua_pop(_st, 1);
+      String err(lua_tostring(_lst, -1));
+      lua_pop(_lst, 1);
       throw err;
     }
 
-  int oldtop = lua_gettop(_st);
+  int oldtop = lua_gettop(_lst);
 
-  if (lua_pcall(_st, 0, LUA_MULTRET, 0))
+  if (lua_pcall(_lst, 0, LUA_MULTRET, 0))
     {
-      String err(lua_tostring(_st, -1));
-      lua_pop(_st, 1);
+      String err(lua_tostring(_lst, -1));
+      lua_pop(_lst, 1);
       throw err;
     }
 
   Value::List res;
-  for (int i = oldtop; i <= lua_gettop(_st); i++)
-    res += Value(_st, i);
-  lua_pop(_st, lua_gettop(_st) - oldtop + 1);
+  for (int i = oldtop; i <= lua_gettop(_lst); i++)
+    res += Value(i, this);
+  lua_pop(_lst, lua_gettop(_lst) - oldtop + 1);
 
   return res;
 }
@@ -684,17 +651,17 @@ void State::exec(const QString &statement)
 void State::gc_collect()
 {
 #ifdef HAVE_LUA_GC
-  lua_gc(_st, LUA_GCCOLLECT, 0);
+  lua_gc(_lst, LUA_GCCOLLECT, 0);
 #else
-  lua_setgcthreshold(_st, 0);
+  lua_setgcthreshold(_lst, 0);
 #endif
 }
 
 void State::reg_c_function(const char *name, lua_CFunction f)
 {
-  lua_pushstring(_st, name);
-  lua_pushcfunction(_st, f);
-  lua_rawset(_st, LUA_GLOBALSINDEX);
+  lua_pushstring(_lst, name);
+  lua_pushcfunction(_lst, f);
+  lua_rawset(_lst, LUA_GLOBALSINDEX);
 }
 
 State * State::get_this(lua_State *st)
@@ -718,43 +685,43 @@ void State::openlib(Library lib)
   switch (lib)
     {
     case BaseLib:
-      QTLUA_LUA_CALL(_st, luaopen_base);
+      QTLUA_LUA_CALL(_lst, luaopen_base);
       return;
     case PackageLib:
 #ifdef HAVE_LUA_PACKAGELIB
-      QTLUA_LUA_CALL(_st, luaopen_package);
+      QTLUA_LUA_CALL(_lst, luaopen_package);
 #endif
       return;
     case StringLib:
-      QTLUA_LUA_CALL(_st, luaopen_string);
+      QTLUA_LUA_CALL(_lst, luaopen_string);
       return;
     case TableLib:
-      QTLUA_LUA_CALL(_st, luaopen_table);
+      QTLUA_LUA_CALL(_lst, luaopen_table);
       return;
     case MathLib:
-      QTLUA_LUA_CALL(_st, luaopen_math);
+      QTLUA_LUA_CALL(_lst, luaopen_math);
       return;
     case IoLib:
-      QTLUA_LUA_CALL(_st, luaopen_io);
+      QTLUA_LUA_CALL(_lst, luaopen_io);
       return;
 #ifdef HAVE_LUA_OSLIB
     case OsLib:
-      QTLUA_LUA_CALL(_st, luaopen_os);
+      QTLUA_LUA_CALL(_lst, luaopen_os);
       return;
 #endif
     case DebugLib:
-      QTLUA_LUA_CALL(_st, luaopen_debug);
+      QTLUA_LUA_CALL(_lst, luaopen_debug);
       return;
     case AllLibs:
 #ifdef HAVE_LUA_OPENLIBS
-      luaL_openlibs(_st);
+      luaL_openlibs(_lst);
 #else
-      QTLUA_LUA_CALL(_st, luaopen_base);
-      QTLUA_LUA_CALL(_st, luaopen_string);
-      QTLUA_LUA_CALL(_st, luaopen_table);
-      QTLUA_LUA_CALL(_st, luaopen_math);
-      QTLUA_LUA_CALL(_st, luaopen_io);
-      QTLUA_LUA_CALL(_st, luaopen_debug);
+      QTLUA_LUA_CALL(_lst, luaopen_base);
+      QTLUA_LUA_CALL(_lst, luaopen_string);
+      QTLUA_LUA_CALL(_lst, luaopen_table);
+      QTLUA_LUA_CALL(_lst, luaopen_math);
+      QTLUA_LUA_CALL(_lst, luaopen_io);
+      QTLUA_LUA_CALL(_lst, luaopen_debug);
 #endif
       qtluaopen_qt(*this);
     case QtLuaLib:
@@ -772,7 +739,7 @@ void State::openlib(Library lib)
 
 void State::lua_do(void (*func)(lua_State *st))
 {
-  func(_st);
+  func(_lst);
 }
 
 void State::fill_completion_list_r(String &path, const String &prefix,
@@ -848,7 +815,7 @@ void State::fill_completion_list(const QString &prefix, QStringList &list, int &
 {
   String path;
 
-  fill_completion_list_r(path, prefix, list, Value(_st, LUA_GLOBALSINDEX), cursor_offset);
+  fill_completion_list_r(path, prefix, list, Value(LUA_GLOBALSINDEX, this), cursor_offset);
 }
 
 }

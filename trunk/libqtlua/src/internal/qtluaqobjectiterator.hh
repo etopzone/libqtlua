@@ -21,6 +21,8 @@
 #ifndef QTLUAQOBJECTITERATOR_HH_
 #define QTLUAQOBJECTITERATOR_HH_
 
+#include <QPointer>
+
 #include <QtLua/qtluaiterator.hh>
 #include <QtLua/Ref>
 
@@ -67,7 +69,7 @@ private:
       CurEnd,
     };
 
-  State &_ls;
+  QPointer<State> _ls;
   Ref<QObjectWrapper> _qow;
   MetaCache *_mc;
   Current _cur;

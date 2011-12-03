@@ -63,7 +63,7 @@ namespace QtLua {
   template <class T>
   Ref<Iterator> UserObject<T>::new_iterator(State &ls)
   {
-    return QTLUA_REFNEW(UserObjectIterator, ls, *this);
+    return QTLUA_REFNEW(UserObjectIterator, &ls, *this);
   }
 
   template <class T>
@@ -81,7 +81,7 @@ namespace QtLua {
   }
 
   template <class T>
-  UserObject<T>::UserObjectIterator::UserObjectIterator(State &ls, const Ref<UserObject<T> > &obj)
+  UserObject<T>::UserObjectIterator::UserObjectIterator(State *ls, const Ref<UserObject<T> > &obj)
     : _ls(ls),
       _obj(obj),
       _index(0)
@@ -109,8 +109,8 @@ namespace QtLua {
   template <class T>
   Value UserObject<T>::UserObjectIterator::get_value() const
   {
-    if (T::member_table[_index].get)
-      return (static_cast<T*>(_obj.ptr())->*T::member_table[_index].get)(_ls);
+    if (_ls && T::member_table[_index].get)
+      return (static_cast<T*>(_obj.ptr())->*T::member_table[_index].get)(*_ls);
     else
       return QtLua::Value(_ls);
   }

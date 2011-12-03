@@ -28,7 +28,7 @@
 namespace QtLua {
 
   EnumIterator::EnumIterator(State &ls, QMetaEnum me)
-    : _ls(ls),
+    : _ls(&ls),
       _me(me),
       _index(0)
   {

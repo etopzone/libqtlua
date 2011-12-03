@@ -21,6 +21,8 @@
 #ifndef QTLUAVECTORPROXY_HH_
 #define QTLUAVECTORPROXY_HH_
 
+#include <QPointer>
+
 #include "qtluauserdata.hh"
 #include "qtluaiterator.hh"
 
@@ -70,7 +72,7 @@ private:
   {
   public:
     QTLUA_REFTYPE(ProxyIterator);
-    ProxyIterator(State &ls, const Ref<QVectorProxyRo> &proxy);
+    ProxyIterator(State *ls, const Ref<QVectorProxyRo> &proxy);
 
   private:
     bool more() const;
@@ -79,7 +81,7 @@ private:
     Value get_value() const;
     ValueRef get_value_ref();
 
-    State &_ls;
+    QPointer<State> _ls;
     typename QVectorProxyRo::ptr _proxy;
     unsigned int _it;
   };

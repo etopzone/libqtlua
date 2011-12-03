@@ -24,6 +24,7 @@
 
 #include <QHash>
 #include <QList>
+#include <QPointer>
 
 #include "qtluastring.hh"
 #include "qtluaref.hh"
@@ -241,37 +242,47 @@ public:
       True = 1
     };
 
+  /** Create a lua value object with no associated @ref State */
+  inline Value();
+
   /** Create a default value of the given type. Useful to create empty lua tables. */
   inline Value(const State &ls, ValueType type);
 
-  /** Create a "nil" lua value. */
+  /** Create a "nil" lua value. @multiple */
   inline Value(const State &ls);
+  inline Value(const State *ls);
 
   /** Create a number lua value. @multiple */
   inline Value(const State &ls, Bool n);
+  inline Value(const State *ls, Bool n);
   inline Value(const State &ls, double n);
+  inline Value(const State *ls, double n);
   inline Value(const State &ls, int n);
+  inline Value(const State *ls, int n);
 
-  /** Create a string lua value. */
+  /** Create a string lua value. @multiple */
   inline Value(const State &ls, const String &str);
+  inline Value(const State *ls, const String &str);
 
   /**
    * Create a lua userdata value. The value will hold a @ref Ref
    * reference to the @ref UserData object which will be dropped later
-   * by the lua garbage collector.
+   * by the lua garbage collector. @multiple
    */
   inline Value(const State &ls, const Ref<UserData> &ud);
+  inline Value(const State *ls, const Ref<UserData> &ud);
 
   /**
-   * Create a wrapped @ref QObject lua value.
+   * Create a wrapped @ref QObject lua value. @multiple
    * @xsee{QObject wrapping}
    * @see __Value_qobject__
    */
   inline Value(const State &ls, QObject *obj);
+  inline Value(const State *ls, QObject *obj);
 
   /**
-   * Create a wrapped @ref QObject lua value and update
-   * ownership flags for this @ref QObject.
+   * Create a @ref QObject lua value and update associated
+   * wrapper ownership flags for this @ref QObject.
    * @xsee{QObject wrapping}
    * @alias Value_qobject
    */
@@ -319,6 +330,8 @@ public:
 
   /** Create a lua value copy. @multiple */
   Value(const State &ls, const Value &lv);
+  Value(const State *ls, const Value &lv);
+
   Value(const Value &lv);
 
   /** Remove lua value from lua state registry. */
@@ -534,7 +547,7 @@ public:
   bool operator==(double n) const;
 
   /** Get associated lua state. */
-  inline State & get_state() const;
+  inline State * get_state() const;
 
   /**
    * Connect a @ref QObject signal to a lua value. The value will be
@@ -571,22 +584,18 @@ private:
   static String to_string_p(lua_State *st, int index, bool quote_string);
 
   /** construct from value on lua stack. */
-  Value(lua_State *st, int index);
+  Value(int index, const State *st);
+
   static uint qHash(lua_State *st, int index);
 
-  inline Value(lua_State *st);
-  inline Value(lua_State *st, ValueType type);
-  inline Value(lua_State *st, double n);
-  inline Value(lua_State *st, const String &str);
-  inline Value(lua_State *st, const Ref<UserData> &ud);
-  inline Value(lua_State *st, QObject *obj);
   void init_type_value(ValueType type);
 
   void convert_error(ValueType type) const;
+  void check_state() const;
 
   static int empty_fcn(lua_State *st);
 
-  lua_State	*_st;
+  QPointer<State> _st;
 };
 
 }

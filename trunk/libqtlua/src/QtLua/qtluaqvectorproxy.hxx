@@ -150,11 +150,11 @@ namespace QtLua {
     if (!_vector)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
   }
 
   template <class Container, bool resize>
-  QVectorProxyRo<Container, resize>::ProxyIterator::ProxyIterator(State &ls, const Ref<QVectorProxyRo> &proxy)
+  QVectorProxyRo<Container, resize>::ProxyIterator::ProxyIterator(State *ls, const Ref<QVectorProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(0)

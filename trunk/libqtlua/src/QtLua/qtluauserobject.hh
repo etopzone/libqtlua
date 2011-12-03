@@ -21,6 +21,8 @@
 #ifndef QTLUAUSEROBJECT_HH_
 #define QTLUAUSEROBJECT_HH_
 
+#include <QPointer>
+
 #include "qtluauserdata.hh"
 #include "qtluaiterator.hh"
 
@@ -57,7 +59,7 @@ namespace QtLua {
     {
     public:
       QTLUA_REFTYPE(UserObjectIterator);
-      UserObjectIterator(State &ls, const Ref<UserObject> &obj);
+      UserObjectIterator(State *ls, const Ref<UserObject> &obj);
 
     private:
       bool more() const;
@@ -66,7 +68,7 @@ namespace QtLua {
       Value get_value() const;
       ValueRef get_value_ref();
 
-      State &_ls;
+      QPointer<State> _ls;
       Ref<UserObject> _obj;
       size_t _index;
     };
