@@ -517,6 +517,10 @@ State::State()
 
 State::~State()
 {
+  // disconnect all Qt slots while associated Value objects are still valid
+  foreach(QObjectWrapper *w, _whash)
+    w->_lua_disconnect_all();
+
   // lua state close
   lua_close(_lst);
 

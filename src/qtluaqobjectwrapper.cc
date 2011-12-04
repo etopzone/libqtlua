@@ -52,7 +52,7 @@ namespace QtLua {
 	assert_do(QMetaObject::connect(obj, destroyindex, this, metaObject()->methodCount() + 0));
 
 	ls._whash.insert(obj, this);
-	// increment reference count since we are binded to a qobject
+	// increment reference count since we are bound to a qobject
 	_inc();
       }
   }
