@@ -146,6 +146,7 @@ namespace QtLua {
   {
     // Not used from lua script
     std::abort();
+    return ValueRef(Value(), Value());
   }
 
 }
