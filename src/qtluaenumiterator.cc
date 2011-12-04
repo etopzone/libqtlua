@@ -57,7 +57,8 @@ namespace QtLua {
 
   ValueRef EnumIterator::get_value_ref()
   {
-    abort();
+    std::abort();
+    return ValueRef(Value(), Value());
   }
 
 }
