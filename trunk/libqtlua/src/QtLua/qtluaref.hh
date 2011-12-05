@@ -24,6 +24,12 @@
 
 #include <QtGlobal> // for Q_UNUSED
 
+#if QT_VERSION >= 0x040400
+# include <QAtomicInt>
+#else
+# warning QAtomicInt is not available before Qt4.4, QtLua::Ref will not be thread-safe
+#endif
+
 #include <cassert>
 
 namespace QtLua {
@@ -372,15 +378,23 @@ namespace QtLua {
 #if 0
       y->ref_inc(++y->_qtlua_Ref_count);
 #endif
+#if QT_VERSION >= 0x040400
+      y->_qtlua_Ref_count.fetchAndAddOrdered(1);
+#else
       ++y->_qtlua_Ref_count;
+#endif
     }
 
     /** @internal */
     void _drop() const
     {
       Refobj<X> *y = const_cast<Refobj<X>*>(this);
-      assert(_qtlua_Ref_count > 0);
+#if QT_VERSION >= 0x040400
+      int count = y->_qtlua_Ref_count.fetchAndAddOrdered(-1) - 1;
+#else
       int count = --y->_qtlua_Ref_count;
+#endif
+      assert(count >= 0);
 
       if (count == 0 && _qtlua_Ref_delete)
 	{
@@ -424,8 +438,13 @@ namespace QtLua {
     /** @internal */
     typedef X _qtlua_Ref_base_type;
 
+#if QT_VERSION >= 0x040400
+    /** @internal Reference counter value */
+    QAtomicInt _qtlua_Ref_count;
+#else
     /** @internal Reference counter value */
     int _qtlua_Ref_count;
+#endif
 
     /** @internal delete object pointer when refcount reach zero */
     bool _qtlua_Ref_delete;
