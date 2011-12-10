@@ -536,20 +536,25 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	QColor c = QColorDialog::getColor(Qt::white, QApplication::activeWindow());
+	QColor init(Qt::white);
 
-	return c.isValid() ? Value(ls, c.red()), Value(ls, c.green()), Value(ls, c.blue())
+	if (args.count() >= 3)
+	  init = QColor(get_arg<int>(args, 0, 0), get_arg<int>(args, 1, 0), get_arg<int>(args, 2, 0));
+
+	QColor c = QColorDialog::getColor(init, QApplication::activeWindow());
+
+	return c.isValid() ? Value::List(Value(ls, c.red()), Value(ls, c.green()), Value(ls, c.blue()))
 	                   : Value::List();
       }
 
       String get_description() const
       {
-	return "wrap QColorDialog::getColor function";
+	return "wrap QColorDialog::getColor function, returns rgb triplet in [0, 255] range";
       }
 
       String get_help() const
       {
-	return ("usage: qt.dialog.get_color()");
+	return ("usage: qt.dialog.get_color( [ init_red, init_green, init_blue ] )");
       }
 
     } dialog_get_color;
