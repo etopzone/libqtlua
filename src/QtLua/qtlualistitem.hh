@@ -78,6 +78,10 @@ protected:
    * @return true if item is allowed to be a child member.
    */
   virtual bool accept_child(const Item::ptr &item) const;
+
+  /** Must return columns count for children of this node, default implementation returns 1. */
+  virtual int get_column_count() const;
+
   virtual Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
   virtual bool support(Value::Operation c) const;
 
