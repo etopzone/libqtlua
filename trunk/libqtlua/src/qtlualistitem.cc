@@ -190,12 +190,19 @@ void ListItem::insert_name(Item *item)
       } while (_child_hash.contains(name));
     }
 
+  item->_name = name;
+
   _child_hash.insert(name, item);
 }
 
 bool ListItem::accept_child(const Item::ptr &item) const
 {
   return true;
+}
+
+int ListItem::get_column_count() const
+{
+  return 1;
 }
 
 ListItem::ListItem()
