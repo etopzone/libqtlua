@@ -131,6 +131,9 @@ protected:
       other item (default is is_remove_allowed()) */
   virtual bool is_replace_allowed() const;
 
+  /** Get child position in parent item */
+  inline int get_row() const;
+
 private:
   const Item &operator=(const Item &);
 
@@ -139,7 +142,6 @@ private:
   bool in_parent_path(Item *item);
   void insert_name();
   inline QModelIndex model_index(int column = 0) const;
-  inline int get_row() const;
   inline void set_row(int row);
   virtual Item * get_child_row(int row) const;
   virtual int get_child_count() const;
