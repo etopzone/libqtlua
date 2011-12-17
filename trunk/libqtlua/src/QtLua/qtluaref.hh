@@ -300,7 +300,7 @@ namespace QtLua {
     /** Get object Reference count */
     int count() const
     {
-      return _obj ? _obj->_qtlua_Ref_count : 0;
+      return _obj ? (int)_obj->_qtlua_Ref_count : 0;
     }
 
     /** Test if pointed ojects are the same */
