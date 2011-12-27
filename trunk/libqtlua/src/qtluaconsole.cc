@@ -89,6 +89,46 @@ void Console::set_history(const QStringList &h)
   _history.append("");
 }
 
+void Console::load_history(QSettings &settings, const QString &key)
+{
+  int size = settings.beginReadArray(key);
+
+  if (size > 0)
+    {
+      _history.clear();
+
+      for (int i = 0; i < size; ++i)
+	{
+	  settings.setArrayIndex(i);
+	  _history.append(settings.value("line").toString());
+	}
+
+      _history_ndx = _history.size();
+      _history.append("");
+    }
+
+  settings.endArray();
+}
+
+void Console::save_history(QSettings &settings, const QString &key) const
+{
+  settings.beginWriteArray(key);
+
+  int i, j;
+  for (i = j = 0; i < _history.size(); i++)
+    {
+      const QString & line = _history.at(i);
+
+      if (line.trimmed().isEmpty())
+	continue;
+
+      settings.setArrayIndex(j++);
+      settings.setValue("line", _history.at(i));
+    }
+
+  settings.endArray();
+}
+
 void Console::action_history_up()
 {
   if (_history_ndx == 0)
