@@ -71,6 +71,18 @@ namespace QtLua {
   }
 
   template <class Container>
+  bool QListProxyRo<Container>::meta_contains(State &ls, const Value &key)
+  {
+    try {
+      int index = (unsigned int)key.to_number() - 1;
+
+      return index >= 0 && index < _list->size();
+    } catch (String &e) {
+      return false;
+    }
+  }
+
+  template <class Container>
   Value QListProxyRo<Container>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)

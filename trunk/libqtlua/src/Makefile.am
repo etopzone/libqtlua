@@ -19,7 +19,8 @@ libqtlua_la_SOURCES = qtluaconsole.cc qtluaenum.cc				\
 	qtluavalueref.cc qtluaqobjectiterator.cc qtluaenumiterator.cc		\
 	qtluaproperty.cc qtluaqmetaobjecttable.cc qtluaqmetaobjectwrapper.cc	\
 	qtluaitemselectionmodel.cc qtluaqtlib.hh qtluatabletreekeys.cc		\
-	qtluatabletreemodel.cc qtluatabledialog.cc qtluatablegridmodel.cc
+	qtluatabletreemodel.cc qtluatabledialog.cc qtluatablegridmodel.cc	\
+	qtluadispatchproxy.cc
 
 libqtlua_la_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 libqtlua_la_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS)

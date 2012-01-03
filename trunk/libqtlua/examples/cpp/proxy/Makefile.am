@@ -3,7 +3,8 @@ include $(top_srcdir)/build/autotroll.mk
 
 noinst_PROGRAMS = qmapproxy_string qhashproxy_value		\
 		  qvectorproxy_string qvectorproxy_userdata	\
-		  qlistproxy_string qlinkedlistproxy_string
+		  qlistproxy_string qlinkedlistproxy_string	\
+		  dispatchproxy_string
 
 qmapproxy_string_SOURCES = qmapproxy_string.cc
 qmapproxy_string_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
@@ -40,3 +41,9 @@ qlinkedlistproxy_string_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 qlinkedlistproxy_string_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
 qlinkedlistproxy_string_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
 qlinkedlistproxy_string_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
+
+dispatchproxy_string_SOURCES = dispatchproxy_string.cc
+dispatchproxy_string_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
+dispatchproxy_string_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
+dispatchproxy_string_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
+dispatchproxy_string_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la

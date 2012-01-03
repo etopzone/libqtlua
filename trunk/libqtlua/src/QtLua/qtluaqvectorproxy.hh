@@ -59,6 +59,7 @@ public:
 
   Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
   Value meta_index(State &ls, const Value &key);
+  bool meta_contains(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
   virtual bool support(Value::Operation c) const;
 

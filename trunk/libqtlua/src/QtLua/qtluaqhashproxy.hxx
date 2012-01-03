@@ -71,6 +71,12 @@ namespace QtLua {
   }
 
   template <class Container>
+  bool QHashProxyRo<Container>::meta_contains(State &ls, const Value &key)
+  {
+    return _hash->contains(key);
+  }
+
+  template <class Container>
   Value QHashProxyRo<Container>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
