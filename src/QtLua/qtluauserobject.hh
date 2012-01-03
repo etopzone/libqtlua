@@ -86,6 +86,7 @@ namespace QtLua {
     };
 
     Value meta_index(State &ls, const Value &key);
+    bool meta_contains(State &ls, const Value &key);
     void meta_newindex(State &ls, const Value &key, const Value &value);
     Ref<Iterator> new_iterator(State &ls);
     bool support(Value::Operation c) const;

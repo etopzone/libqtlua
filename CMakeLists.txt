@@ -88,7 +88,7 @@
 		src/qtluatabledialog.cc src/qtluatablegridmodel.cc
 		src/qtluatableiterator.cc src/qtluatabletreekeys.cc
 		src/qtluatabletreemodel.cc src/qtluauserdata.cc
-		src/qtluavalue.cc src/qtluavalueref.cc )
+		src/qtluavalue.cc src/qtluavalueref.cc src/qtluadispatchproxy.cc )
 
 	# Generate moc files
 	SET(MOC_HEADERS	

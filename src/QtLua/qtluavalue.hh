@@ -208,24 +208,28 @@ public:
    */
   enum Operation
     {
-      OpAdd,      //< Lua add binary operator @tt +
-      OpSub,      //< Lua subtract binary operator @tt -
-      OpMul,      //< Lua multiply binary operator @tt *
-      OpDiv,      //< Lua divied binary operator @tt /
-      OpMod,      //< Lua modulo binary operator @tt %
-      OpPow,      //< Lua power binary operator @tt ^
-      OpUnm,      //< Lua negative unary operator @tt -
-      OpConcat,   //< Lua concatenation binary operator @tt ..
-      OpLen,      //< Lua length unary operator @tt #
-      OpEq,       //< Lua equal binary operator @tt ==
-      OpLt,       //< Lua less than binary operator @tt <
-      OpLe,       //< Lua less than or equal binary operator @tt <=
+      OpAdd       = 0x0001,     //< Lua add binary operator @tt +
+      OpSub       = 0x0002,     //< Lua subtract binary operator @tt -
+      OpMul       = 0x0004,     //< Lua multiply binary operator @tt *
+      OpDiv       = 0x0008,     //< Lua divied binary operator @tt /
+      OpMod       = 0x0010,     //< Lua modulo binary operator @tt %
+      OpPow       = 0x0020,     //< Lua power binary operator @tt ^
+      OpUnm       = 0x0040,     //< Lua negative unary operator @tt -
+      OpConcat    = 0x0080,     //< Lua concatenation binary operator @tt ..
+      OpLen       = 0x0100,     //< Lua length unary operator @tt #
+      OpEq        = 0x0200,     //< Lua equal binary operator @tt ==
+      OpLt        = 0x0400,     //< Lua less than binary operator @tt <
+      OpLe        = 0x0800,     //< Lua less than or equal binary operator @tt <=
 
-      OpIndex, 	  //< Table index operation
-      OpNewindex, //< Table newindex operation
-      OpCall,     //< Function call operation
-      OpIterate,  //< Iteration operation
+      OpIndex     = 0x1000, 	//< Table index operation
+      OpNewindex  = 0x2000,     //< Table newindex operation
+      OpCall      = 0x4000,     //< Function call operation
+      OpIterate   = 0x8000,     //< Iteration operation
+
+      OpAll       = 0xffff,     //< All operations mask
     };
+
+  Q_DECLARE_FLAGS(Operations, Operation);
 
   /**
    * @showcontent
@@ -599,6 +603,8 @@ private:
 };
 
 }
+
+Q_DECLARE_OPERATORS_FOR_FLAGS(QtLua::Value::Operations);
 
 #endif
 

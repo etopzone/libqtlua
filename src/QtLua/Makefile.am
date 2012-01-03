@@ -24,4 +24,5 @@ pkginclude_HEADERS = \
 	QVectorProxy qtluaqvectorproxy.hh qtluaqvectorproxy.hxx \
 	QListProxy qtluaqlistproxy.hh qtluaqlistproxy.hxx \
 	QLinkedListProxy qtluaqlinkedlistproxy.hh qtluaqlinkedlistproxy.hxx \
-	MetaType qtluametatype.hh qtluametatype.hxx
+	MetaType qtluametatype.hh qtluametatype.hxx \
+	DispatchProxy qtluadispatchproxy.hh qtluadispatchproxy.hxx

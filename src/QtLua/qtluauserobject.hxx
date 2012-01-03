@@ -49,6 +49,17 @@ namespace QtLua {
   }
 
   template <class T>
+  bool UserObject<T>::meta_contains(State &ls, const Value &key)
+  {
+    try {
+      get_entry(key.to_string());
+      return true;
+    } catch (String &e) {
+      return false;
+    }
+  }
+
+  template <class T>
   void UserObject<T>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     String name = key.to_string();
