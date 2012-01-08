@@ -39,17 +39,20 @@ namespace QtLua {
    * set/get properties mechanism is needed. The class doesn't need to
    * be a @ref QObject and doesn't require @tt moc pre-processing.
    *
-   * Each property must be described in a table and can have a @tt set
-   * and/or @tt get accessor functions registered. Property members
-   * and accessor functions can be user defined or declared using the
-   * @ref #QTLUA_PROPERTY family of macros as shown in the examples below:
+   * Each property must be described in a table and can have an
+   * associated @tt lua_set* and/or @tt lua_get* accessor
+   * function. Lua accessors functions must be able to convert between
+   * a @ref QtLua::Value object and property field type. Property
+   * members and lua accessor functions can be user defined or
+   * declared using the @ref #QTLUA_PROPERTY family of macros as shown
+   * in the example below:
    *
    * @example examples/cpp/userdata/userobject.cc:1
    *
    * In the next example our class already needs to inherit from an
    * other @ref UserData based class for some reasons. We declare the
    * @ref UserObject class as a member and forward table accesses to
-   * it. This example also shows how to write properties accessors by hand:
+   * it. This example also shows how to write lua accessors by hand:
    *
    * @example examples/cpp/userdata/userobject2.cc:1
    */
@@ -122,13 +125,12 @@ namespace QtLua {
     /**
      * This macro must be used once at global scope to list available
      * properties and specify allowed access.
-     * @see {#QTLUA_PROPERTY_ENTRY, #QTLUA_PROPERTY_ENTRY_GET, #QTLUA_PROPERTY_ENTRY_SET}
      */
 #define QTLUA_PROPERTIES_TABLE(class_name, ...)			\
     const class_name::_qtlua_property_s class_name::_qtlua_properties_table[] = { __VA_ARGS__, { 0 } };
 
     /** 
-     * Define a simple inline get accessor function for the specified member
+     * Define a lua get accessor function for the specified member
      * @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_GET(member)		\
@@ -138,7 +140,7 @@ namespace QtLua {
   }
 
     /** 
-     * Define a simple inline set accessor function for the specified member
+     * Define a lua set accessor function for the specified member
      * @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_SET(member)				\
@@ -157,8 +159,8 @@ namespace QtLua {
 
 
     /** 
-     * Define a simple inline get accessor function for the specified member
-     * @showcontent
+     * Define a lua get accessor function for the specified member
+     * which relies on a regular C++ get accessor functions.  @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_F_GET(member)			\
     inline QtLua::Value lua_get_##member(QtLua::State &ls)	\
@@ -167,8 +169,8 @@ namespace QtLua {
     }
 
     /** 
-     * Define a simple inline set accessor function for the specified member
-     * @showcontent
+     * Define a lua set accessor function for the specified member
+     * which relies on a regular C++ set accessor functions.  @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_F_SET(member)				\
     inline void lua_set_##member(QtLua::State &ls, const QtLua::Value &value) \
@@ -177,15 +179,15 @@ namespace QtLua {
     }
 
     /** 
-     * Define simple inline accessors function for the specified member
-     * @showcontent
+     * Define lua accessors functions for the specified member which
+     * rely on regular C++ accessors.  @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSORS_F(member)		\
     QTLUA_PROPERTY_ACCESSOR_F_GET(member)		\
     QTLUA_PROPERTY_ACCESSOR_F_SET(member)
 
     /** 
-     * Declare a member of given type and define simple inline
+     * Declare a member of given type and define lua
      * accessor functions for the specified member. This is a
      * convenience macro, member and accessor functions can be defined
      * directly.  @showcontent
@@ -195,7 +197,7 @@ namespace QtLua {
   QTLUA_PROPERTY_ACCESSORS(member);
 
     /** 
-     * Declare a member of given type and define a simple inline
+     * Declare a member of given type and define a lua
      * get accessor function for the specified member.  @showcontent
      * @see #QTLUA_PROPERTY
      */
@@ -204,7 +206,7 @@ namespace QtLua {
   QTLUA_PROPERTY_ACCESSOR_GET(member);
 
     /** 
-     * Declare a member of given type and define a simple inline
+     * Declare a member of given type and define a lua
      * set accessor function for the specified member.  @showcontent
      * @see #QTLUA_PROPERTY
      */
@@ -213,37 +215,37 @@ namespace QtLua {
   QTLUA_PROPERTY_ACCESSOR_SET(member);
 
     /**
-     * Property table entry with default get and set accessors.
+     * Property table entry with get and set accessors.
      */
 #define QTLUA_PROPERTY_ENTRY(class_name, name, member)			\
   { name, &class_name::lua_set_##member, &class_name::lua_get_##member }
 
     /**
-     * Property table entry with default get accessor only.
+     * Property table entry with get accessor only.
      */
 #define QTLUA_PROPERTY_ENTRY_GET(class_name, name, member)	\
   { name, 0, &class_name::lua_get_##member }
 
     /**
-     * Property table entry with default set accessor only.
+     * Property table entry with set accessor only.
      */
 #define QTLUA_PROPERTY_ENTRY_SET(class_name, name, member)	\
   { name, &class_name::lua_set_##member, 0 }
 
     /**
-     * Property table entry with user defined lua get and lua set accessors.
+     * Property table entry with user defined lua accessor functions.
      */
 #define QTLUA_PROPERTY_ENTRY_U(class_name, name, get, set)	\
   { name, &class_name::set, &class_name::get }
 
     /**
-     * Property table entry with user defined lua get accessor only.
+     * Property table entry with user defined lua get accessor function only.
      */
 #define QTLUA_PROPERTY_ENTRY_U_GET(class_name, name, get)	\
   { name, 0, &class_name::get }
 
     /**
-     * Property table entry with user defined lua set accessor only.
+     * Property table entry with user defined lua set accessor function only.
      */
 #define QTLUA_PROPERTY_ENTRY_U_SET(class_name, name, set)	\
   { name, &class_name::set, 0 }
