@@ -166,7 +166,7 @@ namespace QtLua {
     : _ls(ls),
       _proxy(proxy),
       _it(_proxy->_list->begin()),
-      _i(0)
+      _i(1)
   {
   }
 

@@ -188,7 +188,7 @@ namespace QtLua {
   template <class Container, bool resize>
   Value QVectorProxyRo<Container, resize>::ProxyIterator::get_key() const
   {
-    return Value(_ls, (int)_it);
+    return Value(_ls, (int)_it + 1);
   }
 
   template <class Container, bool resize>
@@ -200,7 +200,7 @@ namespace QtLua {
   template <class Container, bool resize>
   ValueRef QVectorProxyRo<Container, resize>::ProxyIterator::get_value_ref()
   {
-    return ValueRef(Value(_ls, _proxy), Value(_ls, (double)_it));
+    return ValueRef(Value(_ls, _proxy), Value(_ls, (double)_it + 1));
   }
 
 }
