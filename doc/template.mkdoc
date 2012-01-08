@@ -39,6 +39,9 @@
 @macro _compound_doc id
 
   @ifsymtype {@id@} {class|cxxstruct}    
+
+    @insert {@id@} {D} inheritance_diagram
+
     @section e {Declaration}
       @insert {@id@} decl_warn_sentence
       @insert {@id@} decl_synopsis
@@ -55,9 +58,10 @@
 
       @insert {@id@} decl_access_sentence
       @insert {@id@} decl_specialization_sentence
+
     @end section
   @end if
-  
+
   @section e {Description}
     @insert {@id@} decl_inline_doc
     @insert {@id@} see_related_typedefs
@@ -79,10 +83,6 @@
   @end if
 
   @ifsymtype {@id@} {class|cxxstruct}
-    @section e {Inheritance}
-      @insert {@id@} ancestors_list
-    @end section
-
     @section e {Class specializations}
       @insert {@id@} specializations_table
     @end section
@@ -90,6 +90,14 @@
 
   @section e {Members}
     @ifsymtype {@id@} {class|cxxstruct}
+@c    @section e {Inherits}
+@c      @insert {@id@} ancestors_list
+@c    @end section
+@c
+@c    @section e {Inherited by}
+@c      @insert {@id@} derived_list
+@c    @end section
+
       @insert {@id@} compound_inherited_members_count
     @end if
     @insert {@id@} compound_flat_member_list
