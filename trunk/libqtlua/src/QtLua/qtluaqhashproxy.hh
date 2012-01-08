@@ -28,6 +28,20 @@
 
 namespace QtLua {
 
+  /** @module {Container proxies} @internal */
+  template <typename T>
+  struct QHashProxyKeytype
+  {
+    static inline void completion_patch(String &path, String &entry, int &offset);
+  };
+
+  /** @module {Container proxies} @internal */
+  template <>
+  struct QHashProxyKeytype<String>
+  {
+    static inline void completion_patch(String &path, String &entry, int &offset);
+  };
+
   /**
    * @short QHash and QMap read only access wrapper for lua script
    * @header QtLua/QHashProxy
