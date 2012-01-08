@@ -58,9 +58,11 @@ public:
   bool meta_contains(State &ls, const Value &key);
   Ref<Iterator> new_iterator(State &ls);
   Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
-  virtual bool support(Value::Operation c) const;
+  bool support(Value::Operation c) const;
 
 private:
+
+  String get_type_name() const;
 
   /**
    * @short QListProxyRo iterator class

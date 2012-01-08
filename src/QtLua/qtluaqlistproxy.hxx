@@ -128,6 +128,12 @@ namespace QtLua {
   }
 
   template <class Container>
+  String QListProxyRo<Container>::get_type_name() const
+  {
+    return type_name<Container>();
+  }
+
+  template <class Container>
   void QListProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_list)

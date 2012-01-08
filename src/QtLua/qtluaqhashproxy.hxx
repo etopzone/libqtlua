@@ -198,6 +198,12 @@ namespace QtLua {
     QHashProxyKeytype<typename Container::key_type>::completion_patch(path, entry, offset);
   }
 
+  template <class Container>
+  String QHashProxyRo<Container>::get_type_name() const
+  {
+    return type_name<Container>();
+  }
+
 }
 
 #endif

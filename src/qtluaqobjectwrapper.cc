@@ -346,12 +346,7 @@ namespace QtLua {
 
   String QObjectWrapper::get_type_name() const
   {
-    String res(UserData::get_type_name());
-
-    if (_obj)
-      res += "<" + String(_obj->metaObject()->className()) + ">";
-
-    return res;
+    return _obj->metaObject()->className();
   }
 
   String QObjectWrapper::get_value_str() const
