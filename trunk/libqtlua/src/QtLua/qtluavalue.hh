@@ -25,6 +25,7 @@
 #include <QHash>
 #include <QList>
 #include <QPointer>
+#include <QVariant>
 
 #include "qtluastring.hh"
 #include "qtluaref.hh"
@@ -256,17 +257,27 @@ public:
   inline Value(const State &ls);
   inline Value(const State *ls);
 
-  /** Create a number lua value. @multiple */
+  /** Create a boolean lua value. @multiple */
   inline Value(const State &ls, Bool n);
   inline Value(const State *ls, Bool n);
+
+  /** Create a number lua value. @multiple */
+  inline Value(const State &ls, float n);
+  inline Value(const State *ls, float n);
   inline Value(const State &ls, double n);
   inline Value(const State *ls, double n);
   inline Value(const State &ls, int n);
   inline Value(const State *ls, int n);
+  inline Value(const State &ls, unsigned int n);
+  inline Value(const State *ls, unsigned int n);
 
   /** Create a string lua value. @multiple */
   inline Value(const State &ls, const String &str);
   inline Value(const State *ls, const String &str);
+  inline Value(const State &ls, const QString &str);
+  inline Value(const State *ls, const QString &str);
+  inline Value(const State &ls, const char *str);
+  inline Value(const State *ls, const char *str);
 
   /**
    * Create a lua userdata value. The value will hold a @ref Ref
@@ -283,6 +294,13 @@ public:
    */
   inline Value(const State &ls, QObject *obj);
   inline Value(const State *ls, QObject *obj);
+
+  /**
+   * Create a lua value from a @ref QVariant object.
+   * @xsee {Qt/Lua types conversion} @multiple
+   */
+  inline Value(const State &ls, const QVariant &qv);
+  inline Value(const State *ls, const QVariant &qv);
 
   /**
    * Create a @ref QObject lua value and update associated
@@ -311,6 +329,13 @@ public:
   inline Value(const State &ls, const QVector<X> &vector);
   template <typename X>
   inline Value(const State &ls, QVector<X> &vector);
+
+  /**
+   * Create a lua table indexed from 1 with elements from a C array.
+   * @xsee{Qt/Lua types conversion}
+   */
+  template <typename X>
+  inline Value(const State &ls, unsigned int size, const X *array);
 
   /**
    * Create a lua table with elements from @ref QHash.
@@ -343,20 +368,35 @@ public:
 
   /** Copy a lua value. */
   Value & operator=(const Value &lv);
+
   /** Assign a boolean to lua value. */
   Value & operator=(Bool n);
+
   /** Assign a number to lua value. @multiple */
   Value & operator=(double n);
+  inline Value & operator=(float n);
   inline Value & operator=(int n);
-  /** Assign a string to lua value. */
+  inline Value & operator=(unsigned int n);
+
+  /** Assign a string to lua value. @multiple */
   Value & operator=(const String &str);
+  inline Value & operator=(const QString &str);
+  inline Value & operator=(const char *str);
+
   /** Assign a userdata to lua value. */
   Value & operator=(const Ref<UserData> &ud);
+
   /**
    * Assign a QObject to lua value.
    * @xsee{QObject wrapping}
    */
   Value & operator=(QObject *obj);
+
+  /**
+   * Convert a @ref QVariant to lua value.
+   * @xsee {Qt/Lua types conversion}
+   */
+  Value & operator=(const QVariant &qv);
 
   /** Call operation on a lua userdata or lua function value. @multiple */
   List call (const List &args) const;
@@ -374,12 +414,14 @@ public:
   inline Value operator[] (const char *key) const;
   inline Value operator[] (double key) const;
   inline Value operator[] (int key) const;
+  inline Value operator[] (unsigned int key) const;
 
   inline ValueRef operator[] (const Value &key);
   inline ValueRef operator[] (const String &key);
   inline ValueRef operator[] (const char *key);
   inline ValueRef operator[] (double key);
   inline ValueRef operator[] (int key);
+  inline ValueRef operator[] (unsigned int key);
 
   /** Get an @ref iterator to traverse a lua userdata or lua table value. @multiple */
   inline iterator begin();
@@ -397,11 +439,13 @@ public:
       Throw exception if conversion fails. @multiple */
   double to_number() const;
   inline operator double () const;
+  inline operator float () const;
 
   /** Convert a lua number value to an integer.
       Throw exception if conversion fails. @multiple */
   inline int to_integer() const;
   inline operator int () const;
+  inline operator unsigned int () const;
 
   /** Convert a lua value to a boolean.
       Throw exception if conversion fails. @multiple */
@@ -489,7 +533,6 @@ public:
    */
   Ref<UserData> to_userdata() const;
 
-
   /**
    * Convert a lua value to a @ref Ref pointer to an @ref UserData.
    * @return a null @ref Ref if conversion fails.
@@ -511,6 +554,13 @@ public:
   /** @see to_userdata_cast */
   template <class X>
   inline operator Ref<X> () const;
+
+  /**
+   * Convert a lua value to a @ref QVariant.
+   * @xsee {Qt/Lua types conversion} @multiple
+   */
+  QVariant to_qvariant() const; 
+  inline operator QVariant () const;
 
   /** Check if the value is @tt nil */
   inline bool is_nil() const;

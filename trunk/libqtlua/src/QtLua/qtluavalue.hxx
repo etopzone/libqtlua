@@ -60,6 +60,18 @@ namespace QtLua {
     *this = n;
   }
 
+  Value::Value(const State &ls, float n)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = n;
+  }
+
+  Value::Value(const State *ls, float n)
+    : _st(const_cast<State*>(ls))
+  {
+    *this = n;
+  }
+
   Value::Value(const State &ls, double n)
     : _st(const_cast<State*>(&ls))
   {
@@ -84,6 +96,18 @@ namespace QtLua {
     *this = (double)n;
   }
 
+  Value::Value(const State &ls, unsigned int n)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = (double)n;
+  }
+
+  Value::Value(const State *ls, unsigned int n)
+    : _st(const_cast<State*>(ls))
+  {
+    *this = (double)n;
+  }
+
   Value::Value(const State &ls, const String &str)
     : _st(const_cast<State*>(&ls))
   {
@@ -94,6 +118,30 @@ namespace QtLua {
     : _st(const_cast<State*>(ls))
   {
     *this = str;
+  }
+
+  Value::Value(const State &ls, const QString &str)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = String(str);
+  }
+
+  Value::Value(const State *ls, const QString &str)
+    : _st(const_cast<State*>(ls))
+  {
+    *this = String(str);
+  }
+
+  Value::Value(const State &ls, const char *str)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = String(str);
+  }
+
+  Value::Value(const State *ls, const char *str)
+    : _st(const_cast<State*>(ls))
+  {
+    *this = String(str);
   }
 
   Value::Value(const State &ls, const Ref<UserData> &item)
@@ -120,9 +168,45 @@ namespace QtLua {
     *this = obj;
   }
 
+  Value::Value(const State &ls, const QVariant &qv)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = qv;
+  }
+
+  Value::Value(const State *ls, const QVariant &qv)
+    : _st(const_cast<State*>(ls))
+  {
+    *this = qv;
+  }
+
   Value & Value::operator=(int n)
   {
     *this = (double)n;
+    return *this;
+  }
+
+  Value & Value::operator=(float n)
+  {
+    *this = (double)n;
+    return *this;
+  }
+
+  Value & Value::operator=(unsigned int n)
+  {
+    *this = (double)n;
+    return *this;
+  }
+
+  Value & Value::operator=(const QString &str)
+  {
+    *this = String(str);
+    return *this;
+  }
+
+  Value & Value::operator=(const char *str)
+  {
+    *this = String(str);
     return *this;
   }
 
@@ -206,6 +290,15 @@ namespace QtLua {
   Value::operator QVector<X> () const
   {
     return to_qvector<X>();
+  }
+
+  template <typename X>
+  inline Value::Value(const State &ls, unsigned int size, const X *array)
+    : _st(const_cast<State*>(&ls))
+  {
+    *this = Value(ls, TTable);
+    for (unsigned int i = 0; i < size; i++)
+      (*this)[i+1] = array[i];
   }
 
   template <typename HashContainer>
@@ -310,9 +403,19 @@ namespace QtLua {
     return to_number();
   }
 
+  Value::operator float () const
+  {
+    return to_number();
+  }
+
   Value::operator int () const
   {
-    return to_integer();
+    return (int)to_number();
+  }
+
+  Value::operator unsigned int () const
+  {
+    return (unsigned int)to_number();
   }
 
   Value::operator Bool () const
@@ -323,6 +426,11 @@ namespace QtLua {
   Value::List::List(const QList<Value> &list)
     : QList<Value>(list)
   {
+  }
+
+  Value::operator QVariant () const
+  {
+    return to_qvariant();
   }
 
   template <typename X>
@@ -488,6 +596,11 @@ namespace QtLua {
     return (*this)[(double)key];
   }
 
+  Value Value::operator[] (unsigned int key) const
+  {
+    return (*this)[(double)key];
+  }
+
   ValueRef Value::operator[] (const Value &key)
   {
     return ValueRef(*this, key);
@@ -510,6 +623,11 @@ namespace QtLua {
   }
 
   ValueRef Value::operator[] (int key)
+  {
+    return (*this)[(double)key];
+  }
+
+  ValueRef Value::operator[] (unsigned int key)
   {
     return (*this)[(double)key];
   }

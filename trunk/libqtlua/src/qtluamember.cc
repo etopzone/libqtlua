@@ -69,6 +69,8 @@ namespace QtLua {
   {
     switch (type)
       {
+      case QMetaType::Void:
+	return Value(ls);
       case QMetaType::Bool:
 	return Value(ls, (Value::Bool)*(bool*)data);
       case QMetaType::Int:
