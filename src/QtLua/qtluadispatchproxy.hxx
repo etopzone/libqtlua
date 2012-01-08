@@ -27,9 +27,31 @@
 namespace QtLua {
 
   template <class T>
-  void DispatchProxy::add_target(T *t, Value::Operations mask, bool new_keys)
+  unsigned int DispatchProxy::add_target(T *t, Value::Operations mask, bool new_keys)
   {
     _targets.push_back(new Target<T>(t, mask, new_keys)); 
+    return _targets.size() - 1;
+  }
+
+  template <class T>
+  unsigned int DispatchProxy::insert_target(T *t, unsigned int pos,
+					    Value::Operations mask, bool new_keys)
+  {
+    _targets.insert(pos, new Target<T>(t, mask, new_keys)); 
+    return pos;
+  }
+
+  template <class T>
+  void DispatchProxy::remove_target(T *t)
+  {
+    for (unsigned int i = 0; i < _targets.size(); )
+      {
+	TargetBase *b = _targets[i];
+	if (b->_ud == t && dynamic_cast<Target<T>*>(b))
+	  _targets.removeAt(i);
+	else
+	  i++;
+      }
   }
 
   DispatchProxy::TargetBase::TargetBase(UserData *ud, Value::Operations ops, bool new_keys)
