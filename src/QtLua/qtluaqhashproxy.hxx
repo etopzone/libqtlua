@@ -180,11 +180,22 @@ namespace QtLua {
     return ValueRef(Value(_ls, _proxy), Value(_ls, _it.key()));
   }
 
-  template <class Container>
-  void QHashProxyRo<Container>::completion_patch(String &path, String &entry, int &offset)
+  template <typename T>
+  void QHashProxyKeytype<T>::completion_patch(String &path, String &entry, int &offset)
   {
     entry += "[]";
     offset--;
+  }
+
+  void QHashProxyKeytype<String>::completion_patch(String &path, String &entry, int &offset)
+  {
+    entry += ".";
+  }
+
+  template <class Container>
+  void QHashProxyRo<Container>::completion_patch(String &path, String &entry, int &offset)
+  {
+    QHashProxyKeytype<typename Container::key_type>::completion_patch(path, entry, offset);
   }
 
 }
