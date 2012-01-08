@@ -29,6 +29,7 @@
 #include <QtLua/String>
 #include <QtLua/State>
 
+#include <internal/Member>
 #include <internal/QObjectWrapper>
 #include <internal/TableIterator>
 
@@ -167,6 +168,13 @@ Value & Value::operator=(QObject *obj)
       QObjectWrapper::get_wrapper(*_st, obj)->push_ud(lst);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
+  return *this;
+}
+
+Value & Value::operator=(const QVariant &qv)
+{
+  if (_st)
+    *this = Member::raw_get_object(*_st, qv.type(), qv.constData());
   return *this;
 }
 
@@ -635,6 +643,25 @@ QObject *Value::to_qobject() const
     throw String("Can not convert % type to QObject.").arg(type_name());
 
   return &ow->get_object();
+}
+
+QVariant Value::to_qvariant() const
+{
+  switch (type())
+    {
+    case TNone:
+    case TNil:
+      return QVariant();
+    case TBool:
+      return QVariant(to_boolean());
+    case TNumber:
+      return QVariant(to_number());
+    case TString:
+      return QVariant(to_string());
+
+    default:
+      throw String("Can not convert % type to QVariant.").arg(type_name());
+    }
 }
 
 static int lua_writer(lua_State *L, const void* p, size_t sz, void* pv)

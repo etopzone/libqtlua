@@ -45,6 +45,7 @@ namespace QtLua {
   class Member : public UserData
   {
     friend class QObjectWrapper;
+    friend class Value;
 
   public:
     QTLUA_REFTYPE(Member);
