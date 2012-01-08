@@ -12,10 +12,10 @@ EXTRA_DIST = bootstrap COPYING.LESSER CMakeLists.txt config.hh.cmake
 doc: manual internals
 
 manual:
-	mkdoc -I src qt_4.5.mkdoclib --conf-file manual.conf src/QtLua/*.hh src/internal/*.hh
+	mkdoc -I src --conf-file manual.conf
 
 internals:
-	mkdoc -I src qt_4.5.mkdoclib --conf-file internals.conf src/QtLua/*.hh src/internal/*.hh
+	mkdoc -I src --conf-file internals.conf
 
 www:
 	mkdoc --conf-file web.conf
