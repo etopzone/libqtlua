@@ -43,8 +43,7 @@ namespace QtLua {
    * See @xref{Members detail} section for details about behavior of
    * different operations.
    *
-   * @example examples/cpp/proxy/dispatchproxy_string.cc:1
-   * @example examples/cpp/proxy/dispatchproxy_string.cc:2
+   * @example examples/cpp/proxy/dispatchproxy_string.cc:1|2
    */
 
 class DispatchProxy : public UserData
@@ -57,16 +56,36 @@ public:
   ~DispatchProxy();
 
   /** 
-   * This function register a new object which will be used to provide
-   * support for some operations. The @tt mask parameter can be used
-   * to prevent use of this object to provide support for some
-   * operations.
+   * This function register a new target object which will be used to
+   * provide support for some operations. It returns the position of
+   * the new entry. The @tt mask parameter can be used to prevent use
+   * of this object to provide support for some operations.
    *
    * Template argument may be used to force use of operation functions
-   * from a specific class in @ref UserData inheritance.
+   * from a specific class in @ref UserData inheritance tree. When this
+   * feature is used, a reimplementation of the @ref
+   * UserData::meta_contains function must be available in the same class
+   * if either the @ref UserData::meta_index function or the @ref
+   * UserData::meta_newindex function is reimplemented.
    */
   template <class T>
-  void add_target(T *t, Value::Operations mask = Value::OpAll, bool new_keys = true);
+  unsigned int add_target(T *t, Value::Operations mask = Value::OpAll,
+			  bool new_keys = true);
+
+  /**
+   * This function performs the same way as the @ref add_target
+   * function but inserts the new target entry at specified position.
+   */
+  template <class T>
+  unsigned int insert_target(T *t, unsigned int pos = 0,
+			     Value::Operations mask = Value::OpAll,
+			     bool new_keys = true);
+
+  /**
+   * This function removes an entry from target objects list.
+   */
+  template <class T>
+  void remove_target(T *t);
 
   /** 
    * This function handles the requested operation by relying on the
