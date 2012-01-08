@@ -28,6 +28,7 @@
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QApplication>
+#include <QTranslator>
 
 #include <QMenu>
 #include <QMenuBar>
@@ -1011,22 +1012,59 @@ namespace QtLua {
     {
       Value::List meta_call(State &ls, const Value::List &args)
       {
-	return Value(ls, QObject::trUtf8(get_arg<String>(args, 0), 0, get_arg<int>(args, 1, -1)));
+	return Value(ls, QCoreApplication::translate(get_arg<String>(args, 0),
+						     get_arg<String>(args, 1),
+						     get_arg<String>(args, 2, ""),
+						     QCoreApplication::UnicodeUTF8,
+						     get_arg<int>(args, 3, -1)));
       }
 
       String get_description() const
       {
-	return "translate utf8 text";
+	return "Translate utf8 text using the QCoreApplication::translate function.";
       }
 
       String get_help() const
       {
-	return ("usage: qt.tr(\"text\" [ , n ])");
+	return ("usage: qt.tr(\"context\", \"text\", [ \"disambiguation\", n ])");
       }
 
     } qt_tr;
 
     qt_tr.register_(ls, "qt.tr");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State &ls, const Value::List &args)
+      {
+	String filename(get_arg<String>(args, 0));
+	QTranslator *qtr = new QTranslator();
+
+	if (!qtr->load(filename))
+	  {
+	    delete qtr;
+	    throw String("Unable to load translation file `%'").arg(filename);
+	  }
+
+	QCoreApplication::installTranslator(qtr);
+	return Value(ls, qtr, true);
+      }
+
+      String get_description() const
+      {
+	return "Install a translation file and return associated QTranslator object.";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.translator(\"filename\")");
+      }
+
+    } qt_translator;
+
+    qt_translator.register_(ls, "qt.translator");
 
   }
 
