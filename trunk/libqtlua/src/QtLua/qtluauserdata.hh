@@ -83,7 +83,7 @@ public:
   /**
    * This function is called when a lua operator is used with a @ref
    * UserData object. The default implementation throws an error
-   * message. The @ref support function should be reimplemented along
+   * message. The @ref support function must be reimplemented along
    * with this function.
    *
    * @param op Specify invoked lua operator (see @ref Value::Operation).
@@ -96,7 +96,7 @@ public:
   /** 
    * This function is called when a table read access operation is
    * attempted on a userdata object. The default implementation throws
-   * an error message. The @ref support function should be
+   * an error message. The @ref support function must be
    * reimplemented along with this function to report @ref
    * Value::OpIndex as supported.
    * 
@@ -108,7 +108,7 @@ public:
   /**
    * This function is called when a table write access operation is
    * attempted on a userdata object. The default implementation throws
-   * an error message. The @ref support function should be
+   * an error message. The @ref support function must be
    * reimplemented along with this function to report @ref
    * Value::OpNewindex as supported.
    *
@@ -119,7 +119,7 @@ public:
 
   /**
    * This function returns @tt true if either the @ref Value::OpIndex
-   * operation or the @ref alue::OpNewindex operation is supported and
+   * operation or the @ref Value::OpNewindex operation is supported and
    * an entry is associated to the given key.
    *
    * The default implementation returns @tt{!meta_index(ls,
@@ -130,7 +130,7 @@ public:
   /**
    * This function is called when a function invokation operation is
    * performed on a userdata object. The default implementation throws
-   * an error message. The @ref support function should be
+   * an error message. The @ref support function must be
    * reimplemented along with this function to report @ref Value::OpCall as
    * supported.
    *
@@ -142,7 +142,7 @@ public:
   /**
    * This function may return an @ref Iterator object used to iterate
    * over an userdata object. The default implementation throws an
-   * error message. The @ref support function should be reimplemented
+   * error message. The @ref support function must be reimplemented
    * along with this function to report @ref Value::OpIterate as
    * supported.
    *
