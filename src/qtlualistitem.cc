@@ -117,6 +117,15 @@ Value ListItem::meta_index(State &ls, const Value &key)
     return Value(ls);
 }
 
+bool ListItem::meta_contains(State &ls, const Value &key)
+{
+  try {
+    return get_child(key.to_string()).valid();
+  } catch (String &e) {
+    return false;
+  }
+}
+
 Iterator::ptr ListItem::new_iterator(State &ls)
 {
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
