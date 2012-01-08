@@ -21,24 +21,61 @@
 #include <QtLua/UserObject>
 
 								/* anchor 1 */
-class Test : public QtLua::UserObject<Test>
+class Test : public QtLua::UserData
 {
   QTLUA_USEROBJECT(Test);
 
-  QTLUA_PROPERTY(int, _value);
+  QtLua::UserObject<Test> _uo;
+  int _value;
+
+  QtLua::Value meta_index(QtLua::State &ls, const QtLua::Value &key)
+  {
+    return _uo.meta_index(ls, key);
+  }
+
+  bool meta_contains(QtLua::State &ls, const QtLua::Value &key)
+  {
+    return _uo.meta_contains(ls, key); 
+  }
+
+  void meta_newindex(QtLua::State &ls, const QtLua::Value &key, const QtLua::Value &value)
+  {
+    return _uo.meta_newindex(ls, key, value);
+  }
+
+  QtLua::Ref<QtLua::Iterator> new_iterator(QtLua::State &ls)
+  {
+    return _uo.new_iterator(ls);
+  }
+
+  bool support(QtLua::Value::Operation c) const
+  {
+    return _uo.support(c) || QtLua::UserData::support(c);
+  }
+
+  QtLua::Value lua_get_value(QtLua::State &ls)
+  {
+    return QtLua::Value(ls, _value);
+  }
+
+  void lua_set_value(QtLua::State &ls, const QtLua::Value &value)
+  {
+    _value = value;
+  }
 
 public:
   Test(int value)
-    : _value(value)
+    : _uo(this),	// pass pointer to the object which holds properties
+      _value(value)
   {
   }
 
 };
 
 QTLUA_PROPERTIES_TABLE(Test,
-  QTLUA_PROPERTY_ENTRY(Test, "value", _value)
+  QTLUA_PROPERTY_ENTRY_U(Test, "value", lua_get_value, lua_set_value)
 );
-/* anchor end */
+								/* anchor end */
 
 #include <QtLua/State>
 #include <QtLua/Function>

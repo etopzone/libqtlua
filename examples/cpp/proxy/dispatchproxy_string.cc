@@ -60,7 +60,7 @@ private:
   QtLua::QHashProxy<Container> _c2_proxy;
 };
 							/* anchor end */
-
+/* ... */
 int main()
 {
   try {
