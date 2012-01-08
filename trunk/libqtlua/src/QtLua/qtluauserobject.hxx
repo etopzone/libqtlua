@@ -28,12 +28,25 @@
 namespace QtLua {
 
   template <class T>
+  UserObject<T>::UserObject()
+  {
+    _obj = static_cast<T*>(this);
+  }
+
+  template <class T>
+  UserObject<T>::UserObject(T *obj)
+  {
+    _obj = obj;
+  }
+
+  template <class T>
   int UserObject<T>::get_entry(const String &name)
   {
-    for (size_t i = 0; i < sizeof(T::member_table) / sizeof(T::member_table[0]); i++)
-      if (name == T::member_table[i].name)
+    for (size_t i = 0; T::_qtlua_properties_table[i].name; i++)
+      if (name == T::_qtlua_properties_table[i].name)
 	return i;
-    throw String("No such property `%'.").arg(name);
+      throw String("No such property `%::%'")
+	.arg(UserData::type_name<T>()).arg(name);
   }
 
   template <class T>
@@ -42,10 +55,11 @@ namespace QtLua {
     String name = key.to_string();
     int index = get_entry(name);
 
-    if (!T::member_table[index].get)
-      throw String("Unable to get `%' property value").arg(name);
+    if (!T::_qtlua_properties_table[index].get)
+      throw String("The `%::%' property is write only")
+	.arg(UserData::type_name<T>()).arg(name);
 
-    return (static_cast<T*>(this)->*T::member_table[index].get)(ls);
+    return (_obj->*T::_qtlua_properties_table[index].get)(ls);
   }
 
   template <class T>
@@ -65,10 +79,12 @@ namespace QtLua {
     String name = key.to_string();
     int index = get_entry(name);
 
-    if (!T::member_table[index].set)
-      throw String("Unable to set `%' property value").arg(name);
+    if (!T::_qtlua_properties_table[index].set)
+      throw String("The `%::%' property is read only")
+	.arg(UserData::type_name<T>())
+	.arg(T::_qtlua_properties_table[index].name);
 
-    (static_cast<T*>(this)->*T::member_table[index].set)(ls, value);
+    (_obj->*T::_qtlua_properties_table[index].set)(ls, value);
   }
 
   template <class T>
@@ -92,6 +108,12 @@ namespace QtLua {
   }
 
   template <class T>
+  void UserObject<T>::completion_patch(String &path, String &entry, int &offset)
+  {
+    entry += ".";
+  }
+
+  template <class T>
   UserObject<T>::UserObjectIterator::UserObjectIterator(State *ls, const Ref<UserObject<T> > &obj)
     : _ls(ls),
       _obj(obj),
@@ -102,7 +124,7 @@ namespace QtLua {
   template <class T>
   bool UserObject<T>::UserObjectIterator::more() const
   {
-    return _index < sizeof(T::member_table) / sizeof(T::member_table[0]);
+    return T::_qtlua_properties_table[_index].name != 0;
   }
 
   template <class T>
@@ -114,23 +136,27 @@ namespace QtLua {
   template <class T>
   Value UserObject<T>::UserObjectIterator::get_key() const
   {
-    return Value(_ls, T::member_table[_index].name);
+    return Value(_ls, T::_qtlua_properties_table[_index].name);
   }
 
   template <class T>
   Value UserObject<T>::UserObjectIterator::get_value() const
   {
-    if (_ls && T::member_table[_index].get)
-      return (static_cast<T*>(_obj.ptr())->*T::member_table[_index].get)(*_ls);
-    else
+    if (!T::_qtlua_properties_table[_index].get)
+      throw String("The `%::%' property is write only")
+	.arg(UserData::type_name<T>()).arg(T::_qtlua_properties_table[_index].name);
+
+    if (!_ls)
       return QtLua::Value(_ls);
+
+    return (_obj->_obj->*T::_qtlua_properties_table[_index].get)(*_ls);
   }
 
   template <class T>
   ValueRef UserObject<T>::UserObjectIterator::get_value_ref()
   {
-    return ValueRef(Value(_ls, _obj.template staticcast<T>()),
-		    Value(_ls, T::member_table[_index].name));
+    return ValueRef(Value(_ls, *_obj->_obj),
+		    Value(_ls, T::_qtlua_properties_table[_index].name));
   }
 
 }
