@@ -156,8 +156,13 @@ int State::lua_cmd_list(lua_State *st)
 
     for (Value::const_iterator i = t.begin(); i != t.end(); i++)
       {
-	this_->output_str(String("\033[18m") + i.value().type_name_u() + "\033[2m " +
-		      i.key().to_string_p(false) + " = " + i.value().to_string_p(true) + "\n");
+	try {
+	  this_->output_str(String("\033[18m") + i.value().type_name_u() + "\033[2m " +
+			    i.key().to_string_p(false) + " = " + i.value().to_string_p(true) + "\n");
+	} catch (String &e) {
+	  this_->output_str(String("\033[18m[Error]\033[2m " +
+				   i.key().to_string_p(false) + " = " + e + "\n"));
+	}
       }
 
   } catch (String &e) {
@@ -769,25 +774,44 @@ void State::fill_completion_list_r(String &path, const String &prefix,
 
 	  if (entry.startsWith(prefix))
 	    {
-	      const Value &v = i.value();
+	      try {
+		const Value &v = i.value();
 
-	      // add operator for known types
-	      switch (v.type())
-		{
-		case Value::TTable:
-		  entry += ".";
-		  break;
+		// add operator for known types
+		switch (v.type())
+		  {
+		  case Value::TTable:
 
-		case Value::TFunction:
-		  entry += "()";
-		  cursor_offset = -1;
-		  break;
+		    v.push_value();
+		    lua_pushnil(_lst);
+		    if (lua_next(_lst, -2))
+		      {
+			if (lua_type(_lst, -2) == Value::TString)
+			  entry += ".";
+			else
+			  {
+			    entry += "[]";
+			    cursor_offset = -1;
+			  }
+			lua_pop(_lst, 2);
+		      }
+		    lua_pop(_lst, 1);
 
-		case Value::TUserData:
-		  v.to_userdata()->completion_patch(tpath, entry, cursor_offset);
-		default:
-		  break;
-		}
+		    break;
+
+		  case Value::TFunction:
+		    entry += "()";
+		    cursor_offset = -1;
+		    break;
+
+		  case Value::TUserData:
+		    v.to_userdata()->completion_patch(tpath, entry, cursor_offset);
+		  default:
+		    break;
+		  }
+	      } catch (String &e) {
+		/* can not access value */
+	      }
 
 	      lastentry = entry;
 	      list.push_back(path.to_qstring() + entry.to_qstring());
