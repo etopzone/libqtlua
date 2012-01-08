@@ -1,7 +1,7 @@
 include $(top_srcdir)/build/autotroll.mk
 
 noinst_PROGRAMS = plugin_load
-lib_LTLIBRARIES = plugin.la
+noinst_LTLIBRARIES = plugin.la
 
 plugin_la_SOURCES = plugin.cc plugin.hh
 nodist_plugin_la_SOURCES = plugin.moc.cc
