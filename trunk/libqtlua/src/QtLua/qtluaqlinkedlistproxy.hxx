@@ -66,6 +66,12 @@ namespace QtLua {
   }
 
   template <class Container>
+  String QLinkedListProxy<Container>::get_type_name() const
+  {
+    return type_name<Container>();
+  }
+
+  template <class Container>
   QLinkedListProxy<Container>::ProxyIterator::ProxyIterator(State *ls, const Ref<QLinkedListProxy> &proxy)
     : _ls(ls),
       _proxy(proxy),

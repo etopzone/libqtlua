@@ -137,6 +137,12 @@ namespace QtLua {
   }
 
   template <class T>
+  String ArrayProxyRo<T>::get_type_name() const
+  {
+    return type_name<T>() + "[" + String::number(_size) + "]";
+  }
+
+  template <class T>
   void ArrayProxy<T>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_array)

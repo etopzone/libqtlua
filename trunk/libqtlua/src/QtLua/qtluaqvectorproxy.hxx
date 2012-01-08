@@ -128,6 +128,12 @@ namespace QtLua {
   }
 
   template <class Container, bool resize>
+  String QVectorProxyRo<Container, resize>::get_type_name() const
+  {
+    return type_name<Container>();
+  }
+
+  template <class Container, bool resize>
   void QVectorProxy<Container, resize>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_vector)

@@ -61,6 +61,8 @@ public:
 
 private:
 
+  String get_type_name() const;
+
   /**
    * @short QLinkedListProxy iterator class
    * @internal
