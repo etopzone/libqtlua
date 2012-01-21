@@ -203,6 +203,13 @@ namespace QtLua {
     return ValueRef(Value(_ls, _proxy), Value(_ls, (double)_it + 1));
   }
 
+  template <class T>
+  void ArrayProxyRo<T>::completion_patch(String &path, String &entry, int &offset)
+  {
+    entry += "[]";
+    offset--;
+  }
+
 }
 
 #endif

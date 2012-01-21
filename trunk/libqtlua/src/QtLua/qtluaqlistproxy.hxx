@@ -134,6 +134,13 @@ namespace QtLua {
   }
 
   template <class Container>
+  void QListProxyRo<Container>::completion_patch(String &path, String &entry, int &offset)
+  {
+    entry += "[]";
+    offset--;
+  }
+
+  template <class Container>
   void QListProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_list)
