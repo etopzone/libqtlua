@@ -40,6 +40,9 @@ public:
     : _c1_proxy(_c1)
     , _c2_proxy(_c2)
   {
+    _c1_proxy.ref_delegate(this);
+    _c2_proxy.ref_delegate(this);
+
     // populate read-only hash c1
     _c1.insert("a", "1");
     _c1.insert("b", "2");
