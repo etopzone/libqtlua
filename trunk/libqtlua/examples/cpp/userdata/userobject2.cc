@@ -68,6 +68,7 @@ public:
     : _uo(this),	// pass pointer to the object which holds properties
       _value(value)
   {
+    _uo.ref_delegate(this);
   }
 
 };
