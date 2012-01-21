@@ -80,6 +80,10 @@ int main(int argc, char *argv[])
 	      throw QtLua::String("Unable to open `%' file.").arg(argv[i]);
 
 	    execute = true;
+
+	    if(!file.readLine().startsWith("#!"))
+	      file.seek(0);
+
 	    state.exec_chunk(file);
 	  }
       }
