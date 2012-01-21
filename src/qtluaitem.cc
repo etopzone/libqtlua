@@ -77,6 +77,7 @@ void Item::insert(const Ref<ListItem> &parent)
 
   _parent->insert(this, _row);
   _parent->insert_name(this);
+  _parent->child_changed();
 
   if (_model)
     emit _model->layoutChanged();
@@ -94,6 +95,7 @@ void Item::remove()
 
   _parent->remove(this);
   set_model(0);
+  _parent->child_changed();
 
   if (model)
     emit model->layoutChanged();
@@ -115,7 +117,10 @@ void Item::set_name(const String &name)
   _name = name;
 
   if (_parent)
-    _parent->insert_name(this);
+    {
+      _parent->insert_name(this);
+      _parent->child_changed();
+    }
 
   if (_model)
     emit _model->dataChanged(model_index(), model_index());

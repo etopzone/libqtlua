@@ -127,6 +127,8 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
   else
     // internal existing items drop
     {
+      bool changed = false;
+
       switch (action)
 	{
 	case Qt::IgnoreAction:
@@ -140,18 +142,26 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	      if (!i->is_move_allowed() || !pi->accept_child(i))
 		continue;
 
+	      ListItem *p = i->_parent;
+
 	      // handle case where deleted item shifts row offset
-	      if (pi == i->_parent && row > i->_row)
+	      if (pi == p && row > i->_row)
 		row--;
 
-	      i->_parent->remove(i.ptr());
+	      p->remove(i.ptr());
 	      i->_parent = pi;
 	      assert(row <= pi->get_child_count());
 	      i->_row = row;
 	      pi->insert(i.ptr(), row++);
 	      pi->insert_name(i.ptr());
+	      changed = true;
+
+	      if (p != pi)
+		p->child_changed();
 	    }
 
+	  if (changed)
+	    pi->child_changed();
 	  emit layoutChanged();
 	  return true;
 
