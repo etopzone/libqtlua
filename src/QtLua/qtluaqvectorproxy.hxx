@@ -26,38 +26,38 @@
 
 namespace QtLua {
 
-  template <class Container, bool resize>
-  QVectorProxyRo<Container, resize>::QVectorProxyRo()
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  QVectorProxyRo<Container, max_resize, min_resize>::QVectorProxyRo()
     : _vector(0)
   {
   }
 
-  template <class Container, bool resize>
-  QVectorProxyRo<Container, resize>::QVectorProxyRo(Container &vector)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  QVectorProxyRo<Container, max_resize, min_resize>::QVectorProxyRo(Container &vector)
     : _vector(&vector)
   {
   }
 
-  template <class Container, bool resize>
-  QVectorProxy<Container, resize>::QVectorProxy()
-    : QVectorProxyRo<Container, resize>()
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  QVectorProxy<Container, max_resize, min_resize>::QVectorProxy()
+    : QVectorProxyRo<Container, max_resize, min_resize>()
   {
   }
 
-  template <class Container, bool resize>
-  QVectorProxy<Container, resize>::QVectorProxy(Container &vector)
-    : QVectorProxyRo<Container, resize>(vector)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  QVectorProxy<Container, max_resize, min_resize>::QVectorProxy(Container &vector)
+    : QVectorProxyRo<Container, max_resize, min_resize>(vector)
   {
   }
 
-  template <class Container, bool resize>
-  void QVectorProxyRo<Container, resize>::set_container(Container *vector)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  void QVectorProxyRo<Container, max_resize, min_resize>::set_container(Container *vector)
   {
     _vector = vector;
   }
 
-  template <class Container, bool resize>
-  Value QVectorProxyRo<Container, resize>::meta_index(State &ls, const Value &key)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_index(State &ls, const Value &key)
   { 
     if (!_vector)
       return Value(ls);
@@ -70,8 +70,8 @@ namespace QtLua {
       return Value(ls);
   }
 
-  template <class Container, bool resize>
-  bool QVectorProxyRo<Container, resize>::meta_contains(State &ls, const Value &key)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  bool QVectorProxyRo<Container, max_resize, min_resize>::meta_contains(State &ls, const Value &key)
   {
     try {
       int index = (unsigned int)key.to_number() - 1;
@@ -82,8 +82,8 @@ namespace QtLua {
     }
   }
 
-  template <class Container, bool resize>
-  Value QVectorProxyRo<Container, resize>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
       {
@@ -96,8 +96,8 @@ namespace QtLua {
       }
   }
 
-  template <class Container, bool resize>
-  bool QVectorProxyRo<Container, resize>::support(Value::Operation c) const
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  bool QVectorProxyRo<Container, max_resize, min_resize>::support(Value::Operation c) const
   {
     switch (c)
       {
@@ -111,8 +111,8 @@ namespace QtLua {
       }
   }
 
-  template <class Container, bool resize>
-  bool QVectorProxy<Container, resize>::support(enum Value::Operation c)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  bool QVectorProxy<Container, max_resize, min_resize>::support(enum Value::Operation c)
   {
     switch (c)
       {
@@ -127,84 +127,102 @@ namespace QtLua {
       }
   }
 
-  template <class Container, bool resize>
-  String QVectorProxyRo<Container, resize>::get_type_name() const
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  String QVectorProxyRo<Container, max_resize, min_resize>::get_type_name() const
   {
     return type_name<Container>();
   }
 
-  template <class Container, bool resize>
-  void QVectorProxy<Container, resize>::meta_newindex(State &ls, const Value &key, const Value &value)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  void QVectorProxyRo<Container, max_resize, min_resize>::completion_patch(String &path, String &entry, int &offset)
+  {
+    entry += "[]";
+    offset--;
+  }
+
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  void QVectorProxy<Container, max_resize, min_resize>::meta_newindex(State &ls, const Value &key, const Value &value)
   {
     if (!_vector)
-      throw String("Can not write to null container.");
+      throw String("Can not write to null vector.");
 
+    bool has_resize = max_resize > min_resize;
     int index = (unsigned int)key.to_number() - 1;
 
     if (index < 0)
-      throw String("QVector index is out of bounds.");
+      goto oob;
 
-    if (resize && value.type() == Value::TNil)
+    if (has_resize && value.type() == Value::TNil)
       {
+	if (index < min_resize)
+	  throw String("Can not reduce vector size below %.").arg(min_resize);
 	if (index < _vector->size())
-	  _vector->remove(index);
+	  _vector->resize(index);
       }
     else
       {
 	if (index >= _vector->size())
 	  {
-	    if (resize)
-	      _vector->resize(index + 1);
+	    if (has_resize)
+	      {
+		if ((unsigned int)index >= max_resize)
+		  throw String("Can not increase vector size above %.").arg(max_resize);
+		_vector->resize(index + 1);
+	      }
 	    else
-	      throw String("QVector index is out of bounds.");
+	      goto oob;
 	  }
 	(*_vector)[index] = value;
       }
+
+    return;
+  oob:
+    throw String("Vector index is out of bounds.");
   }
 
-  template <class Container, bool resize>
-  Ref<Iterator> QVectorProxyRo<Container, resize>::new_iterator(State &ls)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  Ref<Iterator> QVectorProxyRo<Container, max_resize, min_resize>::new_iterator(State &ls)
   {
     if (!_vector)
-      throw String("Can not iterate on null container.");
+      throw String("Can not iterate on null vector.");
 
     return QTLUA_REFNEW(ProxyIterator, &ls, *this);
   }
 
-  template <class Container, bool resize>
-  QVectorProxyRo<Container, resize>::ProxyIterator::ProxyIterator(State *ls, const Ref<QVectorProxyRo> &proxy)
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::ProxyIterator(State *ls, const Ref<QVectorProxyRo> &proxy)
     : _ls(ls),
       _proxy(proxy),
       _it(0)
   {
   }
 
-  template <class Container, bool resize>
-  bool QVectorProxyRo<Container, resize>::ProxyIterator::more() const
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  bool QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::more() const
   {
     return _proxy->_vector && _it < (unsigned int)_proxy->_vector->size();
   }
 
-  template <class Container, bool resize>
-  void QVectorProxyRo<Container, resize>::ProxyIterator::next()
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  void QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::next()
   {
     _it++;
   }
 
-  template <class Container, bool resize>
-  Value QVectorProxyRo<Container, resize>::ProxyIterator::get_key() const
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  Value QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::get_key() const
   {
     return Value(_ls, (int)_it + 1);
   }
 
-  template <class Container, bool resize>
-  Value QVectorProxyRo<Container, resize>::ProxyIterator::get_value() const
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  Value QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::get_value() const
   {
     return Value(_ls, _proxy->_vector->at(_it));
   }
 
-  template <class Container, bool resize>
-  ValueRef QVectorProxyRo<Container, resize>::ProxyIterator::get_value_ref()
+  template <class Container, unsigned max_resize, unsigned min_resize>
+  ValueRef QVectorProxyRo<Container, max_resize, min_resize>::ProxyIterator::get_value_ref()
   {
     return ValueRef(Value(_ls, _proxy), Value(_ls, (double)_it + 1));
   }

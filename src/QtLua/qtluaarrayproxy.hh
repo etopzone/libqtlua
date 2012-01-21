@@ -61,7 +61,7 @@ public:
   bool support(Value::Operation c) const;
 
 private:
-
+  void completion_patch(String &path, String &entry, int &offset);
   String get_type_name() const;
 
   /**

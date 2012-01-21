@@ -38,12 +38,14 @@ namespace QtLua {
    * @ref QVectorProxy class may be used for read/write access.
    *
    * QVector may be resized if accessing above current size, depending
-   * on @tt resize template parameter value.
+   * on @tt max_resize template parameter value. Resize above specified value is not allowed.
    *
    * See @ref QVectorProxy class documentation for details and examples.
    */
 
-template <class Container, bool resize = false>
+template <class Container,
+	  unsigned int max_resize = 0,
+	  unsigned int min_resize = 0>
 class QVectorProxyRo : public UserData
 {
 public:
@@ -64,7 +66,7 @@ public:
   bool support(Value::Operation c) const;
 
 private:
-
+  void completion_patch(String &path, String &entry, int &offset);
   String get_type_name() const;
 
   /**
@@ -107,13 +109,12 @@ protected:
    * still holds references to the wrapper object. When no container
    * is attached access will raise an error.
    *
-   * First entry has index 1. Lua @tt nil value is returned if no such
-   * entry exists on table read. A @tt nil value write will delete
-   * entry at given index. Write access at vector size + 1 append a new
-   * entry to the vector if the @tt resize template argument is true.
-   *
-   * QVector may be resized if accessing above current size, depending
-   * on @tt resize template parameter value.
+   * First entry has index 1. Lua @tt nil value is returned when
+   * reading above vector size. Write access above current vector size
+   * increase vector size as long as the new size is not higher than
+   * @tt max_resize. Writing a @tt nil value truncates vector by
+   * discarding value at accessed index and all values at higher
+   * indexes provided that the new size is not lower than @tt min_resize.
    *
    * Lua operator @tt # returns the container entry count. Lua
    * operator @tt - returns a lua table copy of the container.
@@ -124,10 +125,12 @@ protected:
    * @example examples/cpp/proxy/qvectorproxy_string.cc:1|2|3
    */
 
-template <class Container, bool resize = false>
-class QVectorProxy : public QVectorProxyRo<Container, resize>
+  template <class Container,
+	    unsigned int max_resize = 0,
+	    unsigned int min_resize = 0>
+  class QVectorProxy : public QVectorProxyRo<Container, max_resize, min_resize>
 {
-  using QVectorProxyRo<Container, resize>::_vector;
+  using QVectorProxyRo<Container, max_resize, min_resize>::_vector;
 
 public:
   QTLUA_REFTYPE(QVectorProxy);
