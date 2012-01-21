@@ -89,6 +89,10 @@ protected:
   /** Must return columns count for children of this node, default implementation returns 1. */
   virtual int get_column_count() const;
 
+  /** This function is called when a child is added, removed or
+      changes name. Default implementation does nothing. */
+  virtual void child_changed();
+
 private:
 
   void completion_patch(String &path, String &entry, int &offset);

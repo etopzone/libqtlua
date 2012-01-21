@@ -245,5 +245,9 @@ void ListItem::completion_patch(String &path, String &entry, int &offset)
   entry += ".";
 }
 
+void ListItem::child_changed()
+{
+}
+
 }
 
