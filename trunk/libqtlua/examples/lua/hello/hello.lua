@@ -1,3 +1,5 @@
+#!/usr/bin/env qtlua
+
 -- Load user interface file
 
 ui = qt.load_ui("hello.ui");
