@@ -33,14 +33,14 @@ namespace QtLua {
   {
   }
 
-  Value QMetaObjectWrapper::meta_index(State &ls, const Value &key)
+  Value QMetaObjectWrapper::meta_index(State *ls, const Value &key)
   {
     Member::ptr m = MetaCache::get_meta(_mo).get_member(key.to_string());
 
     return m.valid() ? Value(ls, m) : Value(ls);
   }
 
-  Ref<Iterator> QMetaObjectWrapper::new_iterator(State &ls)
+  Ref<Iterator> QMetaObjectWrapper::new_iterator(State *ls)
   {
     return QTLUA_REFNEW(QObjectIterator, ls, _mo);
   }

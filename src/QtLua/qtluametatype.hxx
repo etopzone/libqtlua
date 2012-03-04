@@ -71,7 +71,7 @@ namespace QtLua {
   }
 
   template <class X>
-  QtLua::Value MetaTypeQObjectStar<X>::qt2lua(QtLua::State &ls, X* const * qtvalue)
+  QtLua::Value MetaTypeQObjectStar<X>::qt2lua(QtLua::State *ls, X* const * qtvalue)
   {
     return Value(ls, QObjectWrapper::get_wrapper(ls, *qtvalue));
   }

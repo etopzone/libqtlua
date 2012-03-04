@@ -154,6 +154,38 @@ namespace QtLua {
 	_obj->_inc();
     }
 
+#if __cplusplus >= 201103L
+    /** Construct a const Ref from non const Ref. */
+    Ref(Ref<Xnoconst, Xnoconst> && r)
+      : _obj(r._obj)
+    {
+      r._obj = 0;
+    }
+
+    /** Construct a const Ref from const Ref. */
+    Ref(Ref<const Xnoconst, Xnoconst> && r)
+      : _obj(r._obj)
+    {
+      r._obj = 0;
+    }
+
+    /** Construct a const Ref from derived class Ref. */
+    template <class T>
+    Ref(Ref<T, T> && r)
+      : _obj(r._obj)
+    {
+      r._obj = 0;
+    }
+
+    /** Construct a const Ref from derived class const Ref. */
+    template <class T>
+    Ref(Ref<const T, T> && r)
+      : _obj(r._obj)
+    {
+      r._obj = 0;
+    }
+#endif
+
     /** Construct a Ref which points to specified object. */
     Ref(X & obj)
       : _obj(&obj)
@@ -176,9 +208,28 @@ namespace QtLua {
     /** Initialize Ref from Ref */
     Ref & operator=(const Ref &r)
     {
-      *this = *r._obj;
+      X *tmp = _obj;
+      _obj = 0;
+      if (tmp)
+	tmp->_drop();
+      _obj = r._obj;
+      if (_obj)
+	_obj->_inc();
       return *this;
     }
+
+#if __cplusplus >= 201103L
+    Ref & operator=(Ref &&r)
+    {
+      X *tmp = _obj;
+      _obj = 0;
+      if (tmp)
+	tmp->_drop();
+      _obj = r._obj;
+      r._obj = 0;
+      return *this;
+    }
+#endif
 
     /** Initialize Ref from object Reference */
     Ref & operator=(X & obj)

@@ -72,17 +72,17 @@ namespace QtLua {
     qmetaobject_table_t _mo_table;
   };
 
-  void qtluaopen_qt(State &ls)
+  void qtluaopen_qt(State *ls)
   {
     static QMetaObjectTable meta;
 
-    ls.set_global("qt.meta", Value(ls, meta));
+    ls->set_global("qt.meta", Value(ls, meta));
 
     //////////////////////////////////////////////////////////////////////
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 3, 4, Value::TUserData, Value::TString, Value::TNone, Value::TString);
 
@@ -140,7 +140,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 2, 4, Value::TUserData, Value::TString, Value::TNone, Value::TString);
 
@@ -193,7 +193,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	static QUiLoader uil;
 
@@ -235,7 +235,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	static QUiLoader uil;
 
@@ -280,7 +280,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
 
@@ -318,7 +318,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
 
@@ -356,7 +356,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 1, 1, Value::TUserData);
 
@@ -401,7 +401,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, new QFileDialog(), true);
       }
@@ -424,7 +424,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getExistingDirectory(QApplication::activeWindow(),
 			   get_arg<QString>(args, 0, ""),
@@ -451,7 +451,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getOpenFileName(QApplication::activeWindow(),
 			   get_arg<QString>(args, 0, ""),
@@ -479,7 +479,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getOpenFileNames(QApplication::activeWindow(),
 			   get_arg<QString>(args, 0, ""),
@@ -507,7 +507,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QFileDialog::getSaveFileName(QApplication::activeWindow(),
 			   get_arg<QString>(args, 0, ""),
@@ -535,7 +535,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	QColor init(Qt::white);
 
@@ -566,7 +566,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, new QErrorMessage(), true);
       }
@@ -589,7 +589,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	bool ok;
 	double v = QInputDialog::getDouble(QApplication::activeWindow(),
@@ -622,7 +622,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	bool ok;
 	int v = QInputDialog::getInteger(QApplication::activeWindow(),
@@ -655,7 +655,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	bool ok;
 	QString v = QInputDialog::getText(QApplication::activeWindow(),
@@ -686,7 +686,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	bool ok;
 	QString v = QInputDialog::getItem(QApplication::activeWindow(),
@@ -718,7 +718,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, new QMessageBox(), true);
       }
@@ -741,7 +741,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	QMessageBox::about(QApplication::activeWindow(),
 			   get_arg<QString>(args, 1, ""),
@@ -767,7 +767,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::critical(QApplication::activeWindow(),
 					       get_arg<QString>(args, 1, ""),
@@ -794,7 +794,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::information(QApplication::activeWindow(),
 					       get_arg<QString>(args, 1, ""),
@@ -821,7 +821,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::question(QApplication::activeWindow(),
 					       get_arg<QString>(args, 1, ""),
@@ -848,7 +848,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QMessageBox::warning(QApplication::activeWindow(),
 					       get_arg<QString>(args, 1, ""),
@@ -875,7 +875,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TNumber);
 
@@ -902,7 +902,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
@@ -932,7 +932,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
@@ -962,7 +962,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	meta_call_check_args(args, 1, 5, Value::TNone, Value::TNumber,
 			     Value::TString, Value::TTable, Value::TTable);
@@ -1010,7 +1010,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	return Value(ls, QCoreApplication::translate(get_arg<String>(args, 0),
 						     get_arg<String>(args, 1),
@@ -1037,7 +1037,7 @@ namespace QtLua {
 
     static class : public Function
     {
-      Value::List meta_call(State &ls, const Value::List &args)
+      Value::List meta_call(State *ls, const Value::List &args)
       {
 	String filename(get_arg<String>(args, 0));
 	QTranslator *qtr = new QTranslator();

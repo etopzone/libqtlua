@@ -50,7 +50,7 @@ namespace QtLua {
   }
 
   template <class T>
-  Value UserObject<T>::meta_index(State &ls, const Value &key)
+  Value UserObject<T>::meta_index(State *ls, const Value &key)
   {
     String name = key.to_string();
     int index = get_entry(name);
@@ -63,7 +63,7 @@ namespace QtLua {
   }
 
   template <class T>
-  bool UserObject<T>::meta_contains(State &ls, const Value &key)
+  bool UserObject<T>::meta_contains(State *ls, const Value &key)
   {
     try {
       get_entry(key.to_string());
@@ -74,7 +74,7 @@ namespace QtLua {
   }
 
   template <class T>
-  void UserObject<T>::meta_newindex(State &ls, const Value &key, const Value &value)
+  void UserObject<T>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     String name = key.to_string();
     int index = get_entry(name);
@@ -88,9 +88,9 @@ namespace QtLua {
   }
 
   template <class T>
-  Ref<Iterator> UserObject<T>::new_iterator(State &ls)
+  Ref<Iterator> UserObject<T>::new_iterator(State *ls)
   {
-    return QTLUA_REFNEW(UserObjectIterator, &ls, *this);
+    return QTLUA_REFNEW(UserObjectIterator, ls, *this);
   }
 
   template <class T>
@@ -149,7 +149,7 @@ namespace QtLua {
     if (!_ls)
       return QtLua::Value(_ls);
 
-    return (_obj->_obj->*T::_qtlua_properties_table[_index].get)(*_ls);
+    return (_obj->_obj->*T::_qtlua_properties_table[_index].get)(_ls);
   }
 
   template <class T>

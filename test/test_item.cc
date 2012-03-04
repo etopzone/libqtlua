@@ -48,7 +48,7 @@ int main()
     ASSERT(ls.exec_statements("i=0; r={}; for key, value in each(l) do r[key]=value; i=i+1 end; return i").at(0).to_integer() == 3);
 
     for (const char *s = "A\0B\0C\0\0"; *s; s += 2)
-      ASSERT(ls["r"][s].to_userdata_cast<Item>()->get_name() == s);
+      ASSERT(ls.at("r").at(s).to_userdata_cast<Item>()->get_name() == s);
   }
 
   } catch (String &e) {

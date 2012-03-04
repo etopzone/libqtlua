@@ -57,7 +57,7 @@ namespace QtLua {
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
-  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_index(State &ls, const Value &key)
+  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_index(State *ls, const Value &key)
   { 
     if (!_vector)
       return Value(ls);
@@ -71,7 +71,7 @@ namespace QtLua {
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
-  bool QVectorProxyRo<Container, max_resize, min_resize>::meta_contains(State &ls, const Value &key)
+  bool QVectorProxyRo<Container, max_resize, min_resize>::meta_contains(State *ls, const Value &key)
   {
     try {
       int index = (unsigned int)key.to_number() - 1;
@@ -83,7 +83,7 @@ namespace QtLua {
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
-  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
+  Value QVectorProxyRo<Container, max_resize, min_resize>::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
       {
@@ -141,7 +141,7 @@ namespace QtLua {
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
-  void QVectorProxy<Container, max_resize, min_resize>::meta_newindex(State &ls, const Value &key, const Value &value)
+  void QVectorProxy<Container, max_resize, min_resize>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_vector)
       throw String("Can not write to null vector.");
@@ -181,12 +181,12 @@ namespace QtLua {
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
-  Ref<Iterator> QVectorProxyRo<Container, max_resize, min_resize>::new_iterator(State &ls)
+  Ref<Iterator> QVectorProxyRo<Container, max_resize, min_resize>::new_iterator(State *ls)
   {
     if (!_vector)
       throw String("Can not iterate on null vector.");
 
-    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>

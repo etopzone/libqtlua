@@ -214,9 +214,9 @@ int State::lua_meta_item_##n(lua_State *st)				\
     Value	b(2, this_);						\
 									\
     if (a.type() == Value::TUserData)					\
-      a.to_userdata()->meta_operation(*this_, op, a, b).push_value();	\
+      a.to_userdata()->meta_operation(this_, op, a, b).push_value();	\
     else if (b.type() == Value::TUserData)				\
-      b.to_userdata()->meta_operation(*this_, op, a, b).push_value();	\
+      b.to_userdata()->meta_operation(this_, op, a, b).push_value();	\
     else								\
       std::abort();							\
 									\
@@ -238,7 +238,7 @@ int State::lua_meta_item_##n(lua_State *st)				\
   try {									\
     Value	a(1, this_);						\
 									\
-     a.to_userdata()->meta_operation(*this_, op, a, a).push_value();	\
+     a.to_userdata()->meta_operation(this_, op, a, a).push_value();	\
 									\
   } catch (String &e) {							\
     lua_pushstring(st, e.constData());					\
@@ -274,7 +274,7 @@ int State::lua_meta_item_index(lua_State *st)
 
     Value	op(2, this_);
 
-    Value v = ud->meta_index(*this_, op);
+    Value v = ud->meta_index(this_, op);
     assert(v._st->_lst == st);
     v.push_value();
 
@@ -300,7 +300,7 @@ int State::lua_meta_item_newindex(lua_State *st)
     Value	op1(2, this_);
     Value	op2(3, this_);
 
-    ud->meta_newindex(*this_, op1, op2);
+    ud->meta_newindex(this_, op1, op2);
 
   } catch (String &e) {
     lua_pushstring(st, e.constData());
@@ -326,7 +326,7 @@ int State::lua_meta_item_call(lua_State *st)
     for (int i = 2; i <= lua_gettop(st); i++)
       args.append(Value(i, this_));
 
-    args = ud->meta_call(*this_, args);
+    args = ud->meta_call(this_, args);
 
     if (!lua_checkstack(st, args.size()))
       throw String("Unable to extend lua stack to handle % return values").arg(args.size());
@@ -447,12 +447,12 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
 
 Value State::get_global(const String &path) const
 {
-  Value res(const_cast<State&>(*this));
+  Value res(const_cast<State*>(this));
   get_global_r(path, res, LUA_GLOBALSINDEX);
   return res;
 }
 
-Value State::operator[] (const Value &key) const
+Value State::at(const Value &key) const
 {
   key.push_value();
   lua_gettable(_lst, LUA_GLOBALSINDEX);
@@ -563,14 +563,14 @@ Value State::eval_expr(bool use_lua, const String &expr)
 	double number = expr.toDouble(&ok);
 
 	if (ok)
-	  return Value(*this, number);
+	  return Value(this, number);
 	else
 	  {
 	    // exprip double quotes if any
 	    if (expr.size() > 1 && expr.startsWith('"') && expr.endsWith('"'))
-	      return Value(*this, String(expr.mid(1, expr.size() - 2)));
+	      return Value(this, String(expr.mid(1, expr.size() - 2)));
 	    else
-	      return Value(*this, expr);
+	      return Value(this, expr);
 	  }
       }
 }
@@ -732,7 +732,7 @@ void State::openlib(Library lib)
       QTLUA_LUA_CALL(_lst, luaopen_io);
       QTLUA_LUA_CALL(_lst, luaopen_debug);
 #endif
-      qtluaopen_qt(*this);
+      qtluaopen_qt(this);
     case QtLuaLib:
       reg_c_function("print", lua_cmd_print);
       reg_c_function("list", lua_cmd_list);
@@ -741,7 +741,7 @@ void State::openlib(Library lib)
       reg_c_function("plugin", lua_cmd_plugin);
       return;
     case QtLib:
-      qtluaopen_qt(*this);
+      qtluaopen_qt(this);
       return;
     }
 }

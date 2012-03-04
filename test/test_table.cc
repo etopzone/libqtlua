@@ -32,11 +32,12 @@ int main()
   {
     QtLua::State ls;
 
-    ls["t"] = Value(ls, Value::TTable);
+    ls["t"] = Value::new_table(&ls);
     ls["t"]["a"] = 5;
-    ls["t"]["b"] = ls["t"]["a"];
+    ls.at("t")["b"] = ls.at("t").at("a");
+    ls["t"]["c"] = ls["t"]["b"].value();
 
-    ASSERT(ls["t"]["b"].to_integer() == 5);
+    ASSERT(ls.at("t").at("c").to_integer() == 5);
   }
 
   {
@@ -47,36 +48,34 @@ int main()
 
     ls.exec_statements("t={a=1, b=\"foo\", c=3}");
 
-    ASSERT(ls["t"]["a"].to_integer() == 1);
-    ASSERT(ls["t"]["b"].to_string() == "foo");
-    ASSERT(ls["t"]["c"].to_integer() == 3);
+    ASSERT(ls.at("t")["a"].value().to_integer() == 1);
+    ASSERT(ls["t"]["b"].value().to_string() == "foo");
+    ASSERT(ls.at("t").at("c").to_integer() == 3);
 
-    ASSERT(ls[Value(ls, "t")][Value(ls, "a")].to_integer() == 1);
-
-    QtLua::Value t = ls["t"];
+    QtLua::Value t = ls.at("t");
 
     j = 0;
     for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++, j++)
-      ASSERT(t[i.key()] == i.value());
+      ASSERT(t.at(i.key()) == i.value().value());
     ASSERT(j == 3);
 
     j = 0;
     for (QtLua::Value::const_iterator i = t.begin(); i != t.end(); i++, j++)
-      ASSERT(t[i.key()] == i.value());
+      ASSERT(t.at(i.key()) == i.value());
     ASSERT(j == 3);
 
     for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++, j++)
       *i = String(i.key().to_string() + "_foo");
 
-    ASSERT(ls["t"]["a"].to_string() == "a_foo");
-    ASSERT(ls["t"]["b"].to_string() == "b_foo");
-    ASSERT(ls["t"]["c"].to_string() == "c_foo");
+    ASSERT(ls.at("t").at("a").to_string() == "a_foo");
+    ASSERT(ls.at("t").at("b").to_string() == "b_foo");
+    ASSERT(ls.at("t").at("c").to_string() == "c_foo");
 
     ASSERT(ls.exec_statements("i=0; r={}; for key, value in each(t) do r[key]=value..\"bar\"; i=i+1 end; return i").at(0).to_integer() == 3);
 
-    ASSERT(ls["r"]["a"].to_string() == "a_foobar");
-    ASSERT(ls["r"]["b"].to_string() == "b_foobar");
-    ASSERT(ls["r"]["c"].to_string() == "c_foobar");
+    ASSERT(ls.at("r").at("a").to_string() == "a_foobar");
+    ASSERT(ls.at("r").at("b").to_string() == "b_foobar");
+    ASSERT(ls.at("r").at("c").to_string() == "c_foobar");
   }
 
   } catch (QtLua::String &e) {

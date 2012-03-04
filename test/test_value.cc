@@ -32,13 +32,13 @@ int main()
     {
       QtLua::State ls;
 
-      ls["nill"] = Value(ls);
-      ls["btrue"] = Value(ls, Value::True);
-      ls["bfalse"] = Value(ls, Value::False);
-      ls["int"] = Value(ls, 0);
-      ls["double"] = Value(ls, 1.0f);
-      ls["str1"] = Value(ls, "hello");
-      ls["str2"] = Value(ls, String("hello"));
+      ls["nill"] = Value(&ls);
+      ls["btrue"] = Value(&ls, Value::True);
+      ls["bfalse"] = Value(&ls, Value::False);
+      ls["int"] = Value(&ls, 0);
+      ls["double"] = Value(&ls, 1.0f);
+      ls["str1"] = Value(&ls, "hello");
+      ls["str2"] = Value(&ls, String("hello"));
 
       Value::List res = ls.exec_statements("return nill, btrue, bfalse, int, double, str1, str2");
 
@@ -77,7 +77,7 @@ int main()
       QtLua::State ls;
 
       ls["foo"] = 1.0f;
-      ls["bar"] = ls["foo"];
+      ls["bar"] = ls.at("foo");
 
       Value::List res = ls.exec_statements("return bar");
 
@@ -97,8 +97,8 @@ int main()
     {
       QtLua::State ls;
 
-      ls.set_global("var", Value(ls, "foo"));
-      ls.set_global("tbl.var", Value(ls, "bar"));
+      ls.set_global("var", Value(&ls, "foo"));
+      ls.set_global("tbl.var", Value(&ls, "bar"));
 
       ASSERT(ls.exec_statements("return var").at(0).to_string() == "foo");
       ASSERT(ls.exec_statements("return tbl.var").at(0).to_string() == "bar");
@@ -110,7 +110,7 @@ int main()
 
       ls.openlib(MathLib);
 
-      QtLua::Value num(ls, 3.14159f);
+      QtLua::Value num(&ls, 3.14159f);
       QtLua::Value func = ls.get_global("math.cos");
 
       ASSERT(func.type_name() == "lua::function");

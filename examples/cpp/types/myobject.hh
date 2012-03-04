@@ -40,7 +40,7 @@ struct Mystruct
 							/* anchor 1 */
 QTLUA_METATYPE(MyStructConvert, Mystruct);
 
-QtLua::Value MyStructConvert::qt2lua(QtLua::State &ls, const Mystruct *qtvalue)
+QtLua::Value MyStructConvert::qt2lua(QtLua::State *ls, const Mystruct *qtvalue)
 {
   QtLua::Value luavalue(ls, QtLua::Value::TTable);
   luavalue[1] = qtvalue->a;

@@ -69,12 +69,12 @@ public:
   /** Get number of childs */
   inline int get_child_count() const;
 
-  Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
+  Value meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b);
   bool support(Value::Operation c) const;
-  void meta_newindex(State &ls, const Value &key, const Value &value);
-  Value meta_index(State &ls, const Value &key);
-  bool meta_contains(State &ls, const Value &key);
-  Iterator::ptr new_iterator(State &ls);
+  void meta_newindex(State *ls, const Value &key, const Value &value);
+  Value meta_index(State *ls, const Value &key);
+  bool meta_contains(State *ls, const Value &key);
+  Iterator::ptr new_iterator(State *ls);
 
 protected:
 

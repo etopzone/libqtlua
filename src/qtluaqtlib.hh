@@ -27,7 +27,7 @@ namespace QtLua {
 
   class State;
 
-  void qtluaopen_qt(State &ls);
+  void qtluaopen_qt(State *ls);
 
   /** QFileDialog widget with more usefull properties */
   class QFileDialog : public ::QFileDialog

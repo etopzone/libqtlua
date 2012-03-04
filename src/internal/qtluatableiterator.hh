@@ -44,7 +44,7 @@ class TableIterator : public Iterator
 public:
   QTLUA_REFTYPE(TableIterator);
 
-  TableIterator(State &st, const Value &table);
+  TableIterator(State *st, const Value &table);
   ~TableIterator();
 
 private:

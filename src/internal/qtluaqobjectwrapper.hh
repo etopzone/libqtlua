@@ -53,13 +53,13 @@ namespace QtLua {
 	only if it flagged as deletable and has no more
 	parent. Deletable flag is set on wrapper creation if QObject
 	has a parent. */
-    static Ref<QObjectWrapper> get_wrapper(State &st, QObject *obj);
+    static Ref<QObjectWrapper> get_wrapper(State *st, QObject *obj);
 
     /** Same as get_wrapper() but specify if QObject parent change is
 	allowed (default is true) and if QObject must be deleted when
 	no references to wrapper remains and it has no parent (default
 	is true if QObject had a parent on wrapper creation). */
-    static Ref<QObjectWrapper> get_wrapper(State &st, QObject *obj, bool reparent, bool delete_);
+    static Ref<QObjectWrapper> get_wrapper(State *st, QObject *obj, bool reparent, bool delete_);
 
     /** Specify if wrapped QObject parent change is allowed */
     inline void set_reparent(bool reparent);
@@ -74,7 +74,7 @@ namespace QtLua {
     inline bool valid() const;
 
     /** Get reference to state */
-    inline State & get_state();
+    inline State * get_state();
 
     /** Return object name, forge a decent one if empty */
     static String qobject_name(QObject &obj);
@@ -94,12 +94,12 @@ namespace QtLua {
 
     void reparent(QObject *parent);
 
-    QObjectWrapper(State &st, QObject *obj);
+    QObjectWrapper(State *st, QObject *obj);
     QObjectWrapper(const QObjectWrapper &qow);
 
-    Value meta_index(State &ls, const Value &key);
-    void meta_newindex(State &ls, const Value &key, const Value &value);
-    Ref<Iterator> new_iterator(State &ls);
+    Value meta_index(State *ls, const Value &key);
+    void meta_newindex(State *ls, const Value &key, const Value &value);
+    Ref<Iterator> new_iterator(State *ls);
     bool support(Value::Operation c) const;
 
     void completion_patch(String &path, String &entry, int &offset);
@@ -120,7 +120,7 @@ namespace QtLua {
 
     typedef QHash<int, LuaSlot> lua_slots_hash_t;
 
-    State &_ls;
+    State *_ls;
     QObject *_obj;
     lua_slots_hash_t _lua_slots;
     int _lua_next_slot;

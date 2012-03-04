@@ -33,6 +33,6 @@ int main()
 
   state.exec_statements("for key, value in each(qobject) do print(key, value) end");
 
-  state["qobject"] = QtLua::Value(state);
+  state["qobject"] = QtLua::Value(&state);
 }
 

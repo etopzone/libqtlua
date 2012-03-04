@@ -49,7 +49,7 @@ namespace QtLua {
     return _obj;
   }
 
-  State & QObjectWrapper::get_state()
+  State * QObjectWrapper::get_state()
   {
     return _ls;
   }

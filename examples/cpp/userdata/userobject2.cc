@@ -28,22 +28,22 @@ class Test : public QtLua::UserData
   QtLua::UserObject<Test> _uo;
   int _value;
 
-  QtLua::Value meta_index(QtLua::State &ls, const QtLua::Value &key)
+  QtLua::Value meta_index(QtLua::State *ls, const QtLua::Value &key)
   {
     return _uo.meta_index(ls, key);
   }
 
-  bool meta_contains(QtLua::State &ls, const QtLua::Value &key)
+  bool meta_contains(QtLua::State *ls, const QtLua::Value &key)
   {
     return _uo.meta_contains(ls, key); 
   }
 
-  void meta_newindex(QtLua::State &ls, const QtLua::Value &key, const QtLua::Value &value)
+  void meta_newindex(QtLua::State *ls, const QtLua::Value &key, const QtLua::Value &value)
   {
     return _uo.meta_newindex(ls, key, value);
   }
 
-  QtLua::Ref<QtLua::Iterator> new_iterator(QtLua::State &ls)
+  QtLua::Ref<QtLua::Iterator> new_iterator(QtLua::State *ls)
   {
     return _uo.new_iterator(ls);
   }
@@ -53,12 +53,12 @@ class Test : public QtLua::UserData
     return _uo.support(c) || QtLua::UserData::support(c);
   }
 
-  QtLua::Value lua_get_value(QtLua::State &ls)
+  QtLua::Value lua_get_value(QtLua::State *ls)
   {
     return QtLua::Value(ls, _value);
   }
 
-  void lua_set_value(QtLua::State &ls, const QtLua::Value &value)
+  void lua_set_value(QtLua::State *ls, const QtLua::Value &value)
   {
     _value = value;
   }

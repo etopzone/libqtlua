@@ -104,14 +104,14 @@ namespace QtLua {
     struct _qtlua_property_s
     {
       const char *name;		//< Lua property name
-      void (T::*set)(State &ls, const Value &value); //< Pointer to property set accesor function for lua
-      Value (T::*get)(State &ls); //< Pointer to property get accesor function for lua
+      void (T::*set)(State *ls, const Value &value); //< Pointer to property set accesor function for lua
+      Value (T::*get)(State *ls); //< Pointer to property get accesor function for lua
     };
 
-    Value meta_index(State &ls, const Value &key);
-    bool meta_contains(State &ls, const Value &key);
-    void meta_newindex(State &ls, const Value &key, const Value &value);
-    Ref<Iterator> new_iterator(State &ls);
+    Value meta_index(State *ls, const Value &key);
+    bool meta_contains(State *ls, const Value &key);
+    void meta_newindex(State *ls, const Value &key, const Value &value);
+    Ref<Iterator> new_iterator(State *ls);
     bool support(Value::Operation c) const;
 
     /**
@@ -134,7 +134,7 @@ namespace QtLua {
      * @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_GET(member)		\
-  inline QtLua::Value lua_get_##member(QtLua::State &ls)	\
+  inline QtLua::Value lua_get_##member(QtLua::State *ls)	\
   {						\
     return QtLua::Value(ls, member);		\
   }
@@ -144,7 +144,7 @@ namespace QtLua {
      * @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_SET(member)				\
-  inline void lua_set_##member(QtLua::State &ls, const QtLua::Value &value)\
+  inline void lua_set_##member(QtLua::State *ls, const QtLua::Value &value)\
   {								\
     member = value;						\
   }
@@ -163,7 +163,7 @@ namespace QtLua {
      * which relies on a regular C++ get accessor functions.  @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_F_GET(member)			\
-    inline QtLua::Value lua_get_##member(QtLua::State &ls)	\
+    inline QtLua::Value lua_get_##member(QtLua::State *ls)	\
     {								\
       return QtLua::Value(ls, get_##member());			\
     }
@@ -173,7 +173,7 @@ namespace QtLua {
      * which relies on a regular C++ set accessor functions.  @showcontent
      */
 #define QTLUA_PROPERTY_ACCESSOR_F_SET(member)				\
-    inline void lua_set_##member(QtLua::State &ls, const QtLua::Value &value) \
+    inline void lua_set_##member(QtLua::State *ls, const QtLua::Value &value) \
     {									\
       set_##member(value);						\
     }

@@ -28,7 +28,7 @@
 
 namespace QtLua {
 
-Value ListItem::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
+Value ListItem::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
 {
   switch (op)
     {
@@ -39,7 +39,7 @@ Value ListItem::meta_operation(State &ls, Value::Operation op, const Value &a, c
     }
 }
 
-void ListItem::meta_newindex(State &ls, const Value &key, const Value &value)
+void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
   
 {
   switch (value.type())
@@ -106,7 +106,7 @@ void ListItem::meta_newindex(State &ls, const Value &key, const Value &value)
     }
 };
 
-Value ListItem::meta_index(State &ls, const Value &key)
+Value ListItem::meta_index(State *ls, const Value &key)
   
 {
   Item::ptr item = get_child(key.to_string());
@@ -117,7 +117,7 @@ Value ListItem::meta_index(State &ls, const Value &key)
     return Value(ls);
 }
 
-bool ListItem::meta_contains(State &ls, const Value &key)
+bool ListItem::meta_contains(State *ls, const Value &key)
 {
   try {
     return get_child(key.to_string()).valid();
@@ -126,7 +126,7 @@ bool ListItem::meta_contains(State &ls, const Value &key)
   }
 }
 
-Iterator::ptr ListItem::new_iterator(State &ls)
+Iterator::ptr ListItem::new_iterator(State *ls)
 {
   return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
 }

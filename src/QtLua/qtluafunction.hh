@@ -77,7 +77,7 @@ namespace QtLua {
      * Example:
      * @example examples/cpp/userdata/function.cc:4
      */
-    void register_(State &ls, const String &path);
+    void register_(State *ls, const String &path);
 
     /**
      * @alias register_2
@@ -102,7 +102,7 @@ namespace QtLua {
 
   protected:
 
-    virtual Value::List meta_call(State &ls, const Value::List &args) = 0;
+    virtual Value::List meta_call(State *ls, const Value::List &args) = 0;
 
   public:
 

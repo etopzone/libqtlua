@@ -69,7 +69,7 @@ public:
   static Item::ptr get_item(const QModelIndex &index);
 
   /** Get a lua table value with selected items on given view */
-  static Value get_selection(State &ls, const QAbstractItemView &view);
+  static Value get_selection(State *ls, const QAbstractItemView &view);
 
 protected:
   /** May be reimplemented to return a new item created from mime

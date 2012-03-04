@@ -51,8 +51,8 @@ namespace QtLua {
 
 #if 0
     // FIXME handle enumerator
-    Value meta_index(State &ls, const Value &key);
-    Ref<Iterator> new_iterator(State &ls);
+    Value meta_index(State *ls, const Value &key);
+    Ref<Iterator> new_iterator(State *ls);
     bool support(Value::Operation c) const;
 #endif
 

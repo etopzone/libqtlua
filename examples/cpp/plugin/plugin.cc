@@ -24,7 +24,7 @@ void ExamplePlugin::register_members(QtLua::Plugin &plugin)
 
   static class : public QtLua::Function
   {
-    QtLua::Value::List meta_call(QtLua::State &ls, const QtLua::Value::List &args)
+    QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args)
     {
       return QtLua::Value(ls, "foo");
     }

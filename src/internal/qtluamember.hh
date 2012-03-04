@@ -60,7 +60,7 @@ namespace QtLua {
     virtual Value access(QObjectWrapper &qow);
 
   protected:
-    static Value raw_get_object(State &ls, int type, const void *data);
+    static Value raw_get_object(State *ls, int type, const void *data);
     static bool raw_set_object(int type, void *data, const Value &v);
 
     const QMetaObject *_mo;

@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
 
     QtLua::State state;
 
-    state["myobject"] = QtLua::Value(state, new MyQObject());
+    state["myobject"] = QtLua::Value(&state, new MyQObject());
 
-    state["mw"] = QtLua::Value(state, new QMainWindow());
+    state["mw"] = QtLua::Value(&state, new QMainWindow());
     state.exec_statements("myobject.mainwindow = mw");
 
     state.exec_statements("myobject.mystruct = {1, 2}");

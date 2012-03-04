@@ -46,14 +46,15 @@ int main()
     state["hash"] = proxy;
 
     // Insert a value in QHash directly
-    hash.insert(QtLua::Value(state, "key1"), QtLua::Value(state, "value"));
+    hash.insert(QtLua::Value(&state, "key1"),
+		QtLua::Value(&state, "value"));
 
     // Read/Write in QHash from lua using the proxy object
     state.exec_statements("hash.key2 = hash.key1");
 
     // Read back value in QHash inserted from lua script
-    QtLua::Value value = hash.value(QtLua::Value(state, "key2"),
-				    QtLua::Value(state));
+    QtLua::Value value = hash.value(QtLua::Value(&state, "key2"),
+				    QtLua::Value(&state));
 
     std::cout << value.to_string().constData() << std::endl;
 

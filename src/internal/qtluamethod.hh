@@ -46,7 +46,7 @@ namespace QtLua {
     Method(const QMetaObject *mo, int index);
 
   private:
-    Value::List meta_call(State &ls, const Value::List &args);
+    Value::List meta_call(State *ls, const Value::List &args);
     bool support(Value::Operation c) const;
     String get_type_name() const;
     String get_value_str() const;

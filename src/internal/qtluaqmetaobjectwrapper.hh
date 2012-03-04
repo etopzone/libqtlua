@@ -50,8 +50,8 @@ namespace QtLua {
     QMetaObjectWrapper(const QMetaObject *mo);
 
   private:
-    Value meta_index(State &ls, const Value &key);
-    Ref<Iterator> new_iterator(State &ls);
+    Value meta_index(State *ls, const Value &key);
+    Ref<Iterator> new_iterator(State *ls);
     bool support(Value::Operation c) const;
 
     void completion_patch(String &path, String &entry, int &offset);

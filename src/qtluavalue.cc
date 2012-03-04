@@ -39,6 +39,8 @@ extern "C" {
 
 namespace QtLua {
 
+double Value::_id_counter = 0;
+
 void Value::check_state() const
 {
   if (!_st)
@@ -49,7 +51,7 @@ void Value::push_value() const
 {
   check_state();
   lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, (void*)this);
+  lua_pushnumber(lst, _id);
   lua_rawget(lst, LUA_REGISTRYINDEX);  
 }
 
@@ -62,7 +64,7 @@ void Value::init_type_value(ValueType type)
 {
   check_state();
   lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, this);
+  lua_pushnumber(lst, _id);
 
   switch (type)
     {
@@ -107,7 +109,7 @@ Value & Value::operator=(Bool n)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, (void*)this);
+      lua_pushnumber(lst, _id);
       lua_pushboolean(lst, n);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
@@ -119,7 +121,7 @@ Value & Value::operator=(double n)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, (void*)this);
+      lua_pushnumber(lst, _id);
       lua_pushnumber(lst, n);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
@@ -131,7 +133,7 @@ Value & Value::operator=(const String &str)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
+      lua_pushnumber(lst, _id);
       lua_pushlstring(lst, str.constData(), str.size());
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
@@ -143,19 +145,20 @@ Value & Value::operator=(const Ref<UserData> &ud)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
+      lua_pushnumber(lst, _id);
       ud->push_ud(lst);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
   return *this;
 }
 
-Value::Value(State &ls, QObject *obj, bool delete_, bool reparent)
-  : _st(&ls)
+Value::Value(State *ls, QObject *obj, bool delete_, bool reparent)
+  : _st(ls)
+  , _id(_id_counter++)
 {
   lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, this);
-  QObjectWrapper::get_wrapper(*_st, obj, reparent, delete_)->push_ud(lst);
+  lua_pushnumber(lst, _id);
+  QObjectWrapper::get_wrapper(_st, obj, reparent, delete_)->push_ud(lst);
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
@@ -164,8 +167,8 @@ Value & Value::operator=(QObject *obj)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
-      QObjectWrapper::get_wrapper(*_st, obj)->push_ud(lst);
+      lua_pushnumber(lst, _id);
+      QObjectWrapper::get_wrapper(_st, obj)->push_ud(lst);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
   return *this;
@@ -174,7 +177,7 @@ Value & Value::operator=(QObject *obj)
 Value & Value::operator=(const QVariant &qv)
 {
   if (_st)
-    *this = Member::raw_get_object(*_st, qv.type(), qv.constData());
+    *this = Member::raw_get_object(_st, qv.type(), qv.constData());
   return *this;
 }
 
@@ -182,7 +185,7 @@ bool Value::connect(QObject *obj, const char *signal)
 {
   check_state();
   try {
-    QObjectWrapper::ptr qow = QObjectWrapper::get_wrapper(*_st, obj);
+    QObjectWrapper::ptr qow = QObjectWrapper::get_wrapper(_st, obj);
     QByteArray ns(QMetaObject::normalizedSignature(signal));
     const QMetaObject *mo = obj->metaObject();
     int sigid = mo->indexOfMethod(ns.constData());
@@ -201,7 +204,7 @@ bool Value::connect(QObject *obj, const char *signal)
 bool Value::disconnect(QObject *obj, const char *signal)
 {
   check_state();
-  QObjectWrapper::ptr qow = QObjectWrapper::get_wrapper(*_st, obj);
+  QObjectWrapper::ptr qow = QObjectWrapper::get_wrapper(_st, obj);
   QByteArray ns(QMetaObject::normalizedSignature(signal));
   const QMetaObject *mo = obj->metaObject();
   int sigid = mo->indexOfMethod(ns.constData());
@@ -252,7 +255,7 @@ Value::List Value::call (const List &args) const
       if (!ud.valid())
 	throw String("Can not call null lua::userdata value.");
 
-      return ud->meta_call(*_st, args);
+      return ud->meta_call(_st, args);
     }
 
     default:
@@ -261,7 +264,7 @@ Value::List Value::call (const List &args) const
     }
 }
 
-Value Value::operator[] (const Value &key) const
+Value Value::at(const Value &key) const
 {
   push_value();
   lua_State *lst = _st->_lst;
@@ -276,7 +279,7 @@ Value Value::operator[] (const Value &key) const
       if (!ud.valid())
 	throw String("Can not index null lua::userdata value.");
 
-      return ud->meta_index(*_st, key);
+      return ud->meta_index(_st, key);
     }
 
     case TTable: {
@@ -306,11 +309,11 @@ Ref<Iterator> Value::new_iterator() const
       if (!ud.valid())
 	throw String("Can not iterate through null lua::userdata value.");
 
-      return ud->new_iterator(*_st);
+      return ud->new_iterator(_st);
     }
 
     case TTable: {
-      Iterator::ptr it = QTLUA_REFNEW(TableIterator, *_st, *this);
+      Iterator::ptr it = QTLUA_REFNEW(TableIterator, _st, *this);
       lua_pop(lst, 1);
       return it;
     }
@@ -323,10 +326,10 @@ Ref<Iterator> Value::new_iterator() const
 
 Value & Value::operator=(const Value &lv)
 {
-  if (_st)
+  if (_st && _st != lv._st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
+      lua_pushnumber(lst, _id);
       lua_pushnil(lst);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
@@ -336,7 +339,7 @@ Value & Value::operator=(const Value &lv)
   if (_st)
     {
       lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
+      lua_pushnumber(lst, _id);
       lv.push_value();
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
@@ -346,50 +349,38 @@ Value & Value::operator=(const Value &lv)
 
 Value::Value(const Value &lv)
   : _st(lv._st)
+  , _id(_id_counter++)
 {
   if (!_st)
     return;
 
   lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, this);
+  lua_pushnumber(lst, _id);
   lv.push_value();
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
 Value::Value(const State *ls, const Value &lv)
   : _st(const_cast<State*>(ls))
+  , _id(_id_counter++)
 {
-  assert(_st == lv._st);
-
   if (!_st)
     return;
 
-  lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, this);
-  lv.push_value();
-  lua_rawset(lst, LUA_REGISTRYINDEX);
-}
-
-Value::Value(const State &ls, const Value &lv)
-  : _st(const_cast<State*>(&ls))
-{
   assert(_st == lv._st);
 
   lua_State *lst = _st->_lst;
-  lua_pushlightuserdata(lst, this);
+  lua_pushnumber(lst, _id);
   lv.push_value();
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
-Value::~Value()
+void Value::cleanup()
 {
-  if (_st)
-    {
-      lua_State *lst = _st->_lst;
-      lua_pushlightuserdata(lst, this);
-      lua_pushnil(lst);
-      lua_rawset(lst, LUA_REGISTRYINDEX);
-    }
+  lua_State *lst = _st->_lst;
+  lua_pushnumber(lst, _id);
+  lua_pushnil(lst);
+  lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
 Value::Bool Value::to_boolean() const
@@ -454,10 +445,11 @@ String Value::type_name_u() const
 
 Value::Value(int index, const State *st)
   : _st(const_cast<State*>(st))
+  , _id(_id_counter++)
 {
   lua_State *lst = _st->_lst;
 
-  lua_pushlightuserdata(lst, this);
+  lua_pushnumber(lst, _id);
   if (index < 0 && index != LUA_GLOBALSINDEX)
     index--;
   lua_pushvalue(lst, index);
@@ -706,7 +698,7 @@ int Value::len() const
     case TUserData:
       try {
 	UserData::ptr ptr = UserData::get_ud(lst, -1);
-	res = ptr->meta_operation(*_st, Value::OpLen, *this, *this).to_integer();
+	res = ptr->meta_operation(_st, Value::OpLen, *this, *this).to_integer();
 	break;
       } catch (const String &s) {
       }

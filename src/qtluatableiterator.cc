@@ -32,8 +32,8 @@ extern "C" {
 
 namespace QtLua {
   
-TableIterator::TableIterator(State &st, const Value &table)
-  : _st(&st),
+TableIterator::TableIterator(State *st, const Value &table)
+  : _st(st),
     _key(Value(st)),
     _value(Value(st)),
     _more(true)

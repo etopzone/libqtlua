@@ -37,7 +37,7 @@ int main()
       state.exec_statements("print(plugin_userdata.foo())");
 
       // load the plugin and convert the QtLua::Plugin object to lua table
-      state["plugin_table"] = QtLua::Plugin(filename).to_table(state);
+      state["plugin_table"] = QtLua::Plugin(filename).to_table(&state);
       // access the lua table and call the QtLua::Function object
       state.exec_statements("print(plugin_table.foo())");
 

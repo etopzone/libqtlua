@@ -279,7 +279,7 @@ bool ItemModel::setData(const QModelIndex & index, const QVariant & value, int r
     }
 }
 
-Value ItemModel::get_selection(State &ls, const QAbstractItemView &view)
+Value ItemModel::get_selection(State *ls, const QAbstractItemView &view)
 {
   assert(dynamic_cast<ItemModel*>(view.model()));
   QItemSelectionModel *sm = view.selectionModel();

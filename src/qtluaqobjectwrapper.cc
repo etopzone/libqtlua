@@ -36,7 +36,7 @@ namespace QtLua {
 
   static const int destroyindex = QObject::staticMetaObject.indexOfSignal("destroyed()");
 
-  QObjectWrapper::QObjectWrapper(State &ls, QObject *obj)
+  QObjectWrapper::QObjectWrapper(State *ls, QObject *obj)
     : _ls(ls),
       _obj(obj),
       _lua_next_slot(1),
@@ -51,13 +51,13 @@ namespace QtLua {
       {
 	assert_do(QMetaObject::connect(obj, destroyindex, this, metaObject()->methodCount() + 0));
 
-	ls._whash.insert(obj, this);
+	ls->_whash.insert(obj, this);
 	// increment reference count since we are bound to a qobject
 	_inc();
       }
   }
 
-  Ref<QObjectWrapper> QObjectWrapper::get_wrapper(State &ls, QObject *obj)
+  Ref<QObjectWrapper> QObjectWrapper::get_wrapper(State *ls, QObject *obj)
   {
 #ifdef QTLUA_QOBJECTWRAPPER_DEBUG
     qDebug() << "wrapper object get" << obj;
@@ -65,9 +65,9 @@ namespace QtLua {
 
     if (obj)
       {
-	wrapper_hash_t::iterator i = ls._whash.find(obj);
+	wrapper_hash_t::iterator i = ls->_whash.find(obj);
 
-	if (i != ls._whash.end())
+	if (i != ls->_whash.end())
 	  return *i.value();
       }
 
@@ -76,7 +76,7 @@ namespace QtLua {
     return qow;
   }
 
-  Ref<QObjectWrapper> QObjectWrapper::get_wrapper(State &ls, QObject *obj, bool reparent, bool delete_)
+  Ref<QObjectWrapper> QObjectWrapper::get_wrapper(State *ls, QObject *obj, bool reparent, bool delete_)
   {
     QObjectWrapper::ptr qow = get_wrapper(ls, obj);
 
@@ -93,7 +93,7 @@ namespace QtLua {
 #endif
     assert(_obj = sender());
 
-    assert_do(_ls._whash.remove(_obj));
+    assert_do(_ls->_whash.remove(_obj));
     _obj = 0;
     _drop();
   }
@@ -106,7 +106,7 @@ namespace QtLua {
 
     if (_obj)
       {
-	assert_do(_ls._whash.remove(_obj));
+	assert_do(_ls->_whash.remove(_obj));
 
 	assert_do(QMetaObject::disconnect(_obj, destroyindex, this, metaObject()->methodCount() + 0));
 
@@ -265,7 +265,7 @@ namespace QtLua {
     return 0;
   }
 
-  Value QObjectWrapper::meta_index(State &ls, const Value &key)
+  Value QObjectWrapper::meta_index(State *ls, const Value &key)
   {
     QObject &obj = get_object();
     String skey = key.to_string();
@@ -294,7 +294,7 @@ namespace QtLua {
     qobject_cast<QWidget*>(_obj)->setParent(qobject_cast<QWidget*>(parent));
   }
 
-  void QObjectWrapper::meta_newindex(State &ls, const Value &key, const Value &value)
+  void QObjectWrapper::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     QObject &obj = get_object();
     String skey = key.to_string();
@@ -326,7 +326,7 @@ namespace QtLua {
       }
   }
 
-  Ref<Iterator> QObjectWrapper::new_iterator(State &ls)
+  Ref<Iterator> QObjectWrapper::new_iterator(State *ls)
   {
     return QTLUA_REFNEW(QObjectIterator, ls, *this);
   }

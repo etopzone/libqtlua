@@ -106,7 +106,7 @@ namespace QtLua {
     const String & get_name() const;
 
     /** Convert @ref Plugin object to lua table */
-    Value to_table(State &ls) const;
+    Value to_table(State *ls) const;
 
     /** Get instance of the requested interface type. Return 0 if no
 	such interface is available in the plugin. */

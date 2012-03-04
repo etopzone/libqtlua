@@ -45,12 +45,12 @@ namespace QtLua {
   }
 
   template <class Container>
-  Ref<Iterator> QLinkedListProxy<Container>::new_iterator(State &ls)
+  Ref<Iterator> QLinkedListProxy<Container>::new_iterator(State *ls)
   {
     if (!_linkedlist)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }
 
   template <class Container>

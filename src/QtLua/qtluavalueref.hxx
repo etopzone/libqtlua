@@ -29,62 +29,87 @@
 namespace QtLua {
 
   ValueRef::ValueRef(const Value &table, const Value &key)
-    : Value(*table._st),
+    : _table(table),
       _key(key)
   {
     assert(table._st == key._st);
-    init(table);
   }
 
   template <typename T>
   ValueRef::ValueRef(const Value &table, const T &key)
-    : Value(*table._st),
-      _key(Value(*table._st))
+    : _table(table),
+      _key(Value(table._st, key))
   {
-    _key = key;
-    init(table);
   }
 
+  ValueRef::ValueRef(const ValueRef &ref)
+    : _table(ref._table),
+      _key(ref._key)
+  {
+  }
+
+#if __cplusplus >= 201103L
+  ValueRef::ValueRef(const Value &&table, const Value &key)
+    : _table(std::move(table))
+    , _key(key)
+  {
+  }
+
+  template <typename T>
+  ValueRef::ValueRef(const Value &&table, const T &key)
+    : _table(std::move(table))
+    , _key(Value(table._st, key))
+  {
+  }
+
+  ValueRef::ValueRef(const Value &&table, const Value &&key)
+    : _table(std::move(table))
+    , _key(std::move(key))
+  {
+  }
+
+  ValueRef::ValueRef(const ValueRef &&ref)
+    : _table(std::move(ref._table))
+    , _key(std::move(ref._key))
+  {
+  }
+#endif
+
+  Value ValueRef::value() const
+  {
+    return _table.at(_key);
+  }
+
+#if 0
   const ValueRef & ValueRef::operator=(const ValueRef &ref) const
   {
-    *this = static_cast<const Value &>(ref);
+    table_set(ref._table[ref._key]);
+    return *this;
+  }
+#endif
+
+  const ValueRef & ValueRef::operator=(const Value &v) const
+  {
+    table_set(v);
     return *this;
   }
 
-  const ValueRef & ValueRef::operator=(Bool n) const
+  template <typename T>
+  const ValueRef & ValueRef::operator=(T n) const
   {
-    *this = Value(*_st, n);
+    table_set(Value(_table._st, n));
     return *this;
   }
 
-  const ValueRef & ValueRef::operator=(double n) const
+  ValueRef ValueRef::operator[] (const Value &key) const
   {
-    *this = Value(*_st, n);
-    return *this;
+    return ValueRef(_table.at(_key), key);
   }
 
-  const ValueRef & ValueRef::operator=(int n) const
+  template <typename T>
+  ValueRef ValueRef::operator[] (const T &key) const
   {
-    *this = Value(*_st, (double)n);
-    return *this;
-  }
-
-  const ValueRef & ValueRef::operator=(const String &str) const
-  {
-    *this = Value(*_st, str);
-    return *this;
-  }
-
-  const ValueRef & ValueRef::operator=(const UserData::ptr &ud) const
-  {
-    *this = Value(*_st, ud);
-    return *this;
-  }
-
-  const ValueRef & ValueRef::operator=(QObject *obj) const
-  {
-    *this = Value(*_st, obj);
-    return *this;
+    return (*this)[Value(_table._st, key)];
   }
 
 }

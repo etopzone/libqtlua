@@ -145,12 +145,19 @@ public:
    * @example examples/cpp/value/global.cc:i1|i2|1
    * @alias operator_sqb1
    */
-  Value operator[] (const Value &key) const;
+  inline Value operator[] (const Value &key) const;
 
   /**
-   * Index operation on global table, shortcut for string key access
+   * Index operation on global table.
    * @see __operator_sqb1__
    */
+  Value at(const Value &key) const;
+
+  /**
+   * Index operation on global table, shortcut for string key access.
+   * @see __operator_sqb1__ @multiple
+   */
+  inline Value at(const String &key) const;
   inline Value operator[] (const String &key) const;
 
   /**
