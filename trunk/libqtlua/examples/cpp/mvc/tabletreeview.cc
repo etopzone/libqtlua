@@ -31,7 +31,7 @@ MainWindow::MainWindow()
   state->openlib(QtLua::AllLibs);
 
   // Create a new model and expose lua global table
-  model = new QtLua::TableTreeModel((*state)["_G"], QtLua::TableTreeModel::Recursive);
+  model = new QtLua::TableTreeModel(state->at("_G"), QtLua::TableTreeModel::Recursive);
 
   // Create Qt view widget
   treeview = new QTreeView(0);

@@ -33,7 +33,7 @@ namespace QtLua {
   { 
   }
 
-  Value::List Method::meta_call(State &ls, const Value::List &lua_args)
+  Value::List Method::meta_call(State *ls, const Value::List &lua_args)
   {
     if (lua_args.size() < 1)
       throw String("Can't call method without object. (use ':' instead of '.')");

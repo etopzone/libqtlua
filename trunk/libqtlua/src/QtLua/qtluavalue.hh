@@ -170,11 +170,11 @@ public:
 
     /** Create value list from @ref QList content */
     template <typename X>
-    inline List(const State &ls, const QList<X> &list);
+    inline List(const State *ls, const QList<X> &list);
 
     /** Create value list from @ref QList content */
     template <typename X>
-    inline List(const State &ls, const typename QList<X>::const_iterator &begin,
+    inline List(const State *ls, const typename QList<X>::const_iterator &begin,
 		const typename QList<X>::const_iterator &end);
 
     /** return a @ref QList with all elements converted from lua values */
@@ -185,9 +185,9 @@ public:
     static QList<X> to_qlist(const const_iterator &begin, const const_iterator &end);
 
     /** return a lua table containing all values from list */
-    inline Value to_table(const State &ls) const;
+    inline Value to_table(const State *ls) const;
     /** return a lua table containing values from list */
-    static inline Value to_table(const State &ls, const const_iterator &begin, const const_iterator &end);
+    static inline Value to_table(const State *ls, const const_iterator &begin, const const_iterator &end);
   };
 
   /** Specify lua value types. This is the same as @tt LUA_T* macros defined in lua headers */
@@ -250,41 +250,34 @@ public:
   /** Create a lua value object with no associated @ref State */
   inline Value();
 
-  /** Create a default value of the given type. Useful to create empty lua tables. */
-  inline Value(const State &ls, ValueType type);
-
   /** Create a "nil" lua value. @multiple */
-  inline Value(const State &ls);
   inline Value(const State *ls);
 
-  /** Create a boolean lua value. @multiple */
-  inline Value(const State &ls, Bool n);
+  /** Create a lua value copy. @multiple */
+  Value(const Value &lv);
+  Value(const State *ls, const Value &lv);
+#if __cplusplus >= 201103L
+  inline Value(Value &&lv);
+  inline Value(const State *ls, Value &&lv);
+#endif
+
+  /** Create a lua value. @multiple */
   inline Value(const State *ls, Bool n);
 
   /** Create a number lua value. @multiple */
-  inline Value(const State &ls, float n);
   inline Value(const State *ls, float n);
-  inline Value(const State &ls, double n);
   inline Value(const State *ls, double n);
-  inline Value(const State &ls, int n);
   inline Value(const State *ls, int n);
-  inline Value(const State &ls, unsigned int n);
   inline Value(const State *ls, unsigned int n);
 
   /** Create a string lua value. @multiple */
-  inline Value(const State &ls, const String &str);
   inline Value(const State *ls, const String &str);
-  inline Value(const State &ls, const QString &str);
   inline Value(const State *ls, const QString &str);
-  inline Value(const State &ls, const char *str);
   inline Value(const State *ls, const char *str);
 
   /**
-   * Create a lua userdata value. The value will hold a @ref Ref
-   * reference to the @ref UserData object which will be dropped later
-   * by the lua garbage collector. @multiple
+   * Create a lua userdata value.  @multiple
    */
-  inline Value(const State &ls, const Ref<UserData> &ud);
   inline Value(const State *ls, const Ref<UserData> &ud);
 
   /**
@@ -292,14 +285,12 @@ public:
    * @xsee{QObject wrapping}
    * @see __Value_qobject__
    */
-  inline Value(const State &ls, QObject *obj);
   inline Value(const State *ls, QObject *obj);
 
   /**
    * Create a lua value from a @ref QVariant object.
    * @xsee {Qt/Lua types conversion} @multiple
    */
-  inline Value(const State &ls, const QVariant &qv);
   inline Value(const State *ls, const QVariant &qv);
 
   /**
@@ -308,7 +299,10 @@ public:
    * @xsee{QObject wrapping}
    * @alias Value_qobject
    */
-  Value(State &ls, QObject *obj, bool delete_, bool reparent = true);
+  Value(State *ls, QObject *obj, bool delete_, bool reparent = true);
+
+  /** Create a new lua table */
+  static inline Value new_table(const State *ls);
 
   /**
    * Create a lua table indexed from 1 with elements from a @ref QList.
@@ -316,9 +310,9 @@ public:
    * @multiple
    */
   template <typename X>
-  inline Value(const State &ls, const QList<X> &list);
+  inline Value(const State *ls, const QList<X> &list);
   template <typename X>
-  inline Value(const State &ls, QList<X> &list);
+  inline Value(const State *ls, QList<X> &list);
 
   /**
    * Create a lua table indexed from 1 with elements from a @ref QVector.
@@ -326,16 +320,16 @@ public:
    * @multiple
    */
   template <typename X>
-  inline Value(const State &ls, const QVector<X> &vector);
+  inline Value(const State *ls, const QVector<X> &vector);
   template <typename X>
-  inline Value(const State &ls, QVector<X> &vector);
+  inline Value(const State *ls, QVector<X> &vector);
 
   /**
    * Create a lua table indexed from 1 with elements from a C array.
    * @xsee{Qt/Lua types conversion}
    */
   template <typename X>
-  inline Value(const State &ls, unsigned int size, const X *array);
+  inline Value(const State *ls, unsigned int size, const X *array);
 
   /**
    * Create a lua table with elements from @ref QHash.
@@ -343,9 +337,9 @@ public:
    * @multiple
    */
   template <typename Key, typename Val>
-  inline Value(const State &ls, const QHash<Key, Val> &hash);
+  inline Value(const State *ls, const QHash<Key, Val> &hash);
   template <typename Key, typename Val>
-  inline Value(const State &ls, QHash<Key, Val> &hash);
+  inline Value(const State *ls, QHash<Key, Val> &hash);
 
   /**
    * Create a lua table with elements from @ref QMap.
@@ -353,21 +347,18 @@ public:
    * @multiple
    */
   template <typename Key, typename Val>
-  inline Value(const State &ls, const QMap<Key, Val> &map);
+  inline Value(const State *ls, const QMap<Key, Val> &map);
   template <typename Key, typename Val>
-  inline Value(const State &ls, QMap<Key, Val> &map);
-
-  /** Create a lua value copy. @multiple */
-  Value(const State &ls, const Value &lv);
-  Value(const State *ls, const Value &lv);
-
-  Value(const Value &lv);
+  inline Value(const State *ls, QMap<Key, Val> &map);
 
   /** Remove lua value from lua state registry. */
-  virtual ~Value();
+  inline ~Value();
 
   /** Copy a lua value. */
   Value & operator=(const Value &lv);
+#if __cplusplus >= 201103L
+  inline Value & operator=(Value &&lv);
+#endif
 
   /** Assign a boolean to lua value. */
   Value & operator=(Bool n);
@@ -383,7 +374,11 @@ public:
   inline Value & operator=(const QString &str);
   inline Value & operator=(const char *str);
 
-  /** Assign a userdata to lua value. */
+  /** 
+   * Assign a userdata to lua value. The value will hold a @ref Ref
+   * reference to the @ref UserData object which will be dropped later
+   * by the lua garbage collector.
+   */
   Value & operator=(const Ref<UserData> &ud);
 
   /**
@@ -408,20 +403,20 @@ public:
   inline List operator() (const Value &arg1, const Value &arg2, const Value &arg3, const Value &arg4, const Value &arg5) const;
   inline List operator() (const Value &arg1, const Value &arg2, const Value &arg3, const Value &arg4, const Value &arg5, const Value &arg6) const;
 
+  Value at(const Value &key) const;
+  template <typename T>
+  inline Value at(const T &key) const;
+
   /** Index operation on a lua userdata or lua table value. @multiple */
-  Value operator[] (const Value &key) const;
-  inline Value operator[] (const String &key) const;
-  inline Value operator[] (const char *key) const;
-  inline Value operator[] (double key) const;
-  inline Value operator[] (int key) const;
-  inline Value operator[] (unsigned int key) const;
+  inline Value operator[] (const Value &key) const;
+
+  template <typename T>
+  inline Value operator[] (const T &key) const;
 
   inline ValueRef operator[] (const Value &key);
-  inline ValueRef operator[] (const String &key);
-  inline ValueRef operator[] (const char *key);
-  inline ValueRef operator[] (double key);
-  inline ValueRef operator[] (int key);
-  inline ValueRef operator[] (unsigned int key);
+
+  template <typename T>
+  inline ValueRef operator[] (const T &key);
 
   /** Get an @ref iterator to traverse a lua userdata or lua table value. @multiple */
   inline iterator begin();
@@ -622,18 +617,27 @@ public:
 
 private:
   template <typename HashContainer>
-  inline void from_hash(const State &ls, const HashContainer &hash);
+  inline void from_hash(const State *ls, const HashContainer &hash);
+
   template <typename HashContainer>
-  inline void from_hash(const State &ls, HashContainer &hash);
+  inline void from_hash(const State *ls, HashContainer &hash);
+
   template <typename HashContainer>
   HashContainer to_hash() const;
+
   template <typename ListContainer>
-  inline void from_list(const State &ls, const ListContainer &list);
+  inline void from_list(const State *ls, const ListContainer &list);
+
   template <typename ListContainer>
   ListContainer to_list() const;
 
+  inline Value(ValueType type, const State *ls);
+
   /** push value on lua stack. */
-  virtual void push_value() const;
+  void push_value() const;
+
+  /** set value to nil in registry, _st must not be NULL */
+  void cleanup();
 
   static String to_string_p(lua_State *st, int index, bool quote_string);
 
@@ -650,6 +654,8 @@ private:
   static int empty_fcn(lua_State *st);
 
   QPointer<State> _st;
+  double _id;
+  static double _id_counter;
 };
 
 }

@@ -35,150 +35,126 @@ namespace QtLua {
 
   Value::Value()
     : _st(0)
-  {
-  }
-
-  Value::Value(const State &ls)
-    : _st(const_cast<State*>(&ls))
+    , _id(_id_counter++)
   {
   }
 
   Value::Value(const State *ls)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
-  }
-
-  Value::Value(const State &ls, Bool n)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = n;
   }
 
   Value::Value(const State *ls, Bool n)
     : _st(const_cast<State*>(ls))
-  {
-    *this = n;
-  }
-
-  Value::Value(const State &ls, float n)
-    : _st(const_cast<State*>(&ls))
+    , _id(_id_counter++)
   {
     *this = n;
   }
 
   Value::Value(const State *ls, float n)
     : _st(const_cast<State*>(ls))
-  {
-    *this = n;
-  }
-
-  Value::Value(const State &ls, double n)
-    : _st(const_cast<State*>(&ls))
+    , _id(_id_counter++)
   {
     *this = n;
   }
 
   Value::Value(const State *ls, double n)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = n;
   }
 
-  Value::Value(const State &ls, int n)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = (double)n;
-  }
-
   Value::Value(const State *ls, int n)
     : _st(const_cast<State*>(ls))
-  {
-    *this = (double)n;
-  }
-
-  Value::Value(const State &ls, unsigned int n)
-    : _st(const_cast<State*>(&ls))
+    , _id(_id_counter++)
   {
     *this = (double)n;
   }
 
   Value::Value(const State *ls, unsigned int n)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = (double)n;
   }
 
-  Value::Value(const State &ls, const String &str)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = str;
-  }
-
   Value::Value(const State *ls, const String &str)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = str;
-  }
-
-  Value::Value(const State &ls, const QString &str)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = String(str);
   }
 
   Value::Value(const State *ls, const QString &str)
     : _st(const_cast<State*>(ls))
-  {
-    *this = String(str);
-  }
-
-  Value::Value(const State &ls, const char *str)
-    : _st(const_cast<State*>(&ls))
+    , _id(_id_counter++)
   {
     *this = String(str);
   }
 
   Value::Value(const State *ls, const char *str)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = String(str);
   }
 
-  Value::Value(const State &ls, const Ref<UserData> &item)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = item;
-  }
-
   Value::Value(const State *ls, const Ref<UserData> &item)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = item;
-  }
-
-  Value::Value(const State &ls, QObject *obj)
-    : _st(const_cast<State*>(&ls))
-  {
-    *this = obj;
   }
 
   Value::Value(const State *ls, QObject *obj)
     : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = obj;
   }
 
-  Value::Value(const State &ls, const QVariant &qv)
-    : _st(const_cast<State*>(&ls))
+  Value::Value(const State *ls, const QVariant &qv)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     *this = qv;
   }
 
-  Value::Value(const State *ls, const QVariant &qv)
-    : _st(const_cast<State*>(ls))
+  Value::~Value()
   {
-    *this = qv;
+    if (_st)
+      cleanup();
   }
+
+#if __cplusplus >= 201103L
+  Value::Value(Value &&lv)
+    : _st(lv._st)
+    , _id(lv._id)
+  {
+    lv._st = 0;
+  }
+
+  Value::Value(const State *ls, Value &&lv)
+    : _st(const_cast<State*>(ls))
+    , _id(lv._id)
+  {
+    assert(lv._st == ls);
+    lv._st = 0;
+  }
+
+  Value & Value::operator=(Value &&lv)
+  {
+    if (_st)
+      cleanup();    
+    _st = lv._st;
+    _id = lv._id;
+    lv._st = 0;
+
+    return *this;
+  }
+#endif
 
   Value & Value::operator=(int n)
   {
@@ -210,16 +186,22 @@ namespace QtLua {
     return *this;
   }
 
-  Value::Value(const State &ls, ValueType type)
-    : _st(const_cast<State*>(&ls))
+  Value Value::new_table(const State *ls)
+  {
+    return Value(TTable, ls);
+  }
+
+  Value::Value(ValueType type, const State *ls)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     init_type_value(type);
   }
 
   template <typename ListContainer>
-  inline void Value::from_list(const State &ls, const ListContainer &list)
+  inline void Value::from_list(const State *ls, const ListContainer &list)
   {
-    *this = Value(ls, TTable);
+    *this = Value(TTable, ls);
     for (int i = 0; i < list.size(); i++)
       (*this)[i+1] = list.at(i);
   }
@@ -241,15 +223,17 @@ namespace QtLua {
   }
 
   template <typename X>
-  inline Value::Value(const State &ls, const QList<X> &list)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, const QList<X> &list)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_list<const QList<X> >(ls, list);
   }
 
   template <typename X>
-  inline Value::Value(const State &ls, QList<X> &list)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, QList<X> &list)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_list<QList<X> >(ls, list);
   }
@@ -267,15 +251,17 @@ namespace QtLua {
   }
 
   template <typename X>
-  inline Value::Value(const State &ls, const QVector<X> &vector)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, const QVector<X> &vector)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_list<const QVector<X> >(ls, vector);
   }
 
   template <typename X>
-  inline Value::Value(const State &ls, QVector<X> &vector)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, QVector<X> &vector)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_list<QVector<X> >(ls, vector);
   }
@@ -293,26 +279,27 @@ namespace QtLua {
   }
 
   template <typename X>
-  inline Value::Value(const State &ls, unsigned int size, const X *array)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, unsigned int size, const X *array)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
-    *this = Value(ls, TTable);
+    *this = Value(TTable, ls);
     for (unsigned int i = 0; i < size; i++)
       (*this)[i+1] = array[i];
   }
 
   template <typename HashContainer>
-  inline void Value::from_hash(const State &ls, const HashContainer &hash)
+  inline void Value::from_hash(const State *ls, const HashContainer &hash)
   {
-    *this = Value(ls, TTable);
+    *this = Value(TTable, ls);
     for (typename HashContainer::const_iterator i = hash.begin(); i != hash.end(); i++)
       (*this)[i.key()] = Value(ls, i.value());
   }
 
   template <typename HashContainer>
-  inline void Value::from_hash(const State &ls, HashContainer &hash)
+  inline void Value::from_hash(const State *ls, HashContainer &hash)
   {
-    *this = Value(ls, TTable);
+    *this = Value(TTable, ls);
     for (typename HashContainer::iterator i = hash.begin(); i != hash.end(); i++)
       (*this)[i.key()] = Value(ls, i.value());
   }
@@ -327,29 +314,33 @@ namespace QtLua {
   }
 
   template <typename Key, typename Val>
-  inline Value::Value(const State &ls, const QHash<Key, Val> &hash)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, const QHash<Key, Val> &hash)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_hash<const QHash<Key, Val> >(ls, hash);
   }
 
   template <typename Key, typename Val>
-  inline Value::Value(const State &ls, const QMap<Key, Val> &map)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, const QMap<Key, Val> &map)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_hash<const QMap<Key, Val> >(ls, map);
   }
 
   template <typename Key, typename Val>
-  inline Value::Value(const State &ls, QHash<Key, Val> &hash)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, QHash<Key, Val> &hash)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_hash<QHash<Key, Val> >(ls, hash);
   }
 
   template <typename Key, typename Val>
-  inline Value::Value(const State &ls, QMap<Key, Val> &map)
-    : _st(const_cast<State*>(&ls))
+  inline Value::Value(const State *ls, QMap<Key, Val> &map)
+    : _st(const_cast<State*>(ls))
+    , _id(_id_counter++)
   {
     from_hash<QMap<Key, Val> >(ls, map);
   }
@@ -434,7 +425,7 @@ namespace QtLua {
   }
 
   template <typename X>
-  Value::List::List(const State &ls, const typename QList<X>::const_iterator &begin,
+  Value::List::List(const State *ls, const typename QList<X>::const_iterator &begin,
 		    const typename QList<X>::const_iterator &end)
   {
     for (typename QList<X>::const_iterator i = begin; i != end; i++)
@@ -442,7 +433,7 @@ namespace QtLua {
   }
 
   template <typename X>
-  Value::List::List(const State &ls, const QList<X> &list)
+  Value::List::List(const State *ls, const QList<X> &list)
   {
     foreach(const X &i, list)
       push_back(Value(ls, i));
@@ -464,16 +455,16 @@ namespace QtLua {
   }
 
   /** return a lua table containing values from list */
-  Value Value::List::to_table(const State &ls, const const_iterator &begin, const const_iterator &end)
+  Value Value::List::to_table(const State *ls, const const_iterator &begin, const const_iterator &end)
   {
-    Value res(ls, TTable);
+    Value res(TTable, ls);
     int j = 1;
     for (const_iterator i = begin; i != end; i++)
       res[j++] = *i;
     return res;
   }
 
-  Value Value::List::to_table(const State &ls) const
+  Value Value::List::to_table(const State *ls) const
   {
     return to_table(ls, constBegin(), constEnd());
   }
@@ -516,14 +507,6 @@ namespace QtLua {
   {
     *this << v1 << v2 << v3 << v4 << v5 << v6;
   }
-
-#if 0
-  Value::List::operator const Value & () const
-  {
-    assert(!isEmpty());
-    return first();
-  }
-#endif
 
   Value::List Value::operator() () const
   {
@@ -575,30 +558,21 @@ namespace QtLua {
     return this->call(args);
   }
 
-  Value Value::operator[] (const String &key) const
+  template <typename T>
+  Value Value::at(const T &key) const
   {
-    return (*this)[Value(*_st, key)];
+    return at(Value(_st, key));
   }
 
-  Value Value::operator[] (const char *key) const
+  Value Value::operator[](const Value &key) const
   {
-    assert(key);
-    return (*this)[String(key)];
+    return at(key);
   }
 
-  Value Value::operator[] (double key) const
+  template <typename T>
+  Value Value::operator[] (const T &key) const
   {
-    return (*this)[Value(*_st, key)];
-  }
-
-  Value Value::operator[] (int key) const
-  {
-    return (*this)[(double)key];
-  }
-
-  Value Value::operator[] (unsigned int key) const
-  {
-    return (*this)[(double)key];
+    return at(Value(_st, key));
   }
 
   ValueRef Value::operator[] (const Value &key)
@@ -606,30 +580,10 @@ namespace QtLua {
     return ValueRef(*this, key);
   }
 
-  ValueRef Value::operator[] (const String &key)
+  template <typename T>
+  ValueRef Value::operator[] (const T &key)
   {
-    return (*this)[Value(*_st, key)];
-  }
-
-  ValueRef Value::operator[] (const char *key)
-  {
-    assert(key);
-    return (*this)[String(key)];
-  }
-
-  ValueRef Value::operator[] (double key)
-  {
-    return (*this)[Value(*_st, (double)key)];
-  }
-
-  ValueRef Value::operator[] (int key)
-  {
-    return (*this)[(double)key];
-  }
-
-  ValueRef Value::operator[] (unsigned int key)
-  {
-    return (*this)[(double)key];
+    return (*this)[Value(_st, key)];
   }
 
   inline int Value::to_integer() const

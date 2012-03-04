@@ -35,10 +35,10 @@ int main(int argc, char *argv[])
   state["dialog1"] = qd;
 
   // Explicitly take ownership of new QDialog
-  state["dialog2"] = QtLua::Value(state, new QDialog(), true);
+  state["dialog2"] = QtLua::Value(&state, new QDialog(), true);
 
   // Reuse same wrapper as dialog1 and explicitly leave ownership
-  state["dialog3"] = QtLua::Value(state, qd, false);
+  state["dialog3"] = QtLua::Value(&state, qd, false);
 
   // Invoke QDialog show() methods from lua
   state.exec_statements("dialog1:show(); dialog2:show();");

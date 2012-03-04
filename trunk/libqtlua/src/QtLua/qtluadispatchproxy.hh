@@ -93,7 +93,7 @@ public:
    * the operation and had associated operations enabled when
    * registered with the @ref add_target function.
    */
-  Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
+  Value meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b);
 
   /** 
    * This function handles the @ref Value::OpIndex operation by
@@ -101,7 +101,7 @@ public:
    * {support} this operation and had this operation enabled when
    * registered with the @ref add_target function.
    */
-  Value meta_index(State &ls, const Value &key);
+  Value meta_index(State *ls, const Value &key);
 
   /**
    * This function handles the @ref Value::OpNewindex operation by
@@ -119,7 +119,7 @@ public:
    * this operation enabled when registered, an exception is throw
    * to avoid shadowing before the call to @ref meta_newindex is forwarded.
    */
-  void meta_newindex(State &ls, const Value &key, const Value &value);
+  void meta_newindex(State *ls, const Value &key, const Value &value);
 
   /** 
    * This function queries all registered object which @ref
@@ -127,7 +127,7 @@ public:
    * Value::OpNewindex operations and had one of these operations
    * enabled when registered with the @ref add_target function.
    */
-  bool meta_contains(State &ls, const Value &key);
+  bool meta_contains(State *ls, const Value &key);
 
   /** 
    * This function handles the @ref Value::OpCall operation by relying
@@ -135,7 +135,7 @@ public:
    * {supports} this operation and had this operation enabled when
    * registered with the @ref add_target function.
    */
-  Value::List meta_call(State &ls, const Value::List &args);
+  Value::List meta_call(State *ls, const Value::List &args);
 
   /**
    * This function handles the @ref Value::OpIterate operation by
@@ -145,7 +145,7 @@ public:
    * underlying objects are created in registration order to expose
    * all entries.
    */
-  Ref<Iterator> new_iterator(State &ls);
+  Ref<Iterator> new_iterator(State *ls);
 
   /**
    * This function check if one of the underlying objects can handle
@@ -160,12 +160,12 @@ private:
   {
     inline TargetBase(UserData *ud, Value::Operations ops, bool new_keys);
 
-    virtual Value _meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b) const = 0;
-    virtual Value _meta_index(State &ls, const Value &key) const = 0;
-    virtual bool _meta_contains(State &ls, const Value &key) const = 0;
-    virtual void _meta_newindex(State &ls, const Value &key, const Value &value) const = 0;
-    virtual Value::List _meta_call(State &ls, const Value::List &args) const = 0;
-    virtual Ref<Iterator> _new_iterator(State &ls) const = 0;
+    virtual Value _meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b) const = 0;
+    virtual Value _meta_index(State *ls, const Value &key) const = 0;
+    virtual bool _meta_contains(State *ls, const Value &key) const = 0;
+    virtual void _meta_newindex(State *ls, const Value &key, const Value &value) const = 0;
+    virtual Value::List _meta_call(State *ls, const Value::List &args) const = 0;
+    virtual Ref<Iterator> _new_iterator(State *ls) const = 0;
     virtual bool _support(enum Value::Operation c) const = 0;
 
     UserData *        _ud;
@@ -179,17 +179,17 @@ private:
     inline Target(UserData *ud, Value::Operations ops, bool new_keys);
 
     /** @override */
-    Value _meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b) const;
+    Value _meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b) const;
     /** @override */
-    Value _meta_index(State &ls, const Value &key) const;
+    Value _meta_index(State *ls, const Value &key) const;
     /** @override */
-    bool _meta_contains(State &ls, const Value &key) const;
+    bool _meta_contains(State *ls, const Value &key) const;
     /** @override */
-    void _meta_newindex(State &ls, const Value &key, const Value &value) const;
+    void _meta_newindex(State *ls, const Value &key, const Value &value) const;
     /** @override */
-    Value::List _meta_call(State &ls, const Value::List &args) const;
+    Value::List _meta_call(State *ls, const Value::List &args) const;
     /** @override */
-    Ref<Iterator> _new_iterator(State &ls) const;
+    Ref<Iterator> _new_iterator(State *ls) const;
     /** @override */
     bool _support(enum Value::Operation c) const;
   };
@@ -198,7 +198,7 @@ private:
   {
     friend class DispatchProxy;
 
-    inline ProxyIterator(State &ls, const DispatchProxy &dp);
+    inline ProxyIterator(State *ls, const DispatchProxy &dp);
 
     bool _more();
     bool more() const;

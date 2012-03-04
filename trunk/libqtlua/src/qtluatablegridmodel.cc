@@ -88,18 +88,18 @@ namespace QtLua {
   {
     check_state();
 
-    Value first(*_st);
+    Value first(_st);
 
     try {
       if (_attr & NumKeysRows)
 	{
-	  first = _table[1];
+	  first = _table.at(1);
 	}
       else
 	{
 	  if (_row_keys.empty())
 	    return;
-	  first = _table[_row_keys[0]];
+	  first = _table.at(_row_keys[0]);
 	}
 
       if (_attr & NumKeysCols)
@@ -147,7 +147,7 @@ namespace QtLua {
     check_state();
 
     _attr &= ~NumKeysRows;
-    _row_keys.push_back(Value(*_st, k));
+    _row_keys.push_back(Value(_st, k));
   }
 
   void TableGridModel::add_column_key(const Value &k)
@@ -163,7 +163,7 @@ namespace QtLua {
     check_state();
 
     _attr &= ~NumKeysCols;
-    _col_keys.push_back(Value(*_st, k));
+    _col_keys.push_back(Value(_st, k));
   }
 
   QModelIndex TableGridModel::index(int row, int column, const QModelIndex &parent) const
@@ -245,9 +245,9 @@ namespace QtLua {
 	  goto bound_err;
 
 	if (_attr & NumKeysCols)
-	  return ValueRef(_table[row + 1], col + 1);
+	  return ValueRef(_table.at(row + 1), col + 1);
 	else
-	  return ValueRef(_table[row + 1], _col_keys[col]);
+	  return ValueRef(_table.at(row + 1), _col_keys[col]);
       }
     else
       {
@@ -255,9 +255,9 @@ namespace QtLua {
 	  goto bound_err;
 
 	if (_attr & NumKeysCols)
-	  return ValueRef(_table[_row_keys[row]], col + 1);
+	  return ValueRef(_table.at(_row_keys[row]), col + 1);
 	else
-	  return ValueRef(_table[_row_keys[row]], _col_keys[col]);
+	  return ValueRef(_table.at(_row_keys[row]), _col_keys[col]);
       }
 
   bound_err:
@@ -273,7 +273,8 @@ namespace QtLua {
       {
       case Qt::DisplayRole:
 	try {
-	  return QVariant(get_value_ref(index).to_string_p(!(_attr & UnquoteValues)));
+	  return QVariant(get_value_ref(index).value()
+			  .to_string_p(!(_attr & UnquoteValues)));
 	} catch (const String &e) {
 	  return QVariant();	  
 	}
@@ -285,7 +286,7 @@ namespace QtLua {
 
   bool TableGridModel::set_value_ref(const ValueRef &ref, const QByteArray &input)
   {
-    Value::ValueType oldtype = ref.type();
+    Value::ValueType oldtype = ref.value().type();
 
     try {
       Value newvalue(_st->eval_expr(_attr & EditLuaEval, input));
@@ -481,17 +482,17 @@ namespace QtLua {
 
 	// shift all tail rows
 	for (i = row + 1; i <= _num_row_count - count; i++)
-	  QTLUA_PROTECT(_table[i] = _table[i + count]);
+	  QTLUA_PROTECT(_table[i] = _table.at(i + count));
 
 	// remove tail keys
 	for (; i <= _num_row_count; i++)
-	  QTLUA_PROTECT(_table[i] = Value(*_st));
+	  QTLUA_PROTECT(_table[i] = Value(_st));
 
 	_num_row_count -= count;
       }
     else
       {
-	QTLUA_PROTECT(_table[_row_keys[row]] = Value(*_st));
+	QTLUA_PROTECT(_table[_row_keys[row]] = Value(_st));
 	_row_keys.removeAt(row);
       }
 
@@ -503,7 +504,7 @@ namespace QtLua {
     return true;
   }
 
-  Value TableGridModel::new_row_table(State &st) const
+  Value TableGridModel::new_row_table(State *st) const
   {
     return Value(st, Value::TTable);
   }
@@ -525,11 +526,11 @@ namespace QtLua {
       {
 	// shift all tail rows
 	for (int i = _num_row_count; i > row; i--)
-	  QTLUA_PROTECT(_table[i + count] = _table[i]);
+	  QTLUA_PROTECT(_table[i + count] = _table.at(i));
 
 	// add new nested tables for rows
 	for (int i = row + 1; i <= row + count; i++)
-	  QTLUA_PROTECT(_table[i] = new_row_table(*_st));
+	  QTLUA_PROTECT(_table[i] = new_row_table(_st));
 
 	_num_row_count += count;
       }
@@ -541,12 +542,12 @@ namespace QtLua {
 
 	    // find nil key
 	    QTLUA_PROTECT(
-			  for (; !_table[k].is_nil(); k++)
+			  for (; !_table.at(k).is_nil(); k++)
 			    ;
 			  );
 
-	    _row_keys.insert(row + i, Value(*_st, k));
-	    QTLUA_PROTECT(_table[k] = new_row_table(*_st));
+	    _row_keys.insert(row + i, Value(_st, k));
+	    QTLUA_PROTECT(_table[k] = new_row_table(_st));
 	  }
       }
 

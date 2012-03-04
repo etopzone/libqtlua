@@ -45,9 +45,9 @@ String Function::get_description() const
   return "";
 }
 
-void Function::register_(State &ls, const String &path)
+void Function::register_(State *ls, const String &path)
 {
-  ls.set_global(path, Value(ls, *this));
+  ls->set_global(path, Value(ls, *this));
 }
 
 void Function::register_(Plugin &plugin, const String &name)

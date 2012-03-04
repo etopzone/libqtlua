@@ -65,7 +65,7 @@ namespace QtLua {
 
   static int ud_ref_type = qRegisterMetaType<Ref<UserData> >("Ref<UserData>");
 
-  Value Member::raw_get_object(State &ls, int type, const void *data)
+  Value Member::raw_get_object(State *ls, int type, const void *data)
   {
     switch (type)
       {

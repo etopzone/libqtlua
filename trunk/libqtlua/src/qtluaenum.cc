@@ -31,12 +31,12 @@ namespace QtLua {
   { 
   }
 
-  Value Enum::meta_index(State &ls, const Value &key)
+  Value Enum::meta_index(State *ls, const Value &key)
   {
     return Value(ls, _mo->enumerator(_index).keyToValue(key.to_string().constData()));
   }
 
-  Ref<Iterator> Enum::new_iterator(State &ls)
+  Ref<Iterator> Enum::new_iterator(State *ls)
   {
     return QTLUA_REFNEW(EnumIterator, ls, _mo->enumerator(_index));
   }

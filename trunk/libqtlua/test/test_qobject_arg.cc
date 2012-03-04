@@ -31,16 +31,16 @@ int main()
 
     ls.exec_statements("function f(obj, ud) v = ud; end");
 
-    ASSERT(ls["f"].connect(myobj, "ud_arg(Ref<UserData>)"));
+    ASSERT(ls.at("f").connect(myobj, "ud_arg(Ref<UserData>)"));
 
-    ASSERT(ls["v"].type() == Value::TNil);
+    ASSERT(ls.at("v").type() == Value::TNil);
 
     myobj->send(QTLUA_REFNEW(MyData, 18));
 
-    ASSERT(ls["v"].type() == Value::TUserData);
-    ASSERT(ls["v"][0].to_number() == 18);
+    ASSERT(ls.at("v").type() == Value::TUserData);
+    ASSERT(ls.at("v").at(0).to_number() == 18);
 
-    ASSERT(ls["f"].disconnect(myobj, "ud_arg(Ref<UserData>)"));
+    ASSERT(ls.at("f").disconnect(myobj, "ud_arg(Ref<UserData>)"));
 
     ls["o"] = myobj;
 
@@ -56,16 +56,16 @@ int main()
 
     ls.exec_statements("function f(obj, qo) v = qo; end");
 
-    ASSERT(ls["f"].connect(myobj, "qo_arg(QObject*)"));
+    ASSERT(ls.at("f").connect(myobj, "qo_arg(QObject*)"));
 
-    ASSERT(ls["v"].type() == Value::TNil);
+    ASSERT(ls.at("v").type() == Value::TNil);
 
     QObject *qo = new QObject();
     qo->setObjectName("qo");
     myobj->send(qo);
 
-    ASSERT(ls["v"].type() == Value::TUserData);
-    ASSERT(ls["v"]["objectName"].to_string() == "qo");
+    ASSERT(ls.at("v").type() == Value::TUserData);
+    ASSERT(ls.at("v").at("objectName").to_string() == "qo");
 
     //    ASSERT(ls["f"].disconnect(myobj, "qo_arg(Ref<UserData>)"));
 

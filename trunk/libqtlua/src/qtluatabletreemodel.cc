@@ -157,7 +157,7 @@ namespace QtLua {
     check_state();
 
     if (!index.isValid())
-      return Value(*_st);
+      return Value(_st);
 
     TableTreeKeys *t = static_cast<TableTreeKeys*>(index.internalPointer());
 
@@ -168,7 +168,7 @@ namespace QtLua {
       case ColValue:
 	return t->get_value(index.row());
       default:
-	return Value(*_st);
+	return Value(_st);
       }
   }
 
@@ -265,11 +265,11 @@ namespace QtLua {
 	  if (newvalue.is_nil())
 	    throw String("Entry key can not be a nil value.");
 
-	  if (!t->_value[newvalue].is_nil())
+	  if (!t->_value.at(newvalue).is_nil())
 	    throw String("An entry with the same key already exists.");
 
 	  Value old = t->get_value(index.row());
-	  t->set_value(index.row(), Value(*_st));
+	  t->set_value(index.row(), Value(_st));
 	  t->set_key(index.row(), newvalue);
 	  t->set_value(index.row(), old);
 	  return true;
@@ -303,7 +303,7 @@ namespace QtLua {
     // set lua table to nil and delete nested tables
     for (int i = row; i < row + count; i++)
       {
-	QTLUA_PROTECT(t->set_value(i, Value(*_st)));
+	QTLUA_PROTECT(t->set_value(i, Value(_st)));
 
 	if (TableTreeKeys *c = t->_entries[i]._table)
 	  delete c;
@@ -337,7 +337,7 @@ namespace QtLua {
     beginInsertRows(parent, row, row + count - 1);
 
     for (int i = 0; i < count; i++)
-      t->_entries.insert(row, TableTreeKeys::Entry(Value(*_st)));
+      t->_entries.insert(row, TableTreeKeys::Entry(Value(_st)));
 
     for (int i = row + count; i < (int)t->count(); i++)
       if (TableTreeKeys *c = t->_entries[i]._table)

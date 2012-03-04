@@ -45,7 +45,7 @@ MainWindow::MainWindow()
 
   static class Fcn : public QtLua::Function
   {
-    QtLua::Value::List meta_call(QtLua::State &ls, const QtLua::Value::List &args)
+    QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args)
     {
       // This function excepts at least 1 Number argument 
       meta_call_check_args(args, 1, 0, QtLua::Value::TNumber);
@@ -65,7 +65,7 @@ MainWindow::MainWindow()
 
   } fcn;
 
-  fcn.register_(*state, "fcn");
+  fcn.register_(state, "fcn");
 
 }
 

@@ -50,7 +50,7 @@ Plugin::Loader::~Loader()
   unload();
 }
 
-Value Plugin::to_table(State &ls) const
+Value Plugin::to_table(State *ls) const
 {
   return Value(ls, _map);
 }

@@ -41,7 +41,7 @@ namespace QtLua {
    * @ref Value::iterator classes to allow modification of lua tables with
    * the C++ square bracket operator functions.
    */
-  class ValueRef : public Value
+  class ValueRef
   {
     friend class Value;
     friend class State;
@@ -49,33 +49,45 @@ namespace QtLua {
   public:
     /** Construct reference with given table and key. */
     inline ValueRef(const Value &table, const Value &key);
+
     /** Construct reference with given table and key. */
     template <typename T>
     inline ValueRef(const Value &table, const T &key);
 
-    ValueRef(const ValueRef &ref);
+    inline ValueRef(const ValueRef &ref);
 
-    /** Assign new value to referenced value. */
-    const ValueRef & operator=(const Value &v) const;
-    /** Assign new value to referenced value. */
-    inline const ValueRef & operator=(const ValueRef &v) const;
-    /** Assign new boolean to referenced value. */
-    inline const ValueRef & operator=(Bool n) const;
-    /** Assign new number to referenced value. */
-    inline const ValueRef & operator=(double n) const;
-    /** Assign new number to referenced value. */
-    inline const ValueRef & operator=(int n) const;
-    /** Assign new string to referenced value. */
-    inline const ValueRef & operator=(const String &str) const;
-    /** Assign new user data to referenced value. */
-    inline const ValueRef & operator=(const Ref<UserData> &ud) const;
-    /** Assign a wrapped QObject to reference. */
-    inline const ValueRef & operator=(QObject *obj) const;
+#if __cplusplus >= 201103L
+    /** Construct reference with given table and key. */
+    inline ValueRef(const Value &&table, const Value &key);
+
+    /** Construct reference with given table and key. */
+    template <typename T>
+    inline ValueRef(const Value &&table, const T &key);
+
+    /** Construct reference with given table and key. */
+    inline ValueRef(const Value &&table, const Value &&key);
+
+    inline ValueRef(const ValueRef &&ref);
+#endif
+
+    inline Value value() const;
+
+    /** Assign new value to referenced value. @multiple */
+    inline const ValueRef & operator=(const Value &v) const;
+
+    template <typename T>
+    inline const ValueRef & operator=(T n) const;
+
+    inline ValueRef operator[] (const Value &key) const;
+
+    template <typename T>
+    inline ValueRef operator[] (const T &key) const;
 
   private:
-    void init(const Value &table);
-    void push_value() const;
+    inline const ValueRef & operator=(const ValueRef &v) const;
+    void table_set(const Value &v) const;
 
+    Value _table;
     Value _key;
   };
 

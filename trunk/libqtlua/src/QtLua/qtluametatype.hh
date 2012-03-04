@@ -94,7 +94,7 @@ namespace QtLua {
 
     /** This function must be implemented to converts a C++ value to a
 	lua value. */
-    virtual Value qt2lua(State &ls, const X *qtvalue) = 0;
+    virtual Value qt2lua(State *ls, const X *qtvalue) = 0;
 
     /** This function must be implemented to converts a lua value to a
 	C++ value.  @return true on success. */
@@ -110,7 +110,7 @@ namespace QtLua {
       name()							\
 	: QtLua::MetaType<typename_>(#typename_) {}		\
 								\
-      inline QtLua::Value qt2lua(QtLua::State &ls,		\
+      inline QtLua::Value qt2lua(QtLua::State *ls,		\
 				 typename_ const * qtvalue);	\
       inline bool lua2qt(typename_ *qtvalue,			\
 			 const QtLua::Value &luavalue);		\
@@ -125,7 +125,7 @@ namespace QtLua {
       name()							\
 	: QtLua::MetaType<typename_>((int)typeid_) {}		\
 								\
-      inline QtLua::Value qt2lua(QtLua::State &ls,		\
+      inline QtLua::Value qt2lua(QtLua::State *ls,		\
 				 typename_ const * qtvalue);	\
       inline bool lua2qt(typename_ *qtvalue,			\
 			 const QtLua::Value &luavalue);		\
@@ -158,7 +158,7 @@ namespace QtLua {
     }
 
   private:
-    inline QtLua::Value qt2lua(QtLua::State &ls, X* const * qtvalue);
+    inline QtLua::Value qt2lua(QtLua::State *ls, X* const * qtvalue);
     inline bool lua2qt(X** qtvalue, const QtLua::Value &luavalue);
   };
 

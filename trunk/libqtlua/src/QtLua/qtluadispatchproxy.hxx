@@ -68,37 +68,37 @@ namespace QtLua {
   }
 
   template <class T>
-  Value DispatchProxy::Target<T>::_meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b) const
+  Value DispatchProxy::Target<T>::_meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b) const
   {
     return static_cast<T*>(_ud)->T::meta_operation(ls, op, a, b);
   }
 
   template <class T>
-  Value DispatchProxy::Target<T>::_meta_index(State &ls, const Value &key) const
+  Value DispatchProxy::Target<T>::_meta_index(State *ls, const Value &key) const
   {
     return static_cast<T*>(_ud)->T::meta_index(ls, key);
   }
 
   template <class T>
-  bool DispatchProxy::Target<T>::_meta_contains(State &ls, const Value &key) const
+  bool DispatchProxy::Target<T>::_meta_contains(State *ls, const Value &key) const
   {
     return static_cast<T*>(_ud)->T::meta_contains(ls, key);
   }
 
   template <class T>
-  void DispatchProxy::Target<T>::_meta_newindex(State &ls, const Value &key, const Value &value) const
+  void DispatchProxy::Target<T>::_meta_newindex(State *ls, const Value &key, const Value &value) const
   {
     return static_cast<T*>(_ud)->T::meta_newindex(ls, key, value);
   }
 
   template <class T>
-  Value::List DispatchProxy::Target<T>::_meta_call(State &ls, const Value::List &args) const
+  Value::List DispatchProxy::Target<T>::_meta_call(State *ls, const Value::List &args) const
   {
     return static_cast<T*>(_ud)->T::meta_call(ls, args);
   }
 
   template <class T>
-  Ref<Iterator> DispatchProxy::Target<T>::_new_iterator(State &ls) const
+  Ref<Iterator> DispatchProxy::Target<T>::_new_iterator(State *ls) const
   {
     return static_cast<T*>(_ud)->T::new_iterator(ls);
   }
@@ -109,8 +109,8 @@ namespace QtLua {
     return static_cast<T*>(_ud)->T::support(c);
   }
 
-  DispatchProxy::ProxyIterator::ProxyIterator(State &ls, const DispatchProxy &dp)
-    : _state(&ls),
+  DispatchProxy::ProxyIterator::ProxyIterator(State *ls, const DispatchProxy &dp)
+    : _state(ls),
       _dp(dp),
       _index(0)
   {

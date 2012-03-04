@@ -56,7 +56,7 @@ public:
   /** Attach or detach container. argument may be NULL */
   void set_container(Container *list);
 
-  Ref<Iterator> new_iterator(State &ls);
+  Ref<Iterator> new_iterator(State *ls);
   bool support(Value::Operation c) const;
 
 private:

@@ -57,7 +57,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  Value QListProxyRo<Container>::meta_index(State &ls, const Value &key)
+  Value QListProxyRo<Container>::meta_index(State *ls, const Value &key)
   {
     if (!_list)
       return Value(ls);
@@ -71,7 +71,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QListProxyRo<Container>::meta_contains(State &ls, const Value &key)
+  bool QListProxyRo<Container>::meta_contains(State *ls, const Value &key)
   {
     try {
       int index = (unsigned int)key.to_number() - 1;
@@ -83,7 +83,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  Value QListProxyRo<Container>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
+  Value QListProxyRo<Container>::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
       {
@@ -141,7 +141,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  void QListProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
+  void QListProxy<Container>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_list)
       throw String("Can not write to null container.");
@@ -166,12 +166,12 @@ namespace QtLua {
   }
 
   template <class Container>
-  Ref<Iterator> QListProxyRo<Container>::new_iterator(State &ls)
+  Ref<Iterator> QListProxyRo<Container>::new_iterator(State *ls)
   {
     if (!_list)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }
 
   template <class Container>

@@ -57,7 +57,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  Value QHashProxyRo<Container>::meta_index(State &ls, const Value &key)
+  Value QHashProxyRo<Container>::meta_index(State *ls, const Value &key)
   {
     if (!_hash)
       return Value(ls);
@@ -71,13 +71,13 @@ namespace QtLua {
   }
 
   template <class Container>
-  bool QHashProxyRo<Container>::meta_contains(State &ls, const Value &key)
+  bool QHashProxyRo<Container>::meta_contains(State *ls, const Value &key)
   {
     return _hash->contains(key);
   }
 
   template <class Container>
-  Value QHashProxyRo<Container>::meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b)
+  Value QHashProxyRo<Container>::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
   {
     switch (op)
       {
@@ -122,7 +122,7 @@ namespace QtLua {
   }
 
   template <class Container>
-  void QHashProxy<Container>::meta_newindex(State &ls, const Value &key, const Value &value)
+  void QHashProxy<Container>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_hash)
       throw String("Can not write to null container.");
@@ -134,12 +134,12 @@ namespace QtLua {
   }
 
   template <class Container>
-  Ref<Iterator> QHashProxyRo<Container>::new_iterator(State &ls)
+  Ref<Iterator> QHashProxyRo<Container>::new_iterator(State *ls)
   {
     if (!_hash)
       throw String("Can not iterate on null container.");
 
-    return QTLUA_REFNEW(ProxyIterator, &ls, *this);
+    return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }
 
   template <class Container>

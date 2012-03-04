@@ -34,7 +34,7 @@ int main()
     // New lua table value
     state.exec_statements("table = { a = 1, b = 2, c = 3 }");
 
-    QtLua::Value table = state["table"];
+    QtLua::Value table = state.at("table");
 
     // Iterate over lua table from C++ code
     for (QtLua::Value::const_iterator i = table.begin(); i != table.end(); i++)
@@ -52,7 +52,7 @@ int main()
 							/* anchor 2 */
     // Modify lua table from C++ code
     for (QtLua::Value::iterator i = table.begin(); i != table.end(); i++)
-      i.value() = QtLua::Value(state, "foo");
+      i.value() = QtLua::Value(&state, "foo");
 							/* anchor end */
 
     for (QtLua::Value::const_iterator i = table.begin(); i != table.end(); i++)

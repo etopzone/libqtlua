@@ -91,7 +91,7 @@ public:
    * @param b Second value involved in operation for binary operators.
    * @returns Operation result value.
    */
-  virtual Value meta_operation(State &ls, Value::Operation op, const Value &a, const Value &b);
+  virtual Value meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b);
 
   /** 
    * This function is called when a table read access operation is
@@ -103,7 +103,7 @@ public:
    * @param key Value used as table index.
    * @returns Table access result value.
    */
-  virtual Value meta_index(State &ls, const Value &key);
+  virtual Value meta_index(State *ls, const Value &key);
 
   /**
    * This function is called when a table write access operation is
@@ -115,7 +115,7 @@ public:
    * @param key Value used as table index.
    * @param value Value to put in table.
    */
-  virtual void meta_newindex(State &ls, const Value &key, const Value &value);
+  virtual void meta_newindex(State *ls, const Value &key, const Value &value);
 
   /**
    * This function returns @tt true if either the @ref Value::OpIndex
@@ -125,7 +125,7 @@ public:
    * The default implementation returns @tt{!meta_index(ls,
    * key).is_nil()} or @tt false if @ref meta_index throws.
    */
-  virtual bool meta_contains(State &ls, const Value &key);
+  virtual bool meta_contains(State *ls, const Value &key);
 
   /**
    * This function is called when a function invokation operation is
@@ -137,7 +137,7 @@ public:
    * @param args List of passed arguments.
    * @returns List of returned values.
    */
-  virtual Value::List meta_call(State &ls, const Value::List &args);
+  virtual Value::List meta_call(State *ls, const Value::List &args);
 
   /**
    * This function may return an @ref Iterator object used to iterate
@@ -148,7 +148,7 @@ public:
    *
    * @returns an @ref Iterator based iterator object.
    */
-  virtual Ref<Iterator> new_iterator(State &ls);
+  virtual Ref<Iterator> new_iterator(State *ls);
 
   /**
    * This function returns an object type name. The default

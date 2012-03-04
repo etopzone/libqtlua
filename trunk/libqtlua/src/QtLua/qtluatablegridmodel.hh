@@ -151,7 +151,7 @@ namespace QtLua {
     /** Return the empty table object to use for new row
 	insertion. The default implementation returns a lua
 	Value::TTable value. */
-    virtual Value new_row_table(State &st) const;
+    virtual Value new_row_table(State *st) const;
 
   public:
     /** @multiple @internal */

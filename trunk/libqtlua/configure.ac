@@ -1,13 +1,13 @@
 
-AC_INIT(libqtlua, 1.4)
-PACKAGE_VERSION=1.4
-LIBRARY_VERSION=1.4
+AC_INIT(libqtlua, 2.0)
+PACKAGE_VERSION=2.0
+LIBRARY_VERSION=2.0
 AC_SUBST(PACKAGE_VERSION)
 AC_SUBST(LIBRARY_VERSION)
 
 AC_CONFIG_AUX_DIR([build])
 
-AM_INIT_AUTOMAKE(libqtlua, 1.4)
+AM_INIT_AUTOMAKE(libqtlua, 2.0)
 AC_CONFIG_HEADERS(config.hh)
 
 AC_PROG_CXX
@@ -67,7 +67,7 @@ AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lu
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
 AC_CHECK_LIB($lualibname, luaL_openlibs, AC_DEFINE(HAVE_LUA_OPENLIBS, 1, [lua os library is available]))
 
-CXXFLAGS="$CPPFLAGS -Wall -Wno-unused-parameter -DQTLUAREF_DEBUG -DQT_NO_CAST_FROM_BYTEARRAY"
+CXXFLAGS="$CPPFLAGS -Wall -Wno-unused-parameter -DQTLUAREF_DEBUG -DQT_NO_CAST_FROM_BYTEARRAY -std=c++0x -U__cplusplus -D__cplusplus=201103L "
 
 eval shared_ext=\"$shrext_cmds\"
 AC_DEFINE_UNQUOTED(SHLIBEXT, $shared_ext, [suffix for dynamic libraries is $shared_ext])

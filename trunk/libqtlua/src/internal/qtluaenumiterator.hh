@@ -46,7 +46,7 @@ class EnumIterator : public Iterator
 public:
   QTLUA_REFTYPE(EnumIterator);
 
-  EnumIterator(State &ls, QMetaEnum me);
+  EnumIterator(State *ls, QMetaEnum me);
 
 private:
   bool more() const;

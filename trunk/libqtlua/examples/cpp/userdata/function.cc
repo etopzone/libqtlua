@@ -29,7 +29,7 @@ int main()
     static class : public QtLua::Function
     {
       /* anchor 6 */
-      QtLua::Value::List meta_call(QtLua::State &ls, const QtLua::Value::List &args)
+      QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args)
       {
 	/* anchor 5 */
 	QtLua::String a = get_arg<QtLua::String>(args, 0);
@@ -54,7 +54,7 @@ int main()
     /* anchor 4 */
     QtLua::State state;
 
-    foo_function.register_(state, "bar.foo");
+    foo_function.register_(&state, "bar.foo");
     /* anchor end */
 
   } catch (QtLua::String &e) {

@@ -60,7 +60,7 @@ struct MyData : public UserData
   {
   }
 
-  Value meta_index(State &ls, const Value &key)
+  Value meta_index(State *ls, const Value &key)
   {
     return Value(ls, _data);
   }

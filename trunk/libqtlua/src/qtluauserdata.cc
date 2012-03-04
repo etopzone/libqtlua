@@ -106,23 +106,23 @@ String UserData::get_value_str() const
   return QString().sprintf("%p", this);
 }
 
-Value UserData::meta_operation(State &ls, Value::Operation op,
+Value UserData::meta_operation(State *ls, Value::Operation op,
 			       const Value &a, const Value &b) 
 {
   throw String("Operation not handled by % type").arg(get_type_name());
 };
 
-void UserData::meta_newindex(State &ls, const Value &key, const Value &value) 
+void UserData::meta_newindex(State *ls, const Value &key, const Value &value) 
 {
   throw String("Table write access not handled by % type").arg(get_type_name());
 };
 
-Value UserData::meta_index(State &ls, const Value &key) 
+Value UserData::meta_index(State *ls, const Value &key) 
 {
   throw String("Table read access not handled by % type").arg(get_type_name());
 };
 
-bool UserData::meta_contains(State &ls, const Value &key)
+bool UserData::meta_contains(State *ls, const Value &key)
 {
   try {
     return !meta_index(ls, key).is_nil();
@@ -131,12 +131,12 @@ bool UserData::meta_contains(State &ls, const Value &key)
   }
 }
 
-Value::List UserData::meta_call(State &ls, const Value::List &args) 
+Value::List UserData::meta_call(State *ls, const Value::List &args) 
 {
   throw String("Function call not handled by % type").arg(get_type_name());
 };
 
-Ref<Iterator> UserData::new_iterator(State &ls)
+Ref<Iterator> UserData::new_iterator(State *ls)
 {
   throw String("Table iteration not handled by % type").arg(get_type_name());
 }
