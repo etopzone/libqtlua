@@ -28,6 +28,8 @@
 #include <QPointer>
 #include <QSettings>
 
+#define QTLUA_MAX_COMPLETION 200
+
 namespace QtLua {
 
   /**
