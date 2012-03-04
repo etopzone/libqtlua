@@ -24,11 +24,11 @@
 
 #include <typeinfo>
 
-#include "String"
+#include "qtluastring.hxx"
+
 #include "Iterator"
 #include "ValueRef"
 #include "String"
-#include "qtluastate.hh"
 #include "UserData"
 
 namespace QtLua {
@@ -315,6 +315,7 @@ namespace QtLua {
     return at(Value(_st, key));
   }
 
+#if 1
   Value ValueBase::operator[](const Value &key) const
   {
     return at(key);
@@ -325,6 +326,7 @@ namespace QtLua {
   {
     return at(Value(_st, key));
   }
+#endif
 
   ValueRef ValueBase::operator[] (const Value &key)
   {

@@ -42,7 +42,7 @@ QTLUA_METATYPE(MyStructConvert, Mystruct);
 
 QtLua::Value MyStructConvert::qt2lua(QtLua::State *ls, const Mystruct *qtvalue)
 {
-  QtLua::Value luavalue(ls, QtLua::Value::TTable);
+  QtLua::Value luavalue(QtLua::Value::new_table(ls));
   luavalue[1] = qtvalue->a;
   luavalue[2] = qtvalue->b;
   return luavalue;
@@ -50,8 +50,8 @@ QtLua::Value MyStructConvert::qt2lua(QtLua::State *ls, const Mystruct *qtvalue)
 
 bool MyStructConvert::lua2qt(Mystruct *qtvalue, const QtLua::Value &luavalue)
 {
-  qtvalue->a = luavalue[1];
-  qtvalue->b = luavalue[2];
+  qtvalue->a = luavalue.at(1);
+  qtvalue->b = luavalue.at(2);
   return true;
 }
 							/* anchor end */

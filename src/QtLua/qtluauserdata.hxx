@@ -26,8 +26,7 @@
 #include <cxxabi.h>
 #endif
 
-#include "Iterator"
-#include "Value"
+#include "qtluavalue.hxx"
 
 namespace QtLua {
 

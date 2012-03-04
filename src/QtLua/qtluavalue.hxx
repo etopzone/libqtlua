@@ -123,7 +123,7 @@ namespace QtLua {
       cleanup();
   }
 
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
   Value::Value(Value &&lv)
     : ValueBase(lv._st)
     , _id(lv._id)
@@ -188,20 +188,15 @@ namespace QtLua {
 
   Value Value::new_table(const State *ls)
   {
-    return Value(TTable, ls);
-  }
-
-  Value::Value(ValueType type, const State *ls)
-    : ValueBase(ls)
-    , _id(_id_counter++)
-  {
-    init_type_value(type);
+    Value t(ls);
+    t.init_table();
+    return t;
   }
 
   template <typename ListContainer>
   inline void Value::from_list(const State *ls, const ListContainer &list)
   {
-    *this = Value(TTable, ls);
+    *this = new_table(ls);
     for (int i = 0; i < list.size(); i++)
       (*this)[i+1] = list.at(i);
   }
@@ -243,7 +238,7 @@ namespace QtLua {
     : ValueBase(ls)
     , _id(_id_counter++)
   {
-    *this = Value(TTable, ls);
+    *this = new_table(ls);
     for (unsigned int i = 0; i < size; i++)
       (*this)[i+1] = array[i];
   }
@@ -251,7 +246,7 @@ namespace QtLua {
   template <typename HashContainer>
   inline void Value::from_hash(const State *ls, const HashContainer &hash)
   {
-    *this = Value(TTable, ls);
+    *this = new_table(ls);
     for (typename HashContainer::const_iterator i = hash.begin(); i != hash.end(); i++)
       (*this)[i.key()] = Value(ls, i.value());
   }
@@ -259,7 +254,7 @@ namespace QtLua {
   template <typename HashContainer>
   inline void Value::from_hash(const State *ls, HashContainer &hash)
   {
-    *this = Value(TTable, ls);
+    *this = new_table(ls);
     for (typename HashContainer::iterator i = hash.begin(); i != hash.end(); i++)
       (*this)[i.key()] = Value(ls, i.value());
   }

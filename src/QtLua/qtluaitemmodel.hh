@@ -26,11 +26,14 @@
 #include <QAbstractItemView>
 #include <QMimeData>
 
-#include "qtlualistitem.hh"
+#include "qtluaref.hh"
 
 namespace QtLua {
 
 class State;
+class Item;
+class ListItem;
+class Value;
 
   /**
    * @short Qt Model/View item model class
@@ -61,12 +64,12 @@ class ItemModel : public QAbstractItemModel
 
 public:
   /** Create a new item model with pointer to root item */
-  ItemModel(ListItem::ptr root, QObject *parent = 0);
+  ItemModel(Ref<ListItem> root, QObject *parent = 0);
 
   ~ItemModel();
 
   /** Get pointer to Item from QT model index. */
-  static Item::ptr get_item(const QModelIndex &index);
+  static Ref<Item> get_item(const QModelIndex &index);
 
   /** Get a lua table value with selected items on given view */
   static Value get_selection(State *ls, const QAbstractItemView &view);
@@ -74,7 +77,7 @@ public:
 protected:
   /** May be reimplemented to return a new item created from mime
       data. Used when dropping external objects. */
-  virtual Item::ptr	from_mimedata(const QMimeData *data);
+  virtual Ref<Item> from_mimedata(const QMimeData *data);
 
   /** Return supported mime type. May be reimplemented to add more types. */
   virtual QStringList mimeTypes() const;
@@ -99,10 +102,10 @@ private:
 
   struct ItemQMimeData : public QMimeData
   {
-    QList<Item::ptr> _itemlist;
+    QList<Ref<Item> > _itemlist;
   };
 
-  ListItem::ptr _root;
+  Ref<ListItem> _root;
 };
 
 }

@@ -411,10 +411,12 @@ public:
 
   /** Index operation on a lua userdata or lua table value. The @ref
       at function is prefered for read access.  @multiple */
+#if 1
   inline Value operator[] (const Value &key) const;
 
   template <typename T>
   inline Value operator[] (const T &key) const;
+#endif
 
   inline ValueRef operator[] (const Value &key);
 

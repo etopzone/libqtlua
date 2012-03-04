@@ -28,6 +28,7 @@
 #include "qtluastring.hh"
 #include "qtluauserdata.hh"
 #include "qtluavalue.hh"
+#include "qtluaitemmodel.hh"
 
 namespace QtLua {
 

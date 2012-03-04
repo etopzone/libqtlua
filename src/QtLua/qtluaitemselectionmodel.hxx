@@ -21,6 +21,8 @@
 #ifndef QTLUA_ITEMSELECTIONMODEL_HXX_
 #define QTLUA_ITEMSELECTIONMODEL_HXX_
 
+#include "qtluaitemmodel.hxx"
+
 namespace QtLua {
 
   ItemSelectionModel::ItemSelectionModel(ItemModel *model)

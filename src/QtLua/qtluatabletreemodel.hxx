@@ -14,30 +14,15 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2010, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#ifndef MAINWINDOW_HH_
-#define MAINWINDOW_HH_
 
-#include <QMainWindow>
+#ifndef QTLUA_TABLETREEMODEL_HXX_
+#define QTLUA_TABLETREEMODEL_HXX_
 
-#include <QtLua/State>
-#include <QtLua/Console>
-
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
-
-public:
-  MainWindow();
-  ~MainWindow();
-
-private:
-  QtLua::State *state;
-  QtLua::Console *console;
-};
+#include "qtluavalue.hxx"
 
 #endif
 

@@ -22,9 +22,9 @@
 #ifndef QTLUAPLUGIN_HXX_
 #define QTLUAPLUGIN_HXX_
 
-#include "String"
-
 #include "qtluaqhashproxy.hxx"
+#include "qtluastring.hxx"
+#include "qtluauserdata.hxx"
 
 namespace QtLua {
 

@@ -4,15 +4,15 @@ pkginclude_HEADERS = \
 	Function qtluafunction.hh qtluafunction.hxx \
 	Console qtluaconsole.hh qtluaconsole.hxx \
 	Item qtluaitem.hh qtluaitem.hxx	\
-	TableTreeModel qtluatabletreemodel.hh \
+	TableTreeModel qtluatabletreemodel.hh qtluatabletreemodel.hxx \
 	TableDialog qtluatabledialog.hh qtluatabledialog.hxx \
-	TableGridModel qtluatablegridmodel.hh \
-	ItemModel qtluaitemmodel.hh \
+	TableGridModel qtluatablegridmodel.hh qtluatablegridmodel.hxx \
+	ItemModel qtluaitemmodel.hh qtluaitemmodel.hxx \
 	ItemSelectionModel qtluaitemselectionmodel.hh qtluaitemselectionmodel.hxx \
 	Iterator qtluaiterator.hh qtluaiterator.hxx \
 	ListItem qtlualistitem.hh qtlualistitem.hxx \
 	Plugin qtluaplugin.hh qtluaplugin.hxx \
-	PluginInterface qtluaplugininterface.hh \
+	PluginInterface qtluaplugininterface.hh qtluaplugininterface.hxx \
 	State qtluastate.hh qtluastate.hxx \
 	UserData qtluauserdata.hh qtluauserdata.hxx \
 	UserObject qtluauserobject.hh qtluauserobject.hxx \

@@ -1,4 +1,4 @@
 
 #include "qtluaitemmodel.hh"
-
+#include "qtluaitemmodel.hxx"
 

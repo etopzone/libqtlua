@@ -506,7 +506,7 @@ namespace QtLua {
 
   Value TableGridModel::new_row_table(State *st) const
   {
-    return Value(st, Value::TTable);
+    return Value::new_table(st);
   }
 
   bool TableGridModel::insert_rows(int row, int count, const QModelIndex &parent)

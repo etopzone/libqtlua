@@ -25,8 +25,8 @@
 #include <QAbstractItemView>
 #include <QDialog>
 
-#include <QtLua/TableTreeModel>
-#include <QtLua/TableGridModel>
+#include "qtluatabletreemodel.hh"
+#include "qtluatablegridmodel.hh"
 
 namespace QtLua {
 

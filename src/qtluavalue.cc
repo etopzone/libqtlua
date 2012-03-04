@@ -48,47 +48,12 @@ int Value::empty_fcn(lua_State *st)
   return 0;
 }
 
-void Value::init_type_value(ValueType type)
+void Value::init_table()
 {
   check_state();
   lua_State *lst = _st->_lst;
   lua_pushnumber(lst, _id);
-
-  switch (type)
-    {
-    case TNone:
-    case TNil:
-      lua_pushnil(lst);
-      break;
-
-    case TBool:
-      lua_pushboolean(lst, false);
-      break;
-
-    case TNumber:
-      lua_pushnumber(lst, 0.0f);
-      break;
-
-    case TString:
-      lua_pushstring(lst, "");
-      break;
-
-    case TTable:
-      lua_newtable(lst);
-      break;
-
-    case TFunction:
-      lua_pushcfunction(lst, empty_fcn);
-      break;
-
-    case TUserData: {
-      UserData::ptr ud = QTLUA_REFNEW(QtLua::UserData, );
-      ud->push_ud(lst);
-      break;
-    }
-
-    }
-
+  lua_newtable(lst);
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 

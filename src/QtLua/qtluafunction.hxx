@@ -23,6 +23,7 @@
 
 #include "qtluauserdata.hxx"
 #include "qtluavalue.hxx"
+#include "qtluaplugin.hxx"
 
 namespace QtLua {
 

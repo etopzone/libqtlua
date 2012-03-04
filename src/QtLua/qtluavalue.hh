@@ -44,7 +44,7 @@ public:
   /** Create a lua value copy. @multiple */
   Value(const Value &lv);
   Value(const State *ls, const Value &lv);
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
   inline Value(Value &&lv);
   inline Value(const State *ls, Value &&lv);
 #endif
@@ -144,7 +144,7 @@ public:
 
   /** Copy a lua value. */
   Value & operator=(const Value &lv);
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
   inline Value & operator=(Value &&lv);
 #endif
 
@@ -191,8 +191,6 @@ private:
   template <typename ListContainer>
   inline void from_list(const State *ls, const ListContainer &list);
 
-  inline Value(ValueType type, const State *ls);
-
   /** push value on lua stack. */
   void push_value() const;
   inline Value value() const;
@@ -203,7 +201,7 @@ private:
   /** construct from value on lua stack. */
   Value(int index, const State *st);
 
-  void init_type_value(ValueType type);
+  void init_table();
 
   static int empty_fcn(lua_State *st);
 

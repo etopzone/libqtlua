@@ -39,7 +39,7 @@ int main()
 
     // Vector proxy which provides access to our QVector from lua.
     // Our proxy is allowed to resize the QVector.
-    QtLua::QVectorProxy<Container, true> proxy(vector);
+    QtLua::QVectorProxy<Container, 10> proxy(vector);
 							/* anchor 2 */
 
     QtLua::State state;

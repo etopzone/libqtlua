@@ -25,7 +25,7 @@
 #include <QAbstractItemModel>
 #include <QPointer>
 
-#include <QtLua/Value>
+#include "qtluavalue.hh"
 
 namespace QtLua {
 

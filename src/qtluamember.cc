@@ -102,7 +102,7 @@ namespace QtLua {
       case QMetaType::QString:
 	return Value(ls, String(*reinterpret_cast<const QString*>(data)));
       case QMetaType::QStringList: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QStringList *qsl = reinterpret_cast<const QStringList*>(data);
 	for (int i = 0; i < qsl->size(); i++)
 	  value[i+1] = String(qsl->at(i));
@@ -115,21 +115,21 @@ namespace QtLua {
       case QMetaType::QWidgetStar:
 	return Value(ls, QObjectWrapper::get_wrapper(ls, *(QWidget**)data));
       case QMetaType::QSize: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QSize *size = reinterpret_cast<const QSize*>(data);
 	value[1] = size->width();
 	value[2] = size->height();
 	return value;
       }
       case QMetaType::QSizeF: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QSizeF *size = reinterpret_cast<const QSizeF*>(data);
 	value[1] = size->width();
 	value[2] = size->height();
 	return value;
       }
       case QMetaType::QRect: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QRect *rect = reinterpret_cast<const QRect*>(data);
 	value[1] = rect->x();
 	value[2] = rect->y();
@@ -138,7 +138,7 @@ namespace QtLua {
 	return value;
       }
       case QMetaType::QRectF: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QRectF *rect = reinterpret_cast<const QRectF*>(data);
 	value[1] = rect->x();
 	value[2] = rect->y();
@@ -147,14 +147,14 @@ namespace QtLua {
 	return value;
       }
       case QMetaType::QPoint: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QPoint *point = reinterpret_cast<const QPoint*>(data);
 	value[1] = point->x();
 	value[2] = point->y();
 	return value;
       }
       case QMetaType::QPointF: {
-	Value value(ls, Value::TTable);
+	Value value(Value::new_table(ls));
 	const QPointF *point = reinterpret_cast<const QPointF*>(data);
 	value[1] = point->x();
 	value[2] = point->y();
@@ -226,7 +226,7 @@ namespace QtLua {
 	QStringList *qsl = reinterpret_cast<QStringList*>(data);
 	try {
 	  for (int i = 1; ; i++)
-	    qsl->push_back(v[i].to_qstring());
+	    qsl->push_back(v.at(i).to_qstring());
 	} catch (String &e) {
 	}
 	return true;
@@ -247,42 +247,42 @@ namespace QtLua {
       }
       case QMetaType::QSize: {
 	QSize *size = reinterpret_cast<QSize*>(data);
-	size->setWidth(v[1].to_number());
-	size->setHeight(v[2].to_number());
+	size->setWidth(v.at(1).to_number());
+	size->setHeight(v.at(2).to_number());
 	return true;
       }
       case QMetaType::QSizeF: {
 	QSizeF *size = reinterpret_cast<QSizeF*>(data);
-	size->setWidth(v[1].to_number());
-	size->setHeight(v[2].to_number());
+	size->setWidth(v.at(1).to_number());
+	size->setHeight(v.at(2).to_number());
 	return true;
       }
       case QMetaType::QRect: {
 	QRect *rect = reinterpret_cast<QRect*>(data);
-	rect->setX(v[1].to_number());
-	rect->setY(v[2].to_number());
-	rect->setWidth(v[3].to_number());
-	rect->setHeight(v[4].to_number());
+	rect->setX(v.at(1).to_number());
+	rect->setY(v.at(2).to_number());
+	rect->setWidth(v.at(3).to_number());
+	rect->setHeight(v.at(4).to_number());
 	return true;
       }
       case QMetaType::QRectF: {
 	QRectF *rect = reinterpret_cast<QRectF*>(data);
-	rect->setX(v[1].to_number());
-	rect->setY(v[2].to_number());
-	rect->setWidth(v[3].to_number());
-	rect->setHeight(v[4].to_number());
+	rect->setX(v.at(1).to_number());
+	rect->setY(v.at(2).to_number());
+	rect->setWidth(v.at(3).to_number());
+	rect->setHeight(v.at(4).to_number());
 	return true;
       }
       case QMetaType::QPoint: {
 	QPoint *point = reinterpret_cast<QPoint*>(data);
-	point->setX(v[1].to_number());
-	point->setY(v[2].to_number());
+	point->setX(v.at(1).to_number());
+	point->setY(v.at(2).to_number());
 	return true;
       }
       case QMetaType::QPointF: {
 	QPointF *point = reinterpret_cast<QPointF*>(data);
-	point->setX(v[1].to_number());
-	point->setY(v[2].to_number());
+	point->setX(v.at(1).to_number());
+	point->setY(v.at(2).to_number());
 	return true;
       }
       default:

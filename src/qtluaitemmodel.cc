@@ -287,7 +287,7 @@ Value ItemModel::get_selection(State *ls, const QAbstractItemView &view)
   if (!sm || !sm->hasSelection())
     return Value(ls);
 
-  Value table(ls, Value::TTable);
+  Value table(Value::new_table(ls));
 
   int i = 1;
   foreach(const QModelIndex &index, sm->selectedIndexes())

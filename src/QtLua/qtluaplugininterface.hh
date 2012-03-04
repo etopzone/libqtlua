@@ -25,7 +25,6 @@
 #include <QtPlugin>
 
 #include "qtluastring.hh"
-#include "qtluaitem.hh"
 
 namespace QtLua {
 

@@ -41,6 +41,12 @@ MainWindow::MainWindow()
 }
 							/* anchor end */
 
+MainWindow::~MainWindow()
+{
+  delete console;
+  delete state;
+}
+
 int main(int argc, char *argv[])
 {
   QApplication app(argc, argv);
