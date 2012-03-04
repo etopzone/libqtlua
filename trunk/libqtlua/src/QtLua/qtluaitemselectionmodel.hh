@@ -22,6 +22,7 @@
 #define QTLUA_ITEMSELECTIONMODEL_HH_
 
 #include <QItemSelectionModel>
+
 #include "qtluaitemmodel.hh"
 
 namespace QtLua {

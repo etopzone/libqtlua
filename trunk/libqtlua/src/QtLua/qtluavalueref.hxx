@@ -26,6 +26,8 @@
 
 #include "qtluavalue.hxx"
 
+#include "State"
+
 namespace QtLua {
 
   ValueRef::ValueRef(const ValueRef &ref)
@@ -45,7 +47,7 @@ namespace QtLua {
     copy_table_key(table._id, key._id);
   }
 
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
 
   ValueRef::ValueRef(Value &&table, const Value &key)
     : ValueBase(table._st)
@@ -124,17 +126,87 @@ namespace QtLua {
   }
 #endif
 
-  const ValueRef & ValueRef::operator=(const Value &v) const
+  const Value & ValueRef::operator=(const Value &v) const
   {
     table_set(v);
-    return *this;
+    return v;
   }
 
-  template <typename T>
-  const ValueRef & ValueRef::operator=(T n) const
+  Value ValueRef::operator=(Bool n) const
   {
-    table_set(Value(_st, n));
-    return *this;
+    Value v(_st, n);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(double n) const
+  {
+    Value v(_st, n);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(float n) const
+  {
+    Value v(_st, n);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(int n) const
+  {
+    Value v(_st, n);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(unsigned int n) const
+  {
+    Value v(_st, n);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(const String &str) const
+  {
+    Value v(_st, str);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(const QString &str) const
+  {
+    Value v(_st, str);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(const char *str) const
+  {
+    Value v(_st, str);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(const Ref<UserData> &ud) const
+  {
+    Value v(_st, ud);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(QObject *obj) const
+  {
+    Value v(_st, obj);
+    table_set(v);
+    return v;
+  }
+
+  Value ValueRef::operator=(const QVariant &qv) const
+  {
+    Value v(_st, qv);
+    table_set(v);
+    return v;
   }
 
 }

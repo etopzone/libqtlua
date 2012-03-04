@@ -58,7 +58,7 @@ namespace QtLua {
 
     inline ~ValueRef();
 
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
     /** Construct reference with given table and key. */
     inline ValueRef( Value &&table, const Value &key);
 
@@ -78,17 +78,22 @@ namespace QtLua {
     Value value() const;
 
     /** Assign new value to referenced value. @multiple */
-    inline const ValueRef & operator=(const Value &v) const;
+    inline const Value & operator=(const Value &v) const;
 
-    template <typename T>
-    inline const ValueRef & operator=(T n) const;
+    inline Value operator=(Bool n) const;
 
-#if 0
-    inline ValueRef operator[] (const Value &key) const;
+    inline Value operator=(double n) const;
+    inline Value operator=(float n) const;
+    inline Value operator=(int n) const;
+    inline Value operator=(unsigned int n) const;
 
-    template <typename T>
-    inline ValueRef operator[] (const T &key) const;
-#endif
+    inline Value operator=(const String &str) const;
+    inline Value operator=(const QString &str) const;
+    inline Value operator=(const char *str) const;
+
+    inline Value operator=(const Ref<UserData> &ud) const;
+    inline Value operator=(QObject *obj) const;
+    inline Value operator=(const QVariant &qv) const;
 
   private:
     inline const ValueRef & operator=(const ValueRef &v) const;

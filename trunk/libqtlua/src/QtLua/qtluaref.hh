@@ -154,7 +154,7 @@ namespace QtLua {
 	_obj->_inc();
     }
 
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
     /** Construct a const Ref from non const Ref. */
     Ref(Ref<Xnoconst, Xnoconst> && r)
       : _obj(r._obj)
@@ -218,7 +218,7 @@ namespace QtLua {
       return *this;
     }
 
-#if __cplusplus >= 201103L
+#ifdef Q_COMPILER_RVALUE_REFS
     Ref & operator=(Ref &&r)
     {
       X *tmp = _obj;
@@ -239,8 +239,8 @@ namespace QtLua {
       if (tmp)
 	tmp->_drop();
       _obj = &obj;
-      if (_obj)
-	_obj->_inc();
+      assert(_obj);
+      _obj->_inc();
       return *this;
     }
 
@@ -270,6 +270,13 @@ namespace QtLua {
     Ref<const T, T> staticcast_const() const
     {
       return Ref<const T, T>(static_cast<const T*>(_obj));
+    }
+
+    /** Const cast const Ref to Ref of given type */
+    template <class T>
+    Ref<T, T> constcast() const
+    {
+      return Ref<T, T>(const_cast<T*>(_obj));
     }
 
     /** Drop a Ref */

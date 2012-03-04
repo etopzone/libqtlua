@@ -38,7 +38,7 @@ namespace QtLua {
   Value TableTreeKeys::get_value(int n) const
   {
     assert(n < _entries.size());
-    return _value[_entries[n]._key];
+    return _value.at(_entries[n]._key);
   }
 
   void TableTreeKeys::set_value(int n, const Value &value)

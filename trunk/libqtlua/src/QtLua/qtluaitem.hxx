@@ -23,8 +23,10 @@
 
 #include <cassert>
 
+#include "qtluastring.hxx"
 #include "qtluauserdata.hxx"
-#include "qtluaitemmodel.hh"
+#include "qtluavalue.hxx"
+#include "qtluaitemmodel.hxx"
 
 namespace QtLua {
 

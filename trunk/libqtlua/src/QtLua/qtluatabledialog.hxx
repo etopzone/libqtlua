@@ -22,6 +22,9 @@
 #ifndef QTLUA_TABLEDIALOG_HXX_
 #define QTLUA_TABLEDIALOG_HXX_
 
+#include "qtluatabletreemodel.hxx"
+#include "qtluatablegridmodel.hxx"
+
 namespace QtLua {
 
   QAbstractItemModel * TableDialog::get_model() const

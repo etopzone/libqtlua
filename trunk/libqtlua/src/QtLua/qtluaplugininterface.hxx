@@ -18,26 +18,13 @@
 
 */
 
-#ifndef MAINWINDOW_HH_
-#define MAINWINDOW_HH_
 
-#include <QMainWindow>
+#ifndef QTLUAPLUGINSINTERFACE_HXX_
+#define QTLUAPLUGINSINTERFACE_HXX_
 
-#include <QtLua/State>
-#include <QtLua/Console>
+#include <QtPlugin>
 
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
-
-public:
-  MainWindow();
-  ~MainWindow();
-
-private:
-  QtLua::State *state;
-  QtLua::Console *console;
-};
+#include "qtluastring.hxx"
 
 #endif
 

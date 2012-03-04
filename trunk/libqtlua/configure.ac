@@ -67,7 +67,7 @@ AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lu
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
 AC_CHECK_LIB($lualibname, luaL_openlibs, AC_DEFINE(HAVE_LUA_OPENLIBS, 1, [lua os library is available]))
 
-CXXFLAGS="$CPPFLAGS -Wall -Wno-unused-parameter -DQTLUAREF_DEBUG -DQT_NO_CAST_FROM_BYTEARRAY -std=c++0x -U__cplusplus -D__cplusplus=201103L "
+CXXFLAGS="$CPPFLAGS -Wall -Wno-unused-parameter -DQT_NO_CAST_FROM_BYTEARRAY -std=c++0x "
 
 eval shared_ext=\"$shrext_cmds\"
 AC_DEFINE_UNQUOTED(SHLIBEXT, $shared_ext, [suffix for dynamic libraries is $shared_ext])

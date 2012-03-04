@@ -18,26 +18,9 @@
 
 */
 
-#ifndef MAINWINDOW_HH_
-#define MAINWINDOW_HH_
 
-#include <QMainWindow>
-
-#include <QtLua/State>
-#include <QtLua/Console>
-
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
-
-public:
-  MainWindow();
-  ~MainWindow();
-
-private:
-  QtLua::State *state;
-  QtLua::Console *console;
-};
+#ifndef QTLUA_ITEMMODEL_HXX_
+#define QTLUA_ITEMMODEL_HXX_
 
 #endif
 
