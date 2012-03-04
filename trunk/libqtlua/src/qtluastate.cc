@@ -364,7 +364,10 @@ bool State::set_global_r(const String &name, const Value &value, int tblidx)
       // set value in table if last
       lua_pushstring(_lst, name.constData());
       value.push_value();
+
+      QTLUA_PROTECT_BEGIN(this, p);
       lua_settable(_lst, tblidx);
+      QTLUA_PROTECT_END(this, p);
 
       return true;
     }
@@ -374,7 +377,9 @@ bool State::set_global_r(const String &name, const Value &value, int tblidx)
       String prefix(name.mid(0, len));
 
       lua_pushstring(_lst, prefix.constData());
+      QTLUA_PROTECT_BEGIN(this, p);
       lua_gettable(_lst, tblidx);
+      QTLUA_PROTECT_END(this, p);
 
       if (lua_isnil(_lst, -1))
 	{
@@ -385,7 +390,9 @@ bool State::set_global_r(const String &name, const Value &value, int tblidx)
 
 	  if (set_global_r(name.mid(len + 1), value, lua_gettop(_lst)))
 	    {
+	      QTLUA_PROTECT_BEGIN(this, p);
 	      lua_settable(_lst, tblidx);
+	      QTLUA_PROTECT_END(this, p);	      
 	      return true;
 	    }
 	  else
@@ -424,7 +431,9 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
     {
       // get value from table if last
       lua_pushstring(_lst, name.constData());
+      QTLUA_PROTECT_BEGIN(this, p);
       lua_gettable(_lst, tblidx);
+      QTLUA_PROTECT_END(this, p);      
       value = Value(-1, this);
       lua_pop(_lst, 1);
     }
@@ -434,7 +443,9 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
       String prefix(name.mid(0, len));
 
       lua_pushstring(_lst, prefix.constData());
+      QTLUA_PROTECT_BEGIN(this, p);
       lua_gettable(_lst, tblidx);
+      QTLUA_PROTECT_END(this, p);
 
       if (lua_istable(_lst, -1))
 	{
@@ -456,7 +467,9 @@ Value State::get_global(const String &path) const
 Value State::at(const Value &key) const
 {
   key.push_value();
+  QTLUA_PROTECT_BEGIN(this, p);
   lua_gettable(_lst, LUA_GLOBALSINDEX);
+  QTLUA_PROTECT_END(this, p);
   Value res(-1, this);
   lua_pop(_lst, 1);
   return res;
@@ -483,7 +496,8 @@ State::State()
   if (!_lst)
     throw std::bad_alloc();
 
-  //lua_atpanic(_lst, lua_panic);
+  lua_atpanic(_lst, lua_panic);
+  _panic_head = 0;
 
   // creat metatable for UserData events
 
@@ -539,8 +553,19 @@ State::~State()
 
 int State::lua_panic(lua_State *st)
 {
-  String err(lua_tostring(st, -1));
-  lua_pop(st, 1);
+  State		*this_ = get_this(st);
+
+  if (Panic *p = this_->_panic_head)
+    longjmp(p->_b, 1);
+
+  return 0;
+}
+
+void State::lua_panic_throw(const Panic *p) const
+{
+  _panic_head = p->_prev;
+  String err(lua_tostring(_lst, -1));
+  lua_pop(_lst, 1);
   throw err;
 }
 
@@ -605,12 +630,9 @@ Value::List State::exec_chunk(QIODevice &io)
 
   int oldtop = lua_gettop(_lst);
 
-  if (lua_pcall(_lst, 0, LUA_MULTRET, 0))
-    {
-      String err(lua_tostring(_lst, -1));
-      lua_pop(_lst, 1);
-      throw err;
-    }
+  QTLUA_PROTECT_BEGIN(this, p);
+  lua_call(_lst, 0, LUA_MULTRET);
+  QTLUA_PROTECT_END(this, p);
 
   Value::List res;
   for (int i = oldtop; i <= lua_gettop(_lst); i++)
@@ -631,12 +653,9 @@ Value::List State::exec_statements(const String & statement)
 
   int oldtop = lua_gettop(_lst);
 
-  if (lua_pcall(_lst, 0, LUA_MULTRET, 0))
-    {
-      String err(lua_tostring(_lst, -1));
-      lua_pop(_lst, 1);
-      throw err;
-    }
+  QTLUA_PROTECT_BEGIN(this, p);
+  lua_call(_lst, 0, LUA_MULTRET);
+  QTLUA_PROTECT_END(this, p);
 
   Value::List res;
   for (int i = oldtop; i <= lua_gettop(_lst); i++)

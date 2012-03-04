@@ -64,11 +64,6 @@ namespace QtLua {
     }
 
   private:
-    void completion_patch(String &path, String &entry, int &offset)
-    {
-      entry += ".";
-    };
-
     qmetaobject_table_t _mo_table;
   };
 

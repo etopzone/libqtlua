@@ -26,6 +26,8 @@
 #include <QObject>
 #include <QHash>
 
+#include <setjmp.h>
+
 #include "qtluastring.hh"
 #include "qtluavalue.hh"
 #include "qtluavalueref.hh"
@@ -40,6 +42,7 @@ struct lua_State;
 
 namespace QtLua {
 
+  class Panic;
   class UserData;
   class QObjectWrapper;
   class TableIterator;
@@ -86,8 +89,10 @@ class State : public QObject
 {
   Q_OBJECT
 
+  friend class Panic;
   friend class QObjectWrapper;
   friend class UserData;
+  friend class ValueBase;
   friend class Value;
   friend class ValueRef;
   friend class TableIterator;
@@ -237,8 +242,36 @@ private:
 
   void reg_c_function(const char *name, int (*fcn)(lua_State *));
 
-  // lua c functions
+  struct Panic
+  {
+    jmp_buf _b;
+    Panic *_prev;
+  };
+
+  /** @internal @showcontent
+   * Starts a block of C lua function calls which may raise lua errors
+   * that must be converted to QtLua exceptions. Must be paired with
+   * @ref #QTLUA_PROTECT_END. Objects allocated on stack inside the
+   * block will not be destoyed if an error is raised.
+   */
+#define QTLUA_PROTECT_BEGIN(st, var)		\
+  {						\
+    State::Panic var;				\
+						\
+    var._prev = st->_panic_head;		\
+    st->_panic_head = &var;			\
+    if (setjmp(var._b))				\
+      st->lua_panic_throw(&var);
+
+  /** @internal @showcontent @see #QTLUA_PROTECT_BEGIN */
+#define QTLUA_PROTECT_END(st, var)		\
+    st->_panic_head = var._prev;		\
+  }
+
+  void lua_panic_throw(const Panic *p) const;
   static int lua_panic(lua_State *st);
+
+  // lua c functions
   static int lua_cmd_iterator(lua_State *st);
   static int lua_cmd_each(lua_State *st);
   static int lua_cmd_print(lua_State *st);
@@ -272,6 +305,7 @@ private:
   wrapper_hash_t _whash;
 
   lua_State	*_lst;
+  mutable Panic *_panic_head;
 };
 
 }

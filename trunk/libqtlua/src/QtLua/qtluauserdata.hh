@@ -67,6 +67,7 @@ class Iterator;
 class UserData : public QtLua::Refobj<UserData>
 {
   friend class State;
+  friend class ValueBase;
   friend class Value;
   friend class ValueRef;
   friend uint qHash(const Value &lv);

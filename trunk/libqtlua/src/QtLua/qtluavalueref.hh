@@ -41,7 +41,7 @@ namespace QtLua {
    * @ref Value::iterator classes to allow modification of lua tables with
    * the C++ square bracket operator functions.
    */
-  class ValueRef
+  class ValueRef : public ValueBase
   {
     friend class Value;
     friend class State;
@@ -56,21 +56,26 @@ namespace QtLua {
 
     inline ValueRef(const ValueRef &ref);
 
+    inline ~ValueRef();
+
 #if __cplusplus >= 201103L
     /** Construct reference with given table and key. */
-    inline ValueRef(const Value &&table, const Value &key);
+    inline ValueRef( Value &&table, const Value &key);
+
+    /** Construct reference with given table and key. */
+    inline ValueRef(const Value &table, Value &&key);
 
     /** Construct reference with given table and key. */
     template <typename T>
-    inline ValueRef(const Value &&table, const T &key);
+    inline ValueRef(Value &&table, const T &key);
 
     /** Construct reference with given table and key. */
-    inline ValueRef(const Value &&table, const Value &&key);
+    inline ValueRef(Value &&table, Value &&key);
 
-    inline ValueRef(const ValueRef &&ref);
+    inline ValueRef(ValueRef &&ref);
 #endif
 
-    inline Value value() const;
+    Value value() const;
 
     /** Assign new value to referenced value. @multiple */
     inline const ValueRef & operator=(const Value &v) const;
@@ -78,17 +83,26 @@ namespace QtLua {
     template <typename T>
     inline const ValueRef & operator=(T n) const;
 
+#if 0
     inline ValueRef operator[] (const Value &key) const;
 
     template <typename T>
     inline ValueRef operator[] (const T &key) const;
+#endif
 
   private:
     inline const ValueRef & operator=(const ValueRef &v) const;
     void table_set(const Value &v) const;
 
-    Value _table;
-    Value _key;
+    void copy_table_key(double tid, double kid);
+    void copy_table(double id);
+    void copy_key(double id);
+
+    void push_value() const;
+    void cleanup();
+
+    double _table_id;
+    double _key_id;
   };
 
 }

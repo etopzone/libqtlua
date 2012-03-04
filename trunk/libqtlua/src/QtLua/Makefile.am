@@ -16,6 +16,7 @@ pkginclude_HEADERS = \
 	State qtluastate.hh qtluastate.hxx \
 	UserData qtluauserdata.hh qtluauserdata.hxx \
 	UserObject qtluauserobject.hh qtluauserobject.hxx \
+	ValueBase qtluavaluebase.hh qtluavaluebase.hxx \
 	Value qtluavalue.hh qtluavalue.hxx \
 	ValueRef qtluavalueref.hh qtluavalueref.hxx \
 	Ref qtluaref.hh \
