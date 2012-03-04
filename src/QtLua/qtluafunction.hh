@@ -53,10 +53,11 @@ namespace QtLua {
    *
    * @example examples/cpp/userdata/function.cc:1|6|3
    *
-   * @ref Function objects can be exposed as a lua values or registered
-   * on a @ref Plugin object. The @ref __register_1__ and @ref __register_2__
-   * functions offer convenient ways to register a @ref Function object
-   * in a lua table or on a @ref Plugin object.
+   * @ref Function objects can be exposed as a lua values or
+   * registered on a @ref Plugin object. The @ref __register_1__
+   * function and @ref #QTLUA_PLUGIN_FUNCTION macro offer convenient
+   * ways to register a @ref Function object in a lua table or on a
+   * @ref Plugin object.
    */
 
   class Function : public UserData
@@ -67,7 +68,7 @@ namespace QtLua {
     /**
      * @alias register_1
      * This function is provided for convenience and may be used to
-     * register the QtLua::Functions object in lua global table or in
+     * register the @ref Function object in lua global table or in
      * package subtables. All intermediate tables in path will be
      * created as needed.
      *
@@ -79,17 +80,7 @@ namespace QtLua {
      */
     void register_(State *ls, const String &path);
 
-    /**
-     * @alias register_2
-     * This function registers the @ref Function object on a @ref Plugin
-     * object and must be called from the @ref PluginInterface::register_members
-     * function.
-     *
-     * @param plugin reference to the @ref Plugin object which must be populated
-     * @param name name of the plugin member
-     *
-     * @see Plugin
-     */
+    /** @internal @see Plugin */
     void register_(Plugin &plugin, const String &name);
 
     /** This function may be reimplemented to return a short
@@ -99,6 +90,29 @@ namespace QtLua {
     /** This function may be reimplemented to return a function usage
 	help string. */
     virtual String get_help() const;
+
+    /** This macro declare a new a @ref Function class named
+	@tt{QtLua_Function_}@em{name} with given description, help and
+	code for reimplementation of the @ref UserData::meta_call function.
+
+	@code
+QTLUA_FUNCTION(foo, "The foo function", "No help available")
+{
+  Q_UNUSED(args);
+  return QtLua::Value(ls, "foo");
+}
+	@end code
+    */
+#define QTLUA_FUNCTION(name, description, help)				\
+class QtLua_Function_##name : public QtLua::Function			\
+  {									\
+    QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args); \
+    QtLua::String get_description() const { return description; }	\
+    QtLua::String get_help() const { return help; }			\
+  };									\
+									\
+ QtLua::Value::List QtLua_Function_##name				\
+   ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
 
   protected:
 
@@ -164,10 +178,6 @@ namespace QtLua {
     String get_type_name() const;
     bool support(Value::Operation c) const;
     void completion_patch(String &path, String &entry, int &offset);
-
-    void ref_drop(int count);
-    // keep a reference to owner plugin (if any) to prevent early unloading
-    Plugin::Loader::ptr _loader_ref;
   };
 
 }

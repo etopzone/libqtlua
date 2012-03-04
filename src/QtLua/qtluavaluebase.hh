@@ -285,8 +285,14 @@ public:
   /** Convert a lua number value to an integer.
       Throw exception if conversion fails. @multiple */
   inline int to_integer() const;
-  inline operator int () const;
+  inline operator signed char () const;
+  inline operator unsigned char () const;
+  inline operator signed short () const;
+  inline operator unsigned short () const;
+  inline operator signed int () const;
   inline operator unsigned int () const;
+  inline operator signed long () const;
+  inline operator unsigned long () const;
 
   /** Convert a lua value to a boolean.
       Throw exception if conversion fails. @multiple */
@@ -410,7 +416,8 @@ public:
   inline Value at(const T &key) const;
 
   /** Index operation on a lua userdata or lua table value. The @ref
-      at function is prefered for read access.  @multiple */
+      at function is prefered for read access on non-const objects
+      because construction of a @ref ValueRef is not needed. @multiple */
 #if 1
   inline Value operator[] (const Value &key) const;
 

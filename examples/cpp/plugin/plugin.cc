@@ -5,33 +5,17 @@
 
 #include "plugin.hh"
 
-Q_EXPORT_PLUGIN2(example, ExamplePlugin)
+Q_EXPORT_PLUGIN2(example, ExamplePlugin);
 
-const QtLua::String & ExamplePlugin::get_name() const
+QTLUA_FUNCTION(foo, "The foo function", "No help available")
 {
-  static const QtLua::String s("example");
-  return s;
-}
-
-const QtLua::String & ExamplePlugin::get_description() const
-{
-  static const QtLua::String s("This is just an example plugin");
-  return s;
+  Q_UNUSED(args);
+  return QtLua::Value(ls, "foo");
 }
 
 void ExamplePlugin::register_members(QtLua::Plugin &plugin)
 {
-
-  static class : public QtLua::Function
-  {
-    QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args)
-    {
-      return QtLua::Value(ls, "foo");
-    }
-
-  } foo;
-
-  foo.register_(plugin, "foo");
+  QTLUA_PLUGIN_FUNCTION_REGISTER(plugin, foo);
 }
 /* anchor end */
 

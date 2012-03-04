@@ -20,7 +20,6 @@
 
 
 #include <QtLua/Plugin>
-#include <QtLua/PluginInterface>
 #include <QtLua/String>
 
 #include "config.hh"
@@ -35,6 +34,12 @@ Plugin::Plugin(const String &filename)
 {
   set_container(&_map);
   api<PluginInterface>()->register_members(*this);
+}
+
+Plugin::~Plugin()
+{
+  for (plugin_map_t::const_iterator i = _map.begin(); i != _map.end(); i++)
+    delete *i;
 }
 
 Plugin::Loader::Loader(const String &filename)
@@ -53,16 +58,6 @@ Plugin::Loader::~Loader()
 Value Plugin::to_table(State *ls) const
 {
   return Value(ls, _map);
-}
-
-const String & Plugin::get_name() const
-{
-  return api<PluginInterface>()->get_name();
-}
-
-String Plugin::get_value_str() const
-{
-  return get_name();
 }
 
 const String & Plugin::get_plugin_ext()

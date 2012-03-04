@@ -11,7 +11,7 @@
   QtLua/qtluaitemselectionmodel.hh QtLua/qtluaiterator.hh
   QtLua/qtlualistitem.hh QtLua/qtluaplugin.hh
   QtLua/qtluaplugininterface.hh QtLua/qtluastate.hh
-  QtLua/qtluauserdata.hh QtLua/qtluauserobject.hh QtLua/qtluavalue.hh
+  QtLua/qtluauserdata.hh QtLua/qtluauserobject.hh QtLua/qtluavaluebase.hh QtLua/qtluavalue.hh
   QtLua/qtluavalueref.hh QtLua/qtluaref.hh QtLua/qtluastring.hh
   QtLua/qtluaqhashproxy.hh QtLua/qtluaqvectorproxy.hh
   QtLua/qtluaqlistproxy.hh QtLua/qtluaqlinkedlistproxy.hh

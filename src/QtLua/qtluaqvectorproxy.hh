@@ -87,7 +87,7 @@ private:
     ValueRef get_value_ref();
 
     QPointer<State> _ls;
-    typename QVectorProxyRo::ptr _proxy;
+    Ref<QVectorProxyRo> _proxy;
     unsigned int _it;
   };
 

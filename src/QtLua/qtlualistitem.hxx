@@ -29,13 +29,13 @@
 
 namespace QtLua {
 
-Item::ptr ListItem::get_child(const String &name) const
+Ref<Item> ListItem::get_child(const String &name) const
 {
   Item *i = _child_hash.value(name, 0);
-  return i ? *i : Item::ptr();
+  return i ? *i : Ref<Item>();
 }
 
-const QList<Item::ptr> & ListItem::get_list() const
+const QList<Ref<Item> > & ListItem::get_list() const
 {
   return _child_list;
 }

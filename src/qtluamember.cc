@@ -63,7 +63,7 @@ namespace QtLua {
     return false;
   }
 
-  static int ud_ref_type = qRegisterMetaType<Ref<UserData> >("Ref<UserData>");
+  static int ud_ref_type = qRegisterMetaType<Ref<UserData> >("QtLua::UserData::ptr");
 
   Value Member::raw_get_object(State *ls, int type, const void *data)
   {

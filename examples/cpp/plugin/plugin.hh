@@ -4,7 +4,7 @@
 
 /* anchor 1 */
 #include <QObject>
-#include <QtLua/PluginInterface>
+#include <QtLua/Plugin>
 
 class ExamplePlugin : public QObject, public QtLua::PluginInterface
 {
@@ -13,8 +13,6 @@ class ExamplePlugin : public QObject, public QtLua::PluginInterface
 
 public:
 
-  const QtLua::String & get_name() const;
-  const QtLua::String & get_description() const;
   void register_members(QtLua::Plugin &plugin);
 };
 /* anchor end */

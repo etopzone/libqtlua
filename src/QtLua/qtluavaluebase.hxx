@@ -150,14 +150,44 @@ namespace QtLua {
     return to_number();
   }
 
-  ValueBase::operator int () const
+  ValueBase::operator signed char () const
   {
-    return (int)to_number();
+    return (signed char)to_number();
+  }
+
+  ValueBase::operator unsigned char () const
+  {
+    return (unsigned char)to_number();
+  }
+
+  ValueBase::operator signed short () const
+  {
+    return (signed short)to_number();
+  }
+
+  ValueBase::operator unsigned short () const
+  {
+    return (unsigned short)to_number();
+  }
+
+  ValueBase::operator signed int () const
+  {
+    return (signed int)to_number();
   }
 
   ValueBase::operator unsigned int () const
   {
     return (unsigned int)to_number();
+  }
+
+  ValueBase::operator signed long () const
+  {
+    return (signed long)to_number();
+  }
+
+  ValueBase::operator unsigned long () const
+  {
+    return (unsigned long)to_number();
   }
 
   ValueBase::operator Bool () const
@@ -356,7 +386,7 @@ namespace QtLua {
   template <class X>
   inline QtLua::Ref<X> ValueBase::to_userdata_cast() const
   {
-    UserData::ptr ud = to_userdata_null();
+    Ref<UserData> ud = to_userdata_null();
 
     if (!ud.valid())
       throw String("Can not convert % type to %.").arg(type_name()).arg(UserData::type_name<X>());
