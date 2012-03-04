@@ -31,7 +31,7 @@ int main()
 
     ls.exec_statements("function f(obj, ud) v = ud; end");
 
-    ASSERT(ls.at("f").connect(myobj, "ud_arg(Ref<UserData>)"));
+    ASSERT(ls.at("f").connect(myobj, "ud_arg(QtLua::UserData::ptr)"));
 
     ASSERT(ls.at("v").type() == Value::TNil);
 
@@ -40,7 +40,7 @@ int main()
     ASSERT(ls.at("v").type() == Value::TUserData);
     ASSERT(ls.at("v").at(0).to_number() == 18);
 
-    ASSERT(ls.at("f").disconnect(myobj, "ud_arg(Ref<UserData>)"));
+    ASSERT(ls.at("f").disconnect(myobj, "ud_arg(QtLua::UserData::ptr)"));
 
     ls["o"] = myobj;
 
@@ -67,7 +67,7 @@ int main()
     ASSERT(ls.at("v").type() == Value::TUserData);
     ASSERT(ls.at("v").at("objectName").to_string() == "qo");
 
-    //    ASSERT(ls["f"].disconnect(myobj, "qo_arg(Ref<UserData>)"));
+    //    ASSERT(ls["f"].disconnect(myobj, "qo_arg(QtLua::UserData::ptr)"));
 
     ls["o"] = myobj;
 
