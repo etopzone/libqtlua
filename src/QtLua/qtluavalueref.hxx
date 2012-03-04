@@ -28,56 +28,92 @@
 
 namespace QtLua {
 
+  ValueRef::ValueRef(const ValueRef &ref)
+    : ValueBase(ref._st)
+    , _table_id(_id_counter++)
+    , _key_id(_id_counter++)
+  {
+    copy_table_key(ref._table_id, ref._key_id);
+  }
+
   ValueRef::ValueRef(const Value &table, const Value &key)
-    : _table(table),
-      _key(key)
+    : ValueBase(table._st)
+    , _table_id(_id_counter++)
+    , _key_id(_id_counter++)
   {
     assert(table._st == key._st);
-  }
-
-  template <typename T>
-  ValueRef::ValueRef(const Value &table, const T &key)
-    : _table(table),
-      _key(Value(table._st, key))
-  {
-  }
-
-  ValueRef::ValueRef(const ValueRef &ref)
-    : _table(ref._table),
-      _key(ref._key)
-  {
+    copy_table_key(table._id, key._id);
   }
 
 #if __cplusplus >= 201103L
-  ValueRef::ValueRef(const Value &&table, const Value &key)
-    : _table(std::move(table))
-    , _key(key)
+
+  ValueRef::ValueRef(Value &&table, const Value &key)
+    : ValueBase(table._st)
+    , _table_id(table._id)
+    , _key_id(_id_counter++)
   {
+    assert(table._st == key._st);
+    table._st = 0;
+    copy_key(key._id);
   }
 
   template <typename T>
-  ValueRef::ValueRef(const Value &&table, const T &key)
-    : _table(std::move(table))
-    , _key(Value(table._st, key))
+  ValueRef::ValueRef(Value &&table, const T &key)
+    : ValueBase(table._st)
+    , _table_id(table._id)
+    , _key_id(_id_counter++)
   {
+    table._st = 0;
+    Value k(table._st, key);
+    _key_id = k._id;
+    k._st = 0;
   }
 
-  ValueRef::ValueRef(const Value &&table, const Value &&key)
-    : _table(std::move(table))
-    , _key(std::move(key))
+  ValueRef::ValueRef(const Value &table, Value &&key)
+    : ValueBase(table._st)
+    , _table_id(_id_counter++)
+    , _key_id(key._id)
   {
+    assert(table._st == key._st);
+    key._st = 0;
+    copy_table(table._id);
   }
 
-  ValueRef::ValueRef(const ValueRef &&ref)
-    : _table(std::move(ref._table))
-    , _key(std::move(ref._key))
+  ValueRef::ValueRef(Value &&table, Value &&key)
+    : ValueBase(table._st)
+    , _table_id(table._id)
+    , _key_id(key._id)
   {
+    assert(table._st == key._st);
+    table._st = 0;
+    key._st = 0;
   }
+
+  ValueRef::ValueRef(ValueRef &&ref)
+    : ValueBase(ref._st)
+    , _table_id(ref._table_id)
+    , _key_id(ref._key_id)
+  {
+    ref._st = 0;
+  }
+
 #endif
 
-  Value ValueRef::value() const
+  template <typename T>
+  ValueRef::ValueRef(const Value &table, const T &key)
+    : ValueBase(table._st)
+    , _table_id(_id_counter++)
   {
-    return _table.at(_key);
+    copy_table(table._id);
+    Value k(table._st, key);
+    _key_id = k._id;
+    k._st = 0;
+  }
+
+  ValueRef::~ValueRef()
+  {
+    if (_st)
+      cleanup();
   }
 
 #if 0
@@ -97,19 +133,8 @@ namespace QtLua {
   template <typename T>
   const ValueRef & ValueRef::operator=(T n) const
   {
-    table_set(Value(_table._st, n));
+    table_set(Value(_st, n));
     return *this;
-  }
-
-  ValueRef ValueRef::operator[] (const Value &key) const
-  {
-    return ValueRef(_table.at(_key), key);
-  }
-
-  template <typename T>
-  ValueRef ValueRef::operator[] (const T &key) const
-  {
-    return (*this)[Value(_table._st, key)];
   }
 
 }

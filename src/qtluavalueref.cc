@@ -29,11 +29,107 @@ extern "C" {
 
 namespace QtLua {
 
+  void ValueRef::copy_table_key(double tid, double kid)
+  {
+    if (!_st)
+      return;
+
+    lua_State *lst = _st->_lst;
+
+    lua_pushnumber(lst, _table_id);
+    lua_pushnumber(lst, tid);
+    lua_rawget(lst, LUA_REGISTRYINDEX);  
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+
+    lua_pushnumber(lst, _key_id);
+    lua_pushnumber(lst, kid);
+    lua_rawget(lst, LUA_REGISTRYINDEX);  
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+  }
+
+  void ValueRef::copy_table(double id)
+  {
+    if (!_st)
+      return;
+
+    lua_State *lst = _st->_lst;
+
+    lua_pushnumber(lst, _table_id);
+    lua_pushnumber(lst, id);
+    lua_rawget(lst, LUA_REGISTRYINDEX);  
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+  }
+
+  void ValueRef::copy_key(double id)
+  {
+    if (!_st)
+      return;
+
+    lua_State *lst = _st->_lst;
+
+    lua_pushnumber(lst, _key_id);
+    lua_pushnumber(lst, id);
+    lua_rawget(lst, LUA_REGISTRYINDEX);  
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+  }
+
+  void ValueRef::cleanup()
+  {
+    assert(_st);
+    lua_State *lst = _st->_lst;
+
+    lua_pushnumber(lst, _table_id);
+    lua_pushnil(lst);
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+
+    lua_pushnumber(lst, _key_id);
+    lua_pushnil(lst);
+    lua_rawset(lst, LUA_REGISTRYINDEX);
+  }
+
+  void ValueRef::push_value() const
+  {
+    check_state();
+    lua_State *lst = _st->_lst;
+
+    lua_pushnumber(lst, _table_id);
+    lua_rawget(lst, LUA_REGISTRYINDEX);
+    lua_pushnumber(lst, _key_id);
+    lua_rawget(lst, LUA_REGISTRYINDEX);
+    QTLUA_PROTECT_BEGIN(_st, p);
+    lua_gettable(lst, -2);
+    QTLUA_PROTECT_END(_st, p);
+    lua_remove(lst, -2);
+  }
+
+  Value ValueRef::value() const
+  {
+    check_state();
+    lua_State *lst = _st->_lst;
+
+    {
+      lua_pushnumber(lst, _table_id);
+      lua_rawget(lst, LUA_REGISTRYINDEX);
+      lua_pushnumber(lst, _key_id);
+      lua_rawget(lst, LUA_REGISTRYINDEX);
+      QTLUA_PROTECT_BEGIN(_st, p);
+      lua_gettable(lst, -2);
+      QTLUA_PROTECT_END(_st, p);
+    }
+
+    Value res(-1, _st);
+    lua_pop(lst, 2);
+    return res;
+  }
+
   void ValueRef::table_set(const Value &v) const
   {
-    _table.push_value();
+    check_state();
+    lua_State *lst = _st->_lst;
 
-    lua_State *lst = _table._st->_lst;
+    lua_pushnumber(lst, _table_id);
+    lua_rawget(lst, LUA_REGISTRYINDEX);
+
     int t = lua_type(lst, -1);
 
     switch (t)
@@ -44,12 +140,23 @@ namespace QtLua {
 	if (!ud.valid())
 	  throw String("Can not index null lua::userdata value.");
 
-	ud->meta_newindex(_table._st, _key, v);
+	Value k(_st);
+	k._id = _key_id;	// reuse stored key id for temp Value
+
+	try {
+	  ud->meta_newindex(_st, k, v);
+	} catch (...) {
+	  k._st = 0;
+	  throw;
+	}
+	k._st = 0;
+
 	return;
       }
 
       case Value::TTable:
-	_key.push_value();
+	lua_pushnumber(lst, _key_id);
+	lua_rawget(lst, LUA_REGISTRYINDEX);
 	if (lua_isnil(lst, -1))
 	  {
 	    lua_pop(lst, 2);
@@ -57,7 +164,9 @@ namespace QtLua {
 	else
 	  {
 	    v.push_value();
+	    QTLUA_PROTECT_BEGIN(_st, p);
 	    lua_settable(lst, -3);
+	    QTLUA_PROTECT_END(_st, p);
 	    lua_pop(lst, 1);
 	  }
 	return;

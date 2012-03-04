@@ -38,6 +38,7 @@ int main()
     ls["t"]["c"] = ls["t"]["b"].value();
 
     ASSERT(ls.at("t").at("c").to_integer() == 5);
+    ASSERT(ls["t"]["c"].to_integer() == 5);
   }
 
   {

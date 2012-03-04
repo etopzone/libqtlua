@@ -15,7 +15,7 @@ libqtlua_la_SOURCES = qtluaconsole.cc qtluaenum.cc				\
 	qtluafunction.cc qtluaitem.cc qtluaitemmodel.cc	qtlualistitem.cc	\
 	qtlualistiterator.cc qtluamember.cc qtluametacache.cc qtluamethod.cc	\
 	qtluaplugin.cc qtluaqobjectwrapper.cc qtluaqtlib.cc qtluastate.cc	\
-	qtluatableiterator.cc qtluauserdata.cc qtluavalue.cc			\
+	qtluatableiterator.cc qtluauserdata.cc qtluavaluebase.cc qtluavalue.cc	\
 	qtluavalueref.cc qtluaqobjectiterator.cc qtluaenumiterator.cc		\
 	qtluaproperty.cc qtluaqmetaobjecttable.cc qtluaqmetaobjectwrapper.cc	\
 	qtluaitemselectionmodel.cc qtluaqtlib.hh qtluatabletreekeys.cc		\
