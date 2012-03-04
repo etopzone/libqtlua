@@ -31,6 +31,7 @@
 #include <QtLua/Iterator>
 #include <QtLua/String>
 #include <QtLua/Function>
+#include <QtLua/Console>
 #include <internal/QObjectWrapper>
 
 #include "qtluaqtlib.hh"
@@ -765,6 +766,9 @@ void State::fill_completion_list_r(String &path, const String &prefix,
       for (Value::const_iterator i = tbl.begin(); i != tbl.end(); i++)
 	{
 	  const Value &k = i.key();
+
+	  if (list.size() >= QTLUA_MAX_COMPLETION)
+	    return;
 
 	  // ignore non string keys
 	  if (k.type() != Value::TString)

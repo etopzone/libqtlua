@@ -294,6 +294,11 @@ void Console::action_key_complete()
 	  setTextColor(Qt::darkRed);
 	  insertPlainText(str + "\n");
 	}
+      if (list.size() >= QTLUA_MAX_COMPLETION)
+	{
+	  setTextColor(Qt::darkBlue);
+	  insertPlainText("...too many entries...\n");
+	}
       setTextColor(Qt::black);
 
       // adjust cursor position variables
