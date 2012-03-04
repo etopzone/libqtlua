@@ -195,6 +195,13 @@ namespace QtLua {
     return v;
   }
 
+  Value ValueRef::operator=(UserData *ud) const
+  {
+    Value v(_st, *ud);
+    table_set(v);
+    return v;
+  }
+
   Value ValueRef::operator=(QObject *obj) const
   {
     Value v(_st, obj);

@@ -61,10 +61,10 @@ public:
   ~ListItem();
 
   /** Find a child item from name. */
-  inline Item::ptr get_child(const String &name) const;
+  inline Ref<Item> get_child(const String &name) const;
 
   /** Get child items list */
-  inline const QList<Item::ptr> & get_list() const;
+  inline const QList<Ref<Item> > & get_list() const;
 
   /** Get number of childs */
   inline int get_child_count() const;
@@ -74,7 +74,7 @@ public:
   void meta_newindex(State *ls, const Value &key, const Value &value);
   Value meta_index(State *ls, const Value &key);
   bool meta_contains(State *ls, const Value &key);
-  Iterator::ptr new_iterator(State *ls);
+  Ref<Iterator> new_iterator(State *ls);
 
 protected:
 
@@ -84,7 +84,7 @@ protected:
    *
    * @return true if item is allowed to be a child member.
    */
-  virtual bool accept_child(const Item::ptr &item) const;
+  virtual bool accept_child(const Ref<Item> &item) const;
 
   /** Must return columns count for children of this node, default implementation returns 1. */
   virtual int get_column_count() const;
@@ -106,7 +106,7 @@ private:
   inline void remove_name(Item *item);
 
   QHash<String,Item*> _child_hash;
-  QList<Item::ptr> _child_list;
+  QList<Ref<Item> > _child_list;
   int _id_counter;
 };
 

@@ -34,7 +34,7 @@ namespace QtLua {
    * @module {Base}
    *
    * This class acts as a reference to a lua value stored in a lua
-   * table (or userdata value). It stores two lua values: a table
+   * table (or userdata value). It stores two lua values: a table value
    * along with a key value.
    *
    * This is mainly used in the @ref State, @ref Value and
@@ -54,26 +54,24 @@ namespace QtLua {
     template <typename T>
     inline ValueRef(const Value &table, const T &key);
 
-    inline ValueRef(const ValueRef &ref);
-
     inline ~ValueRef();
 
 #ifdef Q_COMPILER_RVALUE_REFS
-    /** Construct reference with given table and key. */
+    /** Construct reference with given table and key. @multiple */
     inline ValueRef( Value &&table, const Value &key);
 
-    /** Construct reference with given table and key. */
     inline ValueRef(const Value &table, Value &&key);
 
-    /** Construct reference with given table and key. */
     template <typename T>
     inline ValueRef(Value &&table, const T &key);
 
-    /** Construct reference with given table and key. */
     inline ValueRef(Value &&table, Value &&key);
 
+    /** */
     inline ValueRef(ValueRef &&ref);
 #endif
+
+    inline ValueRef(const ValueRef &ref);
 
     Value value() const;
 
@@ -92,8 +90,10 @@ namespace QtLua {
     inline Value operator=(const char *str) const;
 
     inline Value operator=(const Ref<UserData> &ud) const;
+    inline Value operator=(UserData *ud) const;
     inline Value operator=(QObject *obj) const;
     inline Value operator=(const QVariant &qv) const;
+    /** */
 
   private:
     inline const ValueRef & operator=(const ValueRef &v) const;

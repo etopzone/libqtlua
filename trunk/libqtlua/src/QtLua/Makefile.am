@@ -12,7 +12,6 @@ pkginclude_HEADERS = \
 	Iterator qtluaiterator.hh qtluaiterator.hxx \
 	ListItem qtlualistitem.hh qtlualistitem.hxx \
 	Plugin qtluaplugin.hh qtluaplugin.hxx \
-	PluginInterface qtluaplugininterface.hh qtluaplugininterface.hxx \
 	State qtluastate.hh qtluastate.hxx \
 	UserData qtluauserdata.hh qtluauserdata.hxx \
 	UserObject qtluauserobject.hh qtluauserobject.hxx \

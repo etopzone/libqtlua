@@ -81,7 +81,7 @@ private:
     ValueRef get_value_ref();
 
     QPointer<State> _ls;
-    typename QLinkedListProxy::ptr _proxy;
+    Ref<QLinkedListProxy> _proxy;
     typename Container::const_iterator _it;
     unsigned int _i;
   };

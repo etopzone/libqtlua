@@ -172,7 +172,7 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
         @item @ref QMetaType::QRectF
 
         @item userdata (see @ref QtLua::UserData) 
-        @item meta type registered with @tt qRegisterMetaType<Ref<UserData>>
+        @item @ref QtLua::Ref pointer to @ref QtLua::UserData type. Qt meta type name is @tt "QtLua::UserData::ptr" .
 
         @item nil
         @item Not handled Qt meta types

@@ -454,6 +454,14 @@ namespace QtLua {
       _state = REF_DELEGATE | (uintptr_t)o;
     }
 
+    /** Check if @ref ref_delegate has been used on this object. */
+    bool ref_is_delegate() const
+    {
+      const RefobjBase *y = this;
+
+      return (y->_state & REF_DELEGATE) != 0;
+    }
+
     /** Get object current reference count */
     int ref_count() const
     {
@@ -470,7 +478,6 @@ namespace QtLua {
    * @short Referenced objects template base class
    * @header QtLua/Ref
    * @module {Base}
-   * @internal
    *
    * This template class must be a base class for any class which may
    * be referenced by the @ref QtLua::Ref smart pointer.

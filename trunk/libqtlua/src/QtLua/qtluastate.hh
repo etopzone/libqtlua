@@ -42,7 +42,6 @@ struct lua_State;
 
 namespace QtLua {
 
-  class Panic;
   class UserData;
   class QObjectWrapper;
   class TableIterator;

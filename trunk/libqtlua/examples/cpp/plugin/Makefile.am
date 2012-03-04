@@ -10,7 +10,7 @@ QT_CPPFLAGS += -I$(top_srcdir)/src
 
 plugin_la_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
 plugin_la_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS)
-plugin_la_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags) -module
+plugin_la_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags) -module -rpath /nowhere
 plugin_la_LIBADD   = $(QT_LIBS) $(LIBADD) $(top_builddir)/src/libqtlua.la
 
 plugin_load_SOURCES = plugin_load.cc

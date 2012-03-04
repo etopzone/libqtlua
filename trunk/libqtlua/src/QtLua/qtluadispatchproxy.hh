@@ -210,7 +210,7 @@ private:
     QPointer<State> _state;
     const DispatchProxy &_dp;
     int _index;
-    Iterator::ptr _cur;
+    Ref<Iterator> _cur;
   };
 
   friend class ProxyIterator;

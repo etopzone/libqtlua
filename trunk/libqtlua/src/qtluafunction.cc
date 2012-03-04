@@ -52,12 +52,11 @@ void Function::register_(State *ls, const String &path)
 
 void Function::register_(Plugin &plugin, const String &name)
 {
-  if (_loader_ref.valid()) {
-    assert(_loader_ref->instance() == plugin._loader->instance());
-  }
+  if (ref_is_delegate())
+    throw QtLua::String("QtLua::Function already bound to a plugin. Plugin already loaded?");
 
-  _loader_ref = plugin._loader;
-  plugin._map.insert(name, *this);
+  ref_delegate(&plugin);
+  plugin._map.insert(name, this);
 }
 
 void Function::completion_patch(String &path, String &entry, int &offset)
@@ -75,14 +74,6 @@ bool Function::support(Value::Operation c) const
     default:
       return false;
     }
-}
-
-void Function::ref_drop(int count)
-{
-  // Drop reference to plugin loader if statically defined Function
-  // is not used anymore.
-  if (count == 0)
-    _loader_ref.invalidate();
 }
 
 }

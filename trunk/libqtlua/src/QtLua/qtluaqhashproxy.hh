@@ -96,7 +96,7 @@ private:
     ValueRef get_value_ref();
 
     QPointer<State> _ls;
-    typename QHashProxyRo::ptr _proxy;
+    Ref<QHashProxyRo> _proxy;
     typename Container::iterator _it;
   };
 

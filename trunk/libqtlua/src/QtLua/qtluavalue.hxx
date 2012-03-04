@@ -96,11 +96,18 @@ namespace QtLua {
     *this = String(str);
   }
 
-  Value::Value(const State *ls, const Ref<UserData> &item)
+  Value::Value(const State *ls, const Ref<UserData> &ud)
     : ValueBase(ls)
     , _id(_id_counter++)
   {
-    *this = item;
+    *this = ud;
+  }
+
+  Value::Value(const State *ls, UserData *ud)
+    : ValueBase(ls)
+    , _id(_id_counter++)
+  {
+    *this = *ud;
   }
 
   Value::Value(const State *ls, QObject *obj)
@@ -178,6 +185,12 @@ namespace QtLua {
   Value & Value::operator=(const char *str)
   {
     *this = String(str);
+    return *this;
+  }
+
+  Value & Value::operator=(UserData *ud)
+  {
+    *this = *ud;
     return *this;
   }
 
