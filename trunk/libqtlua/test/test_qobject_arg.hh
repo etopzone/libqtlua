@@ -35,21 +35,21 @@ public:
   {
   }
 
-  void send(Ref<UserData> ud)
+  void send(QtLua::UserData::ptr ud)
   {
     emit ud_arg(ud);
   }
 
-  Ref<UserData> _ud;
+  QtLua::UserData::ptr _ud;
 
  public slots:
-  void ud_slot(Ref<UserData> ud)
+  void ud_slot(QtLua::UserData::ptr ud)
   {
     _ud = ud;
   }
 
  signals:
-  void ud_arg(Ref<UserData> ud);
+  void ud_arg(QtLua::UserData::ptr ud);
 
 };
 
