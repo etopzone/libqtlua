@@ -38,7 +38,7 @@ namespace QtLua {
     if (lua_args.size() < 1)
       throw String("Can't call method without object. (use ':' instead of '.')");
 
-    QObjectWrapper::ptr qow = lua_args[0].to_userdata_null().dynamiccast<QObjectWrapper>();
+    QObjectWrapper::ptr qow = lua_args[0].to_userdata().dynamiccast<QObjectWrapper>();
 
     if (!qow.valid())
       throw String("Method first argument must be a QObjectWrapper. (use ':' instead of '.')");

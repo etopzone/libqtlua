@@ -112,7 +112,7 @@ int State::lua_cmd_print(lua_State *st)
 	String s = Value::to_string_p(st, i, true);
 	this_->output_str(s);
 	this_->output_str("\n");
-	qDebug("QtLua print:%s", s.constData());
+	//	qDebug("QtLua print:%s", s.constData());
       }
 
   } catch (String &e) {

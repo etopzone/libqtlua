@@ -389,33 +389,19 @@ UserData::ptr ValueBase::to_userdata() const
   push_value();
   lua_State *lst = _st->_lst;
 
-  if (lua_type(lst, -1) == LUA_TUSERDATA)
-    return UserData::pop_ud(lst);
-
-  convert_error(TUserData);
-  std::abort();
-}
-
-UserData::ptr ValueBase::to_userdata_null() const
-{
-  push_value();
-  lua_State *lst = _st->_lst;
-
-  if (lua_type(lst, -1) == LUA_TUSERDATA)
+  switch (lua_type(lst, -1))
     {
-#ifndef QTLUA_NO_USERDATA_CHECK
-      try {
-#endif
-	UserData::ptr ptr = UserData::get_ud(lst, -1);
-	lua_pop(lst, 1);
-	return ptr;
-#ifndef QTLUA_NO_USERDATA_CHECK
-      } catch (const String &e) {
-      }
-#endif
+    case LUA_TUSERDATA:
+      return UserData::pop_ud(lst);
+
+    case LUA_TNIL:
+      lua_pop(lst, 1);
+      break;
+
+    default:
+      convert_error(TUserData);
     }
 
-  lua_pop(lst, 1);
   return UserData::ptr();
 }
 
