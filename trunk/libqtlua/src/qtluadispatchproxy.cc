@@ -95,7 +95,7 @@ namespace QtLua {
   {
     foreach (const TargetBase *t, _targets)
       {
-	if ((t->_ops & (Value::OpIndex || Value::OpNewindex)) &&
+	if ((t->_ops & (Value::OpIndex | Value::OpNewindex)) &&
 	    (t->_support(Value::OpIndex) || t->_support(Value::OpNewindex)) && 
 	    t->_meta_contains(ls, key))
 	  return true;

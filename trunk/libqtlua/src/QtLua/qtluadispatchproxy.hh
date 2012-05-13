@@ -40,6 +40,10 @@ namespace QtLua {
    * from multiple objects as if all entries were merged in a single
    * table object.
    *
+   * Order in which underlying objects are added to the dispatcher
+   * object matters. See operation functions documentation in this
+   * class for a detailed description of the associated behaviors.
+   *
    * See @xref{Members detail} section for details about behavior of
    * different operations.
    *
@@ -97,7 +101,7 @@ public:
 
   /** 
    * This function handles the @ref Value::OpIndex operation by
-   * querying all registered object which @ref UserData::support
+   * querying all registered objects which @ref UserData::support
    * {support} this operation and had this operation enabled when
    * registered with the @ref add_target function.
    */
@@ -116,7 +120,7 @@ public:
    *
    * If a previous object contains an entry for passed key but only
    * supports the @ref Value::OpIndex table access operation and had
-   * this operation enabled when registered, an exception is throw
+   * this operation enabled when registered, an exception is thrown
    * to avoid shadowing before the call to @ref meta_newindex is forwarded.
    */
   void meta_newindex(State *ls, const Value &key, const Value &value);

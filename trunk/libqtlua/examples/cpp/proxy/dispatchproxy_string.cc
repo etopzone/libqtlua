@@ -40,6 +40,7 @@ public:
     : _c1_proxy(_c1)
     , _c2_proxy(_c2)
   {
+    // references to underlying objects will count as a reference to this
     _c1_proxy.ref_delegate(this);
     _c2_proxy.ref_delegate(this);
 
