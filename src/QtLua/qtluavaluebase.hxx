@@ -386,10 +386,10 @@ namespace QtLua {
   template <class X>
   inline QtLua::Ref<X> ValueBase::to_userdata_cast() const
   {
-    Ref<UserData> ud = to_userdata_null();
+    Ref<UserData> ud = to_userdata();
 
     if (!ud.valid())
-      throw String("Can not convert % type to %.").arg(type_name()).arg(UserData::type_name<X>());
+      throw String("Value contains a null UserData reference.");
 
     Ref<X> ref = ud.dynamiccast<X>();
 
@@ -400,9 +400,22 @@ namespace QtLua {
   }
 
   template <class X>
+  inline QtLua::Ref<X> ValueBase::to_userdata_cast_null() const
+  {
+    Ref<UserData> ud = to_userdata();
+
+    Ref<X> ref = ud.dynamiccast<X>();
+
+    if (ud.valid() && !ref.valid())
+      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+
+    return ref;
+  }
+
+  template <class X>
   inline ValueBase::operator Ref<X> () const
   {
-    return to_userdata_cast<X>();
+    return to_userdata_cast_null<X>();
   }
 
   State * ValueBase::get_state() const

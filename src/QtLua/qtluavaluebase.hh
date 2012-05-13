@@ -373,7 +373,7 @@ public:
   inline X *to_qobject_cast() const;
 
   /**
-   * Convert a lua value to a @ref Ref pointer to an @ref UserData.
+   * Convert a lua value into a @ref Ref pointer to an @ref UserData.
    * Throw exception if conversion fails.
    * @see to_userdata_null
    * @see to_userdata_cast
@@ -381,17 +381,19 @@ public:
   Ref<UserData> to_userdata() const;
 
   /**
-   * Convert a lua value to a @ref Ref pointer to an @ref UserData.
-   * @return a null @ref Ref if conversion fails.
+   * Convert a lua value into a @ref Ref pointer to an @ref UserData and
+   * dynamic cast to given @ref Ref pointer to requested type.
+   * Throw exception if conversion or cast fails.
    * @see to_userdata
    * @see to_userdata_cast
    */
-  Ref<UserData> to_userdata_null() const;
+  template <class X>
+  inline Ref<X> to_userdata_cast_null() const;
 
   /**
-   * Convert a lua value to a @ref Ref pointer to an @ref UserData and
+   * Convert a lua value into a @ref Ref pointer to an @ref UserData and
    * dynamic cast to given @ref Ref pointer to requested type.
-   * Throw exception if conversion or cast fails.
+   * Throw exception if either conversion fails, pointer is null or cast fails.
    * @see to_userdata
    * @see to_userdata_cast
    */

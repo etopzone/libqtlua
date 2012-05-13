@@ -99,7 +99,25 @@ Value & Value::operator=(const Ref<UserData> &ud)
     {
       lua_State *lst = _st->_lst;
       lua_pushnumber(lst, _id);
-      ud->push_ud(lst);
+      if (ud.valid())
+	ud->push_ud(lst);
+      else
+	lua_pushnil(lst);
+      lua_rawset(lst, LUA_REGISTRYINDEX);
+    }
+  return *this;
+}
+
+Value & Value::operator=(UserData *ud)
+{
+  if (_st)
+    {
+      lua_State *lst = _st->_lst;
+      lua_pushnumber(lst, _id);
+      if (ud)
+	ud->push_ud(lst);
+      else
+	lua_pushnil(lst);
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
   return *this;
