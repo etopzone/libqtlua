@@ -55,7 +55,7 @@ namespace QtLua {
    *
    * @ref Function objects can be exposed as a lua values or
    * registered on a @ref Plugin object. The @ref __register_1__
-   * function and @ref #QTLUA_PLUGIN_FUNCTION macro offer convenient
+   * function and @ref #QTLUA_FUNCTION macro offer convenient
    * ways to register a @ref Function object in a lua table or on a
    * @ref Plugin object.
    */

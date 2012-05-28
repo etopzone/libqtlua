@@ -17,6 +17,7 @@
         @item The @tt each() lua function returns a lua iterator which can be used to iterate over lua tables and QtLua @ref UserData objects.
         @item The @tt help() lua function can be used to display help about @ref QtLua::Function based objects.
         @item The @tt plugin() function returns a @ref QtLua::Plugin object loaded from given plugin bare file name.
+        @item The @tt qtype() function returns the QtLua type name of a value.
       @end list
     @end section
 
@@ -213,16 +214,25 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
 
       The following rules apply:
       @list
-        @item There is a single wrapper instance for a given @ref QObject instance.
-        @item The wrapper is created when the @ref QObject is first exposed as a lua value through a @ref QtLua::Value object.
-        @item A delete flag is carried by the wrapper.
-        @item The wrapper will delete the associated @ref QObject when garbage collected only if its delete flag is set.
-        @item The delete flag is set on wrapper creation only if the @ref QObject has a parent with the delete flag set.
-        @item The delete flag can be updated from C++ code using the @ref QtLua::Value::__Value_qobject__ constructor.
-        @item The wrapper can become void/empty if the associated @ref QObject get destroyed.
+        @item There is a single wrapper instance for a given @ref
+          QObject instance. This wrapper is created when the @ref
+          QObject is first exposed as a lua value through a @ref
+          QtLua::Value object. It lasts as long as the @ref QObject
+          exists or a lua @ref QtLua::Ref {reference} to the wrapper
+          exists. The wrapper will become void/empty if the associated
+          @ref QObject is deleted by C++ code.
+        @item A delete flag is carried by the wrapper. The wrapper
+          will delete the associated @ref QObject when no more
+          lua reference to the wrapper exist only if the delete flag is
+          set and the @ref QObject has no parent.
+        @item The delete flag is set on wrapper creation only if the
+          @ref QObject has a parent. The delete flag can be updated
+          from C++ code using the @ref QtLua::Value::__Value_qobject__
+          constructor.
       @end list
 
-      New @ref QObject wrappers returned by the @ref QtLua::QtLib {QtLib lua library} functions have their delete flag set.
+      New @ref QObject wrappers returned by the @ref QtLua::QtLib
+      {QtLib lua library} functions have their delete flag set.
 
       A reparent flag is also available to allow or deny parent change for a @ref QObject.
 

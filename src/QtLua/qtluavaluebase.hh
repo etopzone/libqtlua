@@ -45,21 +45,13 @@ class Iterator;
 uint qHash(const Value &lv);
 
   /**
-   * @short Lua values wrapper class
-   * @header QtLua/Value
+   * @short Lua values wrapper base class
+   * @header QtLua/ValueBase
    * @module {Base}
+   * @internal
    *
-   * This class exposes a lua value to C++ code. It provides
-   * conversion functions, cast operators, access operators and
-   * standard C++ iterators.
-   *
-   * Each @ref QtLua::Value object store its associated lua value in
-   * the lua interpreter state registry table.
-   * 
-   * @xsee{Qt/Lua types conversion}
-   * @see Iterator
-   * @see iterator
-   * @see const_iterator
+   * This base class contains lua value operations common to @ref
+   * Value and @ref ValueRef class.
    */
 
 class ValueBase
@@ -491,23 +483,33 @@ public:
   bool disconnect(QObject *obj, const char *signal);
 
 protected:
+  /** @internal */
   template <typename HashContainer>
   HashContainer to_hash() const;
 
+  /** @internal */
   template <typename ListContainer>
   ListContainer to_list() const;
 
+  /** @internal */
   virtual void push_value() const = 0;
+  /** @internal */
   virtual Value value() const = 0;
 
+  /** @internal */
   static String to_string_p(lua_State *st, int index, bool quote_string);
 
+  /** @internal */
   static uint qHash(lua_State *st, int index);
 
+  /** @internal */
   void convert_error(ValueType type) const;
+  /** @internal */
   void check_state() const;
 
+  /** @internal */
   QPointer<State> _st;
+  /** @internal */
   static double _id_counter;
 };
 

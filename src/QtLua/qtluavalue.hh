@@ -25,6 +25,24 @@
 
 namespace QtLua {
 
+  /**
+   * @short Lua values wrapper class
+   * @header QtLua/Value
+   * @module {Base}
+   *
+   * This class exposes a lua value to C++ code. It provides
+   * conversion functions, cast operators, access operators and
+   * standard C++ iterators.
+   *
+   * Each @ref QtLua::Value object store its associated lua value in
+   * the lua interpreter state registry table.
+   * 
+   * @xsee{Qt/Lua types conversion}
+   * @see Iterator
+   * @see iterator
+   * @see const_iterator
+   */
+
 class Value : public ValueBase
 {
   friend class State;
@@ -88,7 +106,7 @@ public:
    * @xsee{QObject wrapping}
    * @alias Value_qobject
    */
-  Value(State *ls, QObject *obj, bool delete_, bool reparent = true);
+  Value(State *ls, QObject *obj, bool delete_, bool reparent);
 
   /** Create a new lua table value */
   static inline Value new_table(const State *ls);
