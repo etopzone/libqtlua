@@ -201,6 +201,22 @@ int State::lua_cmd_help(lua_State *st)
   return 0;
 }
 
+int State::lua_cmd_qtype(lua_State *st)
+{
+  State *this_ = get_this(st);
+
+  if (lua_gettop(st) < 1)
+    {
+      this_->output_str("Usage: qtype(value)\n");
+      return 0;
+    }
+
+  Value v(1, this_);
+  String type(v.type_name_u());
+  lua_pushstring(st, type.constData());
+  return 1;
+}
+
 // lua item metatable methods
 
 #define LUA_META_2OP_FUNC(n, op)					\
@@ -448,10 +464,7 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
       QTLUA_PROTECT_END(this, p);
 
       if (lua_istable(_lst, -1))
-	{
-	  get_global_r(name.mid(len + 1), value, lua_gettop(_lst));
-	  lua_pop(_lst, 1);
-	}
+	get_global_r(name.mid(len + 1), value, lua_gettop(_lst));
 
       lua_pop(_lst, 1);
     }
@@ -759,6 +772,7 @@ void State::openlib(Library lib)
       reg_c_function("each", lua_cmd_each);
       reg_c_function("help", lua_cmd_help);
       reg_c_function("plugin", lua_cmd_plugin);
+      reg_c_function("qtype", lua_cmd_qtype);
       return;
     case QtLib:
       qtluaopen_qt(this);

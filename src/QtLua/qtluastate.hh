@@ -277,6 +277,7 @@ private:
   static int lua_cmd_list(lua_State *st);
   static int lua_cmd_help(lua_State *st);
   static int lua_cmd_plugin(lua_State *st);
+  static int lua_cmd_qtype(lua_State *st);
 
   // lua meta methods functions
   static int lua_meta_item_add(lua_State *st);
