@@ -29,6 +29,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QTranslator>
+#include <QActionGroup>
 
 #include <QMenu>
 #include <QMenuBar>
@@ -196,11 +197,7 @@ namespace QtLua {
 	QWidget *p = 0;
 
 	if (args.size() > 1)
-	  {
-	    p = dynamic_cast<QWidget *>(&args[1].to_userdata_cast<QObjectWrapper>()->get_object());
-	    if (!p)
-	      throw String("Parent QObject is not a QWidget.");
-	  }
+	  p = args[0].to_qobject_cast<QWidget>();
 
 	QFile f(args[0].to_qstring());
 	QObject *w = uil.load(&f, p);
@@ -208,7 +205,7 @@ namespace QtLua {
 	if (!w)
 	  throw String("Unable to load '%' ui file.").arg(f.fileName());
 
-	return Value(ls, w, true);
+	return Value(ls, w, true, true);
       }
 
       String get_description() const
@@ -240,11 +237,7 @@ namespace QtLua {
 	String name;
 
 	if (args.size() > 2)
-	  {
-	    p = dynamic_cast<QWidget *>(&args[2].to_userdata_cast<QObjectWrapper>()->get_object());
-	    if (!p)
-	      throw String("Parent QObject is not a QWidget.");
-	  }
+	  p = args[2].to_qobject_cast<QWidget>();
 
 	if (args.size() > 1)
 	  name = args[1].to_string();
@@ -254,7 +247,7 @@ namespace QtLua {
 	if (!w)
 	  throw String("Unable to create % type widget.").arg(classname);
 
-	return Value(ls, w, true);
+	return Value(ls, w, true, true);
       }
 
       String get_description() const
@@ -277,37 +270,38 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
+	meta_call_check_args(args, 2, 3, Value::TUserData, Value::TString, Value::TString);
 
-	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
-	QObject &obj = qow->get_object();
+	QObject *obj = args[0].to_qobject();
+	String text = args[1].to_string();
 	QObject *result;
-	String name = args[1].to_string();
 
-	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
-	  result = menu->addMenu(name.to_qstring());
-	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
-	  result = menubar->addMenu(name.to_qstring());
+	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+	  result = menu->addMenu(text);
+	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
+	  result = menubar->addMenu(text);
 	else
 	  throw String("Bad menu owner object type");
 
-	result->setObjectName(QString("menu") + name.to_qstring());
-	return QtLua::Value(ls, result, false);
+	if (args.size() > 2)
+	  result->setObjectName(args[2]);
+
+	return QtLua::Value(ls, result, true, true);
       }
 
       String get_description() const
       {
-	return "Add a QMenu to a QMenu or QMenuBar";
+	return "Add a QMenu to a QMenu or QMenuBar container";
       }
 
       String get_help() const
       {
-	return ("usage: qt.menu.addmenu( parent, name )");
+	return ("usage: qt.menu.add_menu( container, \"text\", [ \"name\" ] )");
       }
 
-    } menu_addmenu;
+    } menu_add_menu;
 
-    menu_addmenu.register_(ls, "qt.menu.addmenu");
+    menu_add_menu.register_(ls, "qt.menu.add_menu");
 
     //////////////////////////////////////////////////////////////////////
 
@@ -315,37 +309,35 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TString);
+	meta_call_check_args(args, 1, 2, Value::TUserData, Value::TString);
 
-	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
-	QObject &obj = qow->get_object();
+	QObject *obj = args[0].to_qobject();
 	QObject *result;
-	String name = args[1].to_string();
 
-	if (QMenu *menu = dynamic_cast<QMenu*>(&obj))
-	  result = menu->addAction(name.to_qstring());
-	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(&obj))
-	  result = menubar->addAction(name.to_qstring());
+	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+	  result = menu->addSeparator();
 	else
-	  throw String("Bad menu owner object type");
+	  throw String("Bad QMenu object type");
 
-	result->setObjectName(QString("action") + name.to_qstring());
-	return QtLua::Value(ls, result, false);
+	if (args.size() > 1)
+	  result->setObjectName(args[1]);
+
+	return QtLua::Value(ls, result, true, true);
       }
 
       String get_description() const
       {
-	return "Add a QAction to a QMenu or QMenuBar";
+	return "Add a separator QAction to a QMenu container";
       }
 
       String get_help() const
       {
-	return ("usage: qt.menu.addaction( parent, name )");
+	return ("usage: qt.menu.add_separator( container, [ \"name\" ] )");
       }
 
-    } menu_addaction;
+    } menu_add_separator;
 
-    menu_addaction.register_(ls, "qt.menu.addaction");
+    menu_add_separator.register_(ls, "qt.menu.add_separator");
 
     //////////////////////////////////////////////////////////////////////
 
@@ -353,39 +345,141 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	meta_call_check_args(args, 1, 1, Value::TUserData);
+	meta_call_check_args(args, 2, 3, Value::TUserData, Value::TNone, Value::TString);
 
-	QObjectWrapper::ptr qow = args[0].to_userdata_cast<QObjectWrapper>();
-	QObject &obj = qow->get_object();
+	QObject *obj = args[0].to_qobject();
+	QObject *result;
+
+	switch (args[1].type())
+	  {
+	  case Value::TString: {
+	    String text = args[1].to_string();
+
+	    if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+	      result = menu->addAction(text);
+	    else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
+	      result = menubar->addAction(text);
+	    else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
+	      result = group->addAction(text);
+	    else
+	      throw String("Bad QAction container object type");
+	    break;
+	  }
+
+	  case Value::TUserData: {
+	    QAction *action = args[1].to_qobject_cast<QAction>();
+	    result = action;
+
+	    if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+	      menu->addAction(action);
+	    else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
+	      menubar->addAction(action);
+	    else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
+	      group->addAction(action);
+	    else
+	      throw String("Bad QAction container object type");
+	    break;
+	  }
+
+	  default:
+	    throw String("Bad QAction object");
+	  }
+
+	if (args.size() > 2)
+	  result->setObjectName(args[2].to_string());
+
+	return QtLua::Value(ls, result, true, true);
+      }
+
+      String get_description() const
+      {
+	return "Add a QAction to a QMenuBar, QMenu or QActionGroup";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.add_action( container, \"text\"|qaction, [ \"name\" ] )");
+      }
+
+    } menu_add_action;
+
+    menu_add_action.register_(ls, "qt.menu.add_action");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	QAction *a[args.size()];
+
+	for (int i = 0; i < args.size(); i++)
+	  a[i] = args[i].to_qobject_cast<QAction>();
+
+	QActionGroup *result = new QActionGroup(0);
+	for (int i = 0; i < args.size(); i++)
+	  result->addAction(a[i]);
+
+	return QtLua::Value(ls, result, true, true);
+      }
+
+      String get_description() const
+      {
+	return "Create a new QActionGroup and add passed actions";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.new_action_group( action [, action ...] )");
+      }
+
+    } menu_new_action_group;
+
+    menu_new_action_group.register_(ls, "qt.menu.new_action_group");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 1, 2, Value::TUserData, Value::TUserData);
+
+	QObject *obj = args[0].to_qobject();
+	QObject *pobj;
 	QAction *action;
 	QMenu *menu = 0;
 
-	if ((action = dynamic_cast<QAction*>(&obj)))
+	if (args.size() > 1)
+	  pobj = args[1].to_qobject();
+	else
+	  pobj = obj->parent();
+
+	if ((action = dynamic_cast<QAction*>(obj)))
 	  ;
-	else if ((menu = dynamic_cast<QMenu*>(&obj)))
+	else if ((menu = dynamic_cast<QMenu*>(obj)))
 	  action = menu->menuAction();
 	else
-	  throw String("Unable to find associated QAction");
+	  throw String("Bad QAction object");
 
-	if (QWidget *parent = dynamic_cast<QWidget*>(obj.parent()))
-	  parent->removeAction(action);
+	if (QWidget *w = dynamic_cast<QWidget*>(pobj))
+	  w->removeAction(action);
+	else if (QActionGroup *group = dynamic_cast<QActionGroup*>(pobj))
+	  group->removeAction(action);
 	else
-	  throw String("QAction has no parent");
+	  throw String("Bad QWidget object to remove action from");
 
-	delete action;
-	if (menu)
-	  delete menu;
 	return QtLua::Value(ls);
       }
 
       String get_description() const
       {
-	return "Remove a QAction from a QMenu or QMenuBar";
+	return "Remove a QAction or QMenu action from a QWidget or QActionGroup";
       }
 
       String get_help() const
       {
-	return ("usage: qt.menu.addaction( parent, name )");
+	return ("usage: qt.menu.remove( qaction|qmenu [, qwidget|qactiongroup ] )");
       }
 
     } menu_remove;
@@ -398,7 +492,7 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	return Value(ls, new QFileDialog(), true);
+	return Value(ls, new QFileDialog(), true, true);
       }
 
       String get_description() const
@@ -563,7 +657,7 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	return Value(ls, new QErrorMessage(), true);
+	return Value(ls, new QErrorMessage(), true, true);
       }
 
       String get_description() const
@@ -715,7 +809,7 @@ namespace QtLua {
     {
       Value::List meta_call(State *ls, const Value::List &args)
       {
-	return Value(ls, new QMessageBox(), true);
+	return Value(ls, new QMessageBox(), true, true);
       }
 
       String get_description() const
@@ -876,7 +970,7 @@ namespace QtLua {
 
 	return Value(ls, new TableDialog(args[0],
 					 (TableDialog::ViewType)get_arg<int>(args, 1), 0,
-					 get_arg<int>(args, 2, 0), 0), true);
+					 get_arg<int>(args, 2, 0), 0), true, true);
       }
 
       String get_description() const
@@ -1044,7 +1138,7 @@ namespace QtLua {
 	  }
 
 	QCoreApplication::installTranslator(qtr);
-	return Value(ls, qtr, true);
+	return Value(ls, qtr, true, true);
       }
 
       String get_description() const
