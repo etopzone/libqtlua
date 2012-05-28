@@ -40,8 +40,8 @@ namespace QtLua {
     : _ls(ls),
       _obj(obj),
       _lua_next_slot(1),
-      _reparent(true),
-      _delete(obj && obj->parent() && get_wrapper(ls, obj->parent())->_delete)
+      _reparent(false),
+      _delete(obj && obj->parent())
   {
 #ifdef QTLUA_QOBJECTWRAPPER_DEBUG
     qDebug() << "wrapper object created" << _obj;
@@ -112,7 +112,7 @@ namespace QtLua {
 
 	_lua_disconnect_all();
 
-	if (_delete)
+	if (!_obj->parent() && _delete)
 	  {
 #ifdef QTLUA_QOBJECTWRAPPER_DEBUG
 	    qDebug() << "wrapped object delete" << _obj;
@@ -287,11 +287,10 @@ namespace QtLua {
     if (!_reparent)
       throw String("Parent change not allowed for '%' QObject.").arg(QObjectWrapper::qobject_name(*_obj));
 
-    // FIXME handle non-widget reparent
     if (!_obj->isWidgetType() || (parent && !parent->isWidgetType()))
-      throw String("Reparent of non QWidget objects not supported yet.");
-
-    qobject_cast<QWidget*>(_obj)->setParent(qobject_cast<QWidget*>(parent));
+      _obj->setParent(parent);
+    else
+      qobject_cast<QWidget*>(_obj)->setParent(qobject_cast<QWidget*>(parent));
   }
 
   void QObjectWrapper::meta_newindex(State *ls, const Value &key, const Value &value)
@@ -300,9 +299,23 @@ namespace QtLua {
     String skey = key.to_string();
 
     // handle existing children access
-    if (QObject *child = get_child(obj, skey))
+    if (QObject *cobj = get_child(obj, skey))
       {
-	QObjectWrapper::get_wrapper(ls, child)->reparent(0);
+	QObjectWrapper::ptr cw = get_wrapper(ls, cobj);
+
+	if (value.is_nil())
+	  {
+	    cw->reparent(0);
+	    return;
+	  }
+
+	QObjectWrapper::ptr vw = value.to_userdata_cast<QObjectWrapper>();
+	QObject &vobj = vw->get_object();
+
+	cw->reparent(0);
+	vobj.setObjectName(skey.to_qstring());
+	vw->reparent(&obj);
+	return;
       }
     else
       {
@@ -316,14 +329,12 @@ namespace QtLua {
 	  }
       }
 
-    // fallback to child insertion
-    if (value.type() != Value::TNil)
-      {
-	QObjectWrapper::ptr qow = value.to_userdata_cast<QObjectWrapper>();
-	QObject &child = qow->get_object();
-	child.setObjectName(skey.to_qstring());
-	qow->reparent(&obj);
-      }
+    // child insertion
+    QObjectWrapper::ptr vw = value.to_userdata_cast<QObjectWrapper>();
+    QObject &vobj = vw->get_object();
+
+    vobj.setObjectName(skey.to_qstring());
+    vw->reparent(&obj);
   }
 
   Ref<Iterator> QObjectWrapper::new_iterator(State *ls)

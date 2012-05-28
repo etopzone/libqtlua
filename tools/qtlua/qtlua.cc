@@ -50,7 +50,7 @@ int main(int argc, char *argv[])
     QtLua::State state;
     state.openlib(QtLua::AllLibs);
 
-    state["app"] = QtLua::Value(&state, &app, false);
+    state["app"] = QtLua::Value(&state, &app, false, false);
 
     for (int i = 1; i < argc; i++)
       {
