@@ -99,6 +99,12 @@ public:
   /** Get pointer to parent container */
   inline ListItem * get_parent() const;
 
+  /** Get associated @ref ItemModel */
+  inline ItemModel * get_model() const;
+
+  /** Get @ref QModelIndex */
+  inline QModelIndex get_model_index(int column = 0) const;
+
 protected:
 
   /** Make model emit QAbstractItemModel::dataChanged signal for this item */
@@ -139,10 +145,8 @@ private:
   const Item &operator=(const Item &);
 
   virtual void set_model(ItemModel* model);
-  inline ItemModel * get_model() const;
   bool in_parent_path(Item *item);
   void insert_name();
-  inline QModelIndex model_index(int column = 0) const;
   inline void set_row(int row);
   virtual Item * get_child_row(int row) const;
   virtual int get_child_count() const;

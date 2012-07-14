@@ -76,7 +76,7 @@ void Item::insert(const Ref<ListItem> &parent)
     emit _model->layoutAboutToBeChanged();
 
   _parent->insert(this, _row);
-  _parent->insert_name(this);
+  _parent->insert_name(this, _row);
   _parent->child_changed();
 
   if (_model)
@@ -118,18 +118,18 @@ void Item::set_name(const String &name)
 
   if (_parent)
     {
-      _parent->insert_name(this);
+      _parent->insert_name(this, _row);
       _parent->child_changed();
     }
 
   if (_model)
-    emit _model->dataChanged(model_index(), model_index());
+    emit _model->dataChanged(get_model_index(), get_model_index());
 }
 
 void Item::data_changed(int column) const
 {
   if (_model)
-    emit _model->dataChanged(model_index(column), model_index(column));  
+    emit _model->dataChanged(get_model_index(column), get_model_index(column));  
 }
 
 Item * Item::get_child_row(int row) const

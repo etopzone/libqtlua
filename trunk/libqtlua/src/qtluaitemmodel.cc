@@ -152,8 +152,8 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	      i->_parent = pi;
 	      assert(row <= pi->get_child_count());
 	      i->_row = row;
-	      pi->insert(i.ptr(), row++);
-	      pi->insert_name(i.ptr());
+	      pi->insert(i.ptr(), row);
+	      pi->insert_name(i.ptr(), row++);
 	      changed = true;
 
 	      if (p != pi)
