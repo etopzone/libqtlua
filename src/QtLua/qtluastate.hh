@@ -196,6 +196,8 @@ public:
    */
   void lua_do(void (*func)(lua_State *st));
 
+  inline lua_State *get_lua_state() const;
+
 public slots:
 
   /**

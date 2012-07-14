@@ -52,6 +52,11 @@ namespace QtLua {
     output(str.to_qstring());
   }
 
+  lua_State * State::get_lua_state() const
+  {
+    return _lst;
+  }
+
 }
 
 #endif
