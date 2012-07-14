@@ -187,7 +187,7 @@ public:
    * by the lua garbage collector.
    */
   Value & operator=(const Ref<UserData> &ud);
-  Value & operator=(UserData *ud);
+  inline Value & operator=(UserData *ud);
 
   /**
    * Assign a QObject to lua value.
