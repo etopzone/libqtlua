@@ -93,6 +93,10 @@ protected:
       changes name. Default implementation does nothing. */
   virtual void child_changed();
 
+  /** This function returns default name of the child item used when
+      first inserted if not already set. */
+  virtual String default_child_name(int row) const;
+
 private:
 
   void completion_patch(String &path, String &entry, int &offset);
@@ -101,7 +105,7 @@ private:
 
   void change_indexes(int first);
   void insert(Item *item, int row);
-  void insert_name(Item *item);
+  void insert_name(Item *item, int row);
   void remove(Item *item);
   inline void remove_name(Item *item);
 

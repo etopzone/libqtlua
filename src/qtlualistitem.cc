@@ -153,9 +153,9 @@ void ListItem::change_indexes(int first)
 
       if (_model)
 	{
-	  QModelIndex old(item->model_index());
+	  QModelIndex old(item->get_model_index());
 	  _child_list[i]->set_row(i);
-	  _model->changePersistentIndex(old, item->model_index());
+	  _model->changePersistentIndex(old, item->get_model_index());
 	}
       else
 	{
@@ -171,7 +171,7 @@ void ListItem::remove(Item *item)
   _child_hash.remove(item->get_name());
   _child_list.removeAt(item->get_row());
   if (_model)
-    _model->changePersistentIndex(item->model_index(), QModelIndex());
+    _model->changePersistentIndex(item->get_model_index(), QModelIndex());
   change_indexes(item->get_row());
 }
 
@@ -182,14 +182,14 @@ void ListItem::insert(Item *item, int row)
   change_indexes(row + 1);
 }
 
-void ListItem::insert_name(Item *item)
+void ListItem::insert_name(Item *item, int row)
 {
   QString name = item->_name;
 
   if (name.size() == 0)
-    name += "noname";
-  else
-    name = name.replace(QRegExp("[^A-Za-z0-9_]"), "_");
+    name = default_child_name(row);
+
+  name = name.replace(QRegExp("[^A-Za-z0-9_]"), "_");
 
   if (_child_hash.contains(name))
     {
@@ -247,6 +247,11 @@ void ListItem::completion_patch(String &path, String &entry, int &offset)
 
 void ListItem::child_changed()
 {
+}
+
+String ListItem::default_child_name(int row) const
+{
+  return "noname";
 }
 
 }

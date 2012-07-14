@@ -37,8 +37,8 @@ namespace QtLua {
     if (ListItem *l = dynamic_cast<ListItem*>(i))
       foreach(const Item::ptr &c, l->get_list())
 	{
-	  selection.select(c->model_index(), c->model_index());
-	  select_childs(c->model_index(), selection);
+	  selection.select(c->get_model_index(), c->get_model_index());
+	  select_childs(c->get_model_index(), selection);
 	}
   }
 
@@ -48,7 +48,7 @@ namespace QtLua {
 
     while (Item *p = i->get_parent())
       {
-	selection.select(p->model_index(), p->model_index());
+	selection.select(p->get_model_index(), p->get_model_index());
 	i = p;
       }
   }
