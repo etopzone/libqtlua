@@ -30,6 +30,8 @@
 #include <QApplication>
 #include <QTranslator>
 #include <QActionGroup>
+#include <QMainWindow>
+#include <QToolBar>
 
 #include <QMenu>
 #include <QMenuBar>
@@ -272,6 +274,38 @@ namespace QtLua {
       {
 	meta_call_check_args(args, 2, 3, Value::TUserData, Value::TString, Value::TString);
 
+	QMainWindow *mw = args[0].to_qobject_cast<QMainWindow>();
+	String text = args[1].to_string();
+	QObject *result = mw->addToolBar(text);
+
+	if (args.size() > 2)
+	  result->setObjectName(args[2]);
+
+	return QtLua::Value(ls, result, true, true);
+      }
+
+      String get_description() const
+      {
+	return "Add a new QToolBar to a QMainWindow";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.menu.add_toolbar( main_window, \"text\", [ \"name\" ] )");
+      }
+
+    } menu_add_toolbar;
+
+    menu_add_toolbar.register_(ls, "qt.menu.add_toolbar");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 2, 3, Value::TUserData, Value::TString, Value::TString);
+
 	QObject *obj = args[0].to_qobject();
 	String text = args[1].to_string();
 	QObject *result;
@@ -291,7 +325,7 @@ namespace QtLua {
 
       String get_description() const
       {
-	return "Add a QMenu to a QMenu or QMenuBar container";
+	return "Add a new QMenu to a QMenu or QMenuBar container";
       }
 
       String get_help() const
@@ -316,6 +350,8 @@ namespace QtLua {
 
 	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
 	  result = menu->addSeparator();
+	else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
+	  result = tb->addSeparator();
 	else
 	  throw String("Bad QMenu object type");
 
@@ -327,7 +363,7 @@ namespace QtLua {
 
       String get_description() const
       {
-	return "Add a separator QAction to a QMenu container";
+	return "Add a separator QAction to a QMenu or QToolBar";
       }
 
       String get_help() const
@@ -361,6 +397,8 @@ namespace QtLua {
 	      result = menubar->addAction(text);
 	    else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
 	      result = group->addAction(text);
+	    else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
+	      result = tb->addAction(text);
 	    else
 	      throw String("Bad QAction container object type");
 	    break;
@@ -376,6 +414,8 @@ namespace QtLua {
 	      menubar->addAction(action);
 	    else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
 	      group->addAction(action);
+	    else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
+	      tb->addAction(action);
 	    else
 	      throw String("Bad QAction container object type");
 	    break;
