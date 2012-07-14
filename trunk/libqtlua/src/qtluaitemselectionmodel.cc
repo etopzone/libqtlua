@@ -55,8 +55,13 @@ namespace QtLua {
 
   void ItemSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
   {
-    if ((command & (QItemSelectionModel::Select | QItemSelectionModel::Toggle)) &&
-	!(command & QItemSelectionModel::Clear))
+    if (command & QItemSelectionModel::Clear)
+      {
+	QItemSelectionModel::select(selection, QItemSelectionModel::Clear);
+	command &= ~QItemSelectionModel::Clear;
+      }
+
+    if (command & (QItemSelectionModel::Select | QItemSelectionModel::Toggle))
       {
 	QItemSelection sel;
 
