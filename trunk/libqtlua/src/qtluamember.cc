@@ -28,6 +28,8 @@
 #include <QMetaObject>
 #include <QMetaType>
 #include <QWidget>
+#include <QIcon>
+#include <QColor>
 
 #include <QtLua/String>
 #include <QtLua/MetaType>
@@ -160,6 +162,14 @@ namespace QtLua {
 	value[2] = point->y();
 	return value;
       }
+      case QMetaType::QColor: {
+	Value value(Value::new_table(ls));
+	const QColor *color = reinterpret_cast<const QColor*>(data);
+	value[1] = color->red();
+	value[2] = color->green();
+	value[3] = color->blue();
+	return value;
+      }
       default:
 	if (type == ud_ref_type)
 	  return Value(ls, **(Ref<UserData>*)data);
@@ -283,6 +293,16 @@ namespace QtLua {
 	QPointF *point = reinterpret_cast<QPointF*>(data);
 	point->setX(v.at(1).to_number());
 	point->setY(v.at(2).to_number());
+	return true;
+      }
+      case QMetaType::QIcon: {
+	QIcon *icon = reinterpret_cast<QIcon*>(data);
+	*icon = QIcon(v.to_string());
+	return true;
+      }
+      case QMetaType::QColor: {
+	QColor *color = reinterpret_cast<QColor*>(data);
+	*color = QColor(v.at(1).to_integer(), v.at(2).to_integer(), v.at(3).to_integer());
 	return true;
       }
       default:
