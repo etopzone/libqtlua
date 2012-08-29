@@ -74,7 +74,7 @@ void Console::display_prompt()
   setTextColor(Qt::blue);
   insertPlainText(_prompt);
 
-  setTextColor(Qt::black);
+  setTextColor(palette().color(QPalette::WindowText));
   tc = textCursor();
   insertPlainText(" ");
 
@@ -299,7 +299,7 @@ void Console::action_key_complete()
 	  setTextColor(Qt::darkBlue);
 	  insertPlainText("...too many entries...\n");
 	}
-      setTextColor(Qt::black);
+      setTextColor(palette().color(QPalette::WindowText));
 
       // adjust cursor position variables
       tc = textCursor();
@@ -706,7 +706,7 @@ void Console::print(const QString &str)
   setTextCursor(tc);
 
   // insert text
-  setTextColor(Qt::black);
+  setTextColor(palette().color(QPalette::WindowText));
 
   while ((last = str.indexOf(rx, first)) >= 0)
     {
@@ -714,7 +714,11 @@ void Console::print(const QString &str)
 	insertPlainText(str.mid(first, last - first));
       first = last + rx.matchedLength();
 
-      setTextColor((Qt::GlobalColor)(rx.cap(1).toUInt()));
+      unsigned int c = rx.cap(1).toUInt();
+      if (!c)
+	setTextColor(palette().color(QPalette::WindowText));
+      else
+	setTextColor((Qt::GlobalColor)c);
     }
 
   insertPlainText(str.mid(first, str.size() - first));
