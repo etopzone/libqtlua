@@ -413,6 +413,35 @@ namespace QtLua {
   }
 
   template <class X>
+  inline X* ValueBase::to_class_cast() const
+  {
+    Ref<UserData> ud = to_userdata();
+
+    if (!ud.valid())
+      throw String("Value contains a null UserData reference.");
+
+    X* ref = dynamic_cast<X*>(ud.ptr());
+
+    if (!ref)
+      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+
+    return ref;
+  }
+
+  template <class X>
+  inline X* ValueBase::to_class_cast_null() const
+  {
+    Ref<UserData> ud = to_userdata();
+
+    X* ref = dynamic_cast<X*>(ud.ptr());
+
+    if (ud.valid() && !ref)
+      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+
+    return ref;
+  }
+
+  template <class X>
   inline ValueBase::operator Ref<X> () const
   {
     return to_userdata_cast_null<X>();
@@ -439,6 +468,16 @@ namespace QtLua {
   }
 
   ValueBase::const_iterator ValueBase::end() const
+  {
+    return const_iterator(Ref<Iterator>());
+  }
+
+  ValueBase::const_iterator ValueBase::cbegin() const
+  {
+    return const_iterator(new_iterator());
+  }
+
+  ValueBase::const_iterator ValueBase::cend() const
   {
     return const_iterator(Ref<Iterator>());
   }

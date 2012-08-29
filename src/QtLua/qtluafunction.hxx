@@ -49,6 +49,12 @@ Ref<X> Function::get_arg_ud(const Value::List &args, int n)
 }
 
 template <class X>
+X* Function::get_arg_cl(const Value::List &args, int n)
+{
+  return get_arg<const Value &>(args, n).to_class_cast<X>();
+}
+
+template <class X>
 X* Function::get_arg_qobject(const Value::List &args, int n)
 {
   return get_arg<const Value &>(args, n).to_qobject_cast<X>();

@@ -172,6 +172,24 @@ namespace QtLua {
      * This function may be called from the @ref meta_call function to
      * perform lua to C++ argument conversion and checking.
      *
+     * It checks if the argument is available and if it is an @ref
+     * UserData object and tries to @tt dynamic_cast it. This function
+     * throws an exception if the result is null.
+     *
+     * @param args arguments list
+     * @param n argument index in list
+     * @returns @ref pointer to @tt X type.
+     *
+     * @xsee{Qt/Lua types conversion}
+     * @see __get_arg2__
+     */
+    template <class X>
+    static inline X* get_arg_cl(const Value::List &args, int n);
+
+    /**
+     * This function may be called from the @ref meta_call function to
+     * perform lua to C++ argument conversion and checking.
+     *
      * It checks if the argument is available and if it is @ref
      * QObject wrapper and tries to cast to the requested @ref QObject
      * based class using the Value::to_qobject_cast function.
