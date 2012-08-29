@@ -103,7 +103,7 @@ namespace QtLua {
     void copy_table(double id);
     void copy_key(double id);
 
-    void push_value() const;
+    void push_value(lua_State *st) const;
     void cleanup();
 
     double _table_id;

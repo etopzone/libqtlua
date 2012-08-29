@@ -278,4 +278,23 @@ usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_s
 
   @end section
 
+  @section TP {Coroutines}
+
+    QtLua supports lua coroutines from version 2.
+
+    Coroutines can be created from C++ code using the @ref
+    Value::new_thread function.
+
+    C++ callable @ref UserData based classes can request yield on
+    return by invoking the @ref UserData::yield function from their
+    reimplementation of @ref UserData::meta_call.
+
+    Resume on a coroutines value use the same method as function call
+    operation. This way you can use the @ref Value::call and @tt ()
+    operators on a @ref Value object without first checking if it is a
+    regular lua function, a callable @ref UserData based object or a
+    lua coroutine to resume.
+
+  @end section
+
 @end section

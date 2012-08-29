@@ -192,5 +192,19 @@ void UserData::completion_patch(String &path, String &entry, int &offset)
 {
 }
 
+Value UserData::yield(State *ls) const
+{
+  lua_State *lst = ls->_lst;
+
+  if (ls->_mst == lst)
+    return Value(ls);
+  ls->_yield_on_return = true;
+  int r = lua_pushthread(lst);
+  assert(r != 1);
+  Value res(-1, ls);
+  lua_pop(lst, 1);
+  return res;
+}
+
 }
 

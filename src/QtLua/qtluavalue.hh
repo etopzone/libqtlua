@@ -111,6 +111,9 @@ public:
   /** Create a new lua table value */
   static inline Value new_table(const State *ls);
 
+  /** Create a new coroutine value with given entry point lua function. */
+  static inline Value new_thread(const State *ls, const Value &main);
+
   /**
    * Create a lua table indexed from 1 with elements from a @ref QList.
    * @xsee{Qt/Lua types conversion}
@@ -241,7 +244,7 @@ private:
   inline void from_list(const State *ls, const ListContainer &list);
 
   /** push value on lua stack. */
-  void push_value() const;
+  void push_value(lua_State *st) const;
   inline Value value() const;
 
   /** set value to nil in registry, _st must not be NULL */
@@ -251,6 +254,7 @@ private:
   Value(int index, const State *st);
 
   void init_table();
+  void init_thread(const Value &main);
 
   static int empty_fcn(lua_State *st);
 

@@ -153,6 +153,7 @@ public:
       TTable	= 5,		//< Lua table value
       TFunction	= 6,		//< Lua function value
       TUserData	= 7,		//< Lua userdata value
+      TThread   = 8,            //< Lua thread value
     };
 
   /**
@@ -244,8 +245,9 @@ public:
       True = 1
     };
 
-  /** Call operation on a lua userdata or lua function value. @multiple */
-  List call (const List &args) const;
+  /** Call operation on a lua userdata or lua function value.
+      When invoked on a lua thread value, the thread is resumed. @multiple */
+  List call(const List &args) const;
   inline List operator() () const;
   inline List operator() (const Value &arg1) const;
   inline List operator() (const Value &arg1, const Value &arg2) const;
@@ -253,6 +255,10 @@ public:
   inline List operator() (const Value &arg1, const Value &arg2, const Value &arg3, const Value &arg4) const;
   inline List operator() (const Value &arg1, const Value &arg2, const Value &arg3, const Value &arg4, const Value &arg5) const;
   inline List operator() (const Value &arg1, const Value &arg2, const Value &arg3, const Value &arg4, const Value &arg5, const Value &arg6) const;
+
+  /** @This starts execution of a lua thread value. Resume after yield
+      can be performed by invocation of the @ref call function. */
+  List start(const Value &main, const List &args) const;
 
   /** Get an @ref iterator to traverse a lua userdata or lua table value. @multiple */
   inline iterator begin();
@@ -427,6 +433,9 @@ public:
   /** Check if the value is @tt nil */
   inline bool is_nil() const;
 
+  /** Returns true if the value is a coroutine which is not resumable */
+  bool is_dead() const;
+
   /** Dump the bytecode for a function object */
   QByteArray to_bytecode() const;
 
@@ -492,7 +501,7 @@ protected:
   ListContainer to_list() const;
 
   /** @internal */
-  virtual void push_value() const = 0;
+  virtual void push_value(lua_State *st) const = 0;
   /** @internal */
   virtual Value value() const = 0;
 

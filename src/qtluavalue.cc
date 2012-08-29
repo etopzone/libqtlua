@@ -35,12 +35,10 @@ extern "C" {
 
 namespace QtLua {
 
-void Value::push_value() const
+void Value::push_value(lua_State *st) const
 {
-  check_state();
-  lua_State *lst = _st->_lst;
-  lua_pushnumber(lst, _id);
-  lua_rawget(lst, LUA_REGISTRYINDEX);  
+  lua_pushnumber(st, _id);
+  lua_rawget(st, LUA_REGISTRYINDEX);  
 }
 
 int Value::empty_fcn(lua_State *st)
@@ -54,6 +52,30 @@ void Value::init_table()
   lua_State *lst = _st->_lst;
   lua_pushnumber(lst, _id);
   lua_newtable(lst);
+  lua_rawset(lst, LUA_REGISTRYINDEX);
+}
+
+void Value::init_thread(const Value &main)
+{
+  check_state();
+  lua_State *lst = _st->_lst;
+  lua_pushnumber(lst, _id);
+  lua_State *th = lua_newthread(lst);
+
+  try {
+    main.push_value(lst);
+  } catch (...) {
+    lua_pop(lst, 2);
+    throw;
+  }
+
+  if (main.type() != TFunction)
+    {
+      lua_pop(lst, 3);
+      throw String("A lua::function value is expected as coroutine entry point.");
+    }
+
+  lua_xmove(lst, th, 1);
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
@@ -153,7 +175,14 @@ Value & Value::operator=(const Value &lv)
     {
       lua_State *lst = _st->_lst;
       lua_pushnumber(lst, _id);
-      lv.push_value();
+
+      try {
+	lv.push_value(lst);
+      } catch (...) {
+	lua_pop(lst, 1);
+	throw;
+      }
+
       lua_rawset(lst, LUA_REGISTRYINDEX);
     }
 
@@ -169,7 +198,12 @@ Value::Value(const Value &lv)
 
   lua_State *lst = _st->_lst;
   lua_pushnumber(lst, _id);
-  lv.push_value();
+  try {
+    lv.push_value(lst);
+  } catch (...) {
+    lua_pop(lst, 1);
+    throw;
+  }
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
@@ -184,7 +218,12 @@ Value::Value(const State *ls, const Value &lv)
 
   lua_State *lst = _st->_lst;
   lua_pushnumber(lst, _id);
-  lv.push_value();
+  try {
+    lv.push_value(lst);
+  } catch (...) {
+    lua_pop(lst, 1);
+    throw;
+  }
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
@@ -211,12 +250,13 @@ Value::Value(int index, const State *st)
 
 uint qHash(const Value &lv)
 {
-  lv.push_value();
+  if (!lv._st)
+    return 0;
 
   lua_State *lst = lv._st->_lst;
-  uint	res;
+  lv.push_value(lst);
 
-  res = ValueBase::qHash(lst, -1);
+  uint	res = ValueBase::qHash(lst, -1);
   lua_pop(lst, 1);
   return res;
 }
