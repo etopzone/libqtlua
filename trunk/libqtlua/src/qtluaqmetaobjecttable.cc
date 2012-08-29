@@ -50,6 +50,7 @@
 #include <QDialogButtonBox>
 #include <QDockWidget>
 #include <QDoubleSpinBox>
+#include <QErrorMessage>
 #include <QFile>
 #include <QFileDialog>
 #include <QFocusFrame>
@@ -158,8 +159,9 @@ const meta_object_table_s meta_object_table[] = {
   { &QDialogButtonBox::staticMetaObject,	     &create_qobject<QDialogButtonBox> },
   { &QDockWidget::staticMetaObject,		     &create_qobject<QDockWidget> },
   { &QDoubleSpinBox::staticMetaObject,		     &create_qobject<QDoubleSpinBox> },
+  { &QErrorMessage::staticMetaObject,		     &create_qobject<QErrorMessage> },
   { &QFile::staticMetaObject,			     &create_qobject<QFile> },
-  { &QFileDialog::staticMetaObject,		     &create_qobject<QFileDialog> },
+  // { &QFileDialog::staticMetaObject,		     &create_qobject<QFileDialog> },
   { &QFocusFrame::staticMetaObject,		     &create_qobject<QFocusFrame> },
   { &QFont::staticMetaObject,			     0 },
   { &QFontDialog::staticMetaObject,		     &create_qobject<QFontDialog> },

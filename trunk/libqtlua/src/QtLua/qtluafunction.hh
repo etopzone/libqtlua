@@ -104,6 +104,11 @@ namespace QtLua {
     QtLua::Value::List QtLua_Function_##name				\
     ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
 
+    /** @This declare and register a @ref Function object on a QtLua @ref State. 
+	@showcontent */
+#define QTLUA_FUNCTION_REGISTER(state, prefix, name)	\
+  static QtLua_Function_##name name(state, prefix #name)
+
   protected:
 
     virtual Value::List meta_call(State *ls, const Value::List &args) = 0;

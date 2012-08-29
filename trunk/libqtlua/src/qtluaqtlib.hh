@@ -30,7 +30,7 @@ namespace QtLua {
   void qtluaopen_qt(State *ls);
 
   /** QFileDialog widget with more usefull properties */
-  class QFileDialog : public ::QFileDialog
+  class FileDialog : public ::QFileDialog
   {
     Q_OBJECT;
 
