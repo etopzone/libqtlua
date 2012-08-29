@@ -163,6 +163,7 @@ private:
   struct TargetBase
   {
     inline TargetBase(UserData *ud, Value::Operations ops, bool new_keys);
+    virtual inline ~TargetBase();
 
     virtual Value _meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b) const = 0;
     virtual Value _meta_index(State *ls, const Value &key) const = 0;

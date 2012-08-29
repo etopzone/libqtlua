@@ -676,7 +676,6 @@ namespace QtLua {
   }
 
 
-#warning remove?
   QTLUA_FUNCTION(new_table_dialog, "Dynamically create a new QtLua::TableDialog.",
 		 "usage: qt.dialog.new_table_dialog( table , viewtype, [ attributes ] )\n")
   {

@@ -61,6 +61,10 @@ namespace QtLua {
   {
   }
 
+  DispatchProxy::TargetBase::~TargetBase()
+  {
+  }
+
   template <class T>
   DispatchProxy::Target<T>::Target(UserData *ud, Value::Operations ops, bool new_keys)
     : TargetBase(ud, ops, new_keys)
