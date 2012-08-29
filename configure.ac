@@ -16,7 +16,7 @@ AC_PROG_LIBTOOL
 
 #AC_LANG(C++)
 
-AT_WITH_QT([core gui], [uitools])
+AT_WITH_QT([core gui xml], [uitools])
 
 AC_CONFIG_FILES([
   Makefile
@@ -25,6 +25,7 @@ AC_CONFIG_FILES([
     src/internal/Makefile
     tools/Makefile
     tools/qtlua/Makefile
+    tools/uic/Makefile
     examples/Makefile
     examples/lua/Makefile
     examples/cpp/Makefile

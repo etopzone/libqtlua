@@ -22,6 +22,7 @@
 #include <QUiLoader>
 #include <QWidget>
 
+#include <QLayout>
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QErrorMessage>
@@ -60,25 +61,32 @@ namespace QtLua {
     QMetaObjectTable()
       : QHashProxyRo<qmetaobject_table_t>(_mo_table)
     {
-      for (const QMetaObject **mo = meta_object_table; *mo; mo++)
+      for (const meta_object_table_s *me = meta_object_table; me->_mo; me++)
 	{
-	  String name((*mo)->className());
+	  String name(me->_mo->className());
 	  name.replace(':', '_');
-	  _mo_table.insert(name, QMetaObjectWrapper(*mo));
+	  _mo_table.insert(name, QMetaObjectWrapper(me->_mo, me->_creator));
 	}
 
       _mo_table.insert("Qt", QMetaObjectWrapper(&staticQtMetaObject));
+      _mo_table.insert("QSizePolicy", QMetaObjectWrapper(&QtLua::SizePolicy::staticMetaObject));
     }
 
-  private:
     qmetaobject_table_t _mo_table;
   };
 
+  static QMetaObjectTable qt_meta;
+
+  void qtlib_register_meta(const QMetaObject *mo, qobject_creator *creator)
+  {
+    String name(mo->className());
+    name.replace(':', '_');
+    qt_meta._mo_table.insert(name, QMetaObjectWrapper(mo, creator));
+  }
+
   void qtluaopen_qt(State *ls)
   {
-    static QMetaObjectTable meta;
-
-    ls->set_global("qt.meta", Value(ls, meta));
+    ls->set_global("qt.meta", Value(ls, qt_meta));
 
     //////////////////////////////////////////////////////////////////////
 
@@ -89,13 +97,13 @@ namespace QtLua {
 	meta_call_check_args(args, 3, 4, Value::TUserData, Value::TString, Value::TNone, Value::TString);
 
 	QObjectWrapper::ptr sigqow = args[0].to_userdata_cast<QObjectWrapper>();
-	QObject &sigobj = sigqow->get_object();
-	Method::ptr sig = MetaCache::get_meta(sigobj).get_member_throw<Method>(args[1].to_string());
-	int sigindex = sig->get_index();
-	QMetaMethod sigmm = sigobj.metaObject()->method(sigindex);
 
-	if (sigmm.methodType() != QMetaMethod::Signal)
-	  throw String("First argument is not a signal method.");
+	String signame = args[1].to_string();
+	QObject &sigobj = sigqow->get_object();
+
+	int sigindex = sigobj.metaObject()->indexOfSignal(signame.constData());
+	if (sigindex < 0)
+	  throw String("No such signal `%'.").arg(signame);
 
 	switch (args.size())
 	  {
@@ -107,15 +115,17 @@ namespace QtLua {
 
 	  case 4: {
 	    // connect qt signal to qt slot
+	    String slotname = args[3].to_string();
 	    QObject &sloobj = args[2].to_userdata_cast<QObjectWrapper>()->get_object();	
-	    Method::ptr slo = MetaCache::get_meta(sloobj).get_member_throw<Method>(args[3].to_string());
-	    int sloindex = slo->get_index();
-	    QMetaMethod slomm = sloobj.metaObject()->method(sloindex);
 
-	    if (!QMetaObject::checkConnectArgs(sigmm.signature(), slomm.signature()))
+	    int slotindex = sloobj.metaObject()->indexOfSlot(slotname.constData());
+	    if (slotindex < 0)
+	      throw String("No such slot `%'.").arg(slotname);
+
+	    if (!QMetaObject::checkConnectArgs(signame.constData(), slotname.constData()))
 	      throw String("Unable to connect signal/slot, incompatible argument types.");
 
-	    if (QMetaObject::connect(&sigobj, sigindex, &sloobj, sloindex))
+	    if (QMetaObject::connect(&sigobj, sigindex, &sloobj, slotindex))
 	      return Value::List();
 	  }
 
@@ -131,8 +141,8 @@ namespace QtLua {
 
       String get_help() const
       {
-	return ("usage: qt.connect(qobjectwrapper, \"qt_signal_name\", qobjectwrapper, \"qt_slot_name\")\n"
-		"       qt.connect(qobjectwrapper, \"qt_signal_name\", lua_function)\n");
+	return ("usage: qt.connect(qobjectwrapper, \"qt_signal_signature()\", qobjectwrapper, \"qt_slot_signature()\")\n"
+		"       qt.connect(qobjectwrapper, \"qt_signal_signature()\", lua_function)\n");
       }
     } connect;
 
@@ -147,9 +157,13 @@ namespace QtLua {
 	meta_call_check_args(args, 2, 4, Value::TUserData, Value::TString, Value::TNone, Value::TString);
 
 	QObjectWrapper::ptr sigqow = args[0].to_userdata_cast<QObjectWrapper>();
+
+	String signame = args[1].to_string();
 	QObject &sigobj = sigqow->get_object();
-	Method::ptr sig = MetaCache::get_meta(sigobj).get_member_throw<Method>(args[1].to_string());
-	int sigindex = sig->get_index();
+
+	int sigindex = sigobj.metaObject()->indexOfSignal(signame.constData());
+	if (sigindex < 0)
+	  throw String("No such signal `%'.").arg(signame);
 
 	switch (args.size())
 	  {
@@ -164,11 +178,14 @@ namespace QtLua {
 
 	  case 4: {
 	    // disconnect qt signal from qt slot
+	    String slotname = args[3].to_string();
 	    QObject &sloobj = args[2].to_userdata_cast<QObjectWrapper>()->get_object();	
-	    Method::ptr slo = MetaCache::get_meta(sloobj).get_member_throw<Method>(args[3].to_string());
-	    int sloindex = slo->get_index();
 
-	    return Value(ls, (Value::Bool)QMetaObject::disconnect(&sigobj, sigindex, &sloobj, sloindex));
+	    int slotindex = sloobj.metaObject()->indexOfSlot(slotname.constData());
+	    if (slotindex < 0)
+	      throw String("No such slot `%'.").arg(slotname);
+
+	    return Value(ls, (Value::Bool)QMetaObject::disconnect(&sigobj, sigindex, &sloobj, slotindex));
 	  }
 
 	  }
@@ -183,9 +200,9 @@ namespace QtLua {
 
       String get_help() const
       {
-	return ("usage: qt.disconnect(qobjectwrapper, \"qt_signal_name\", qobjectwrapper, \"qt_slot_name\")\n"
-		"       qt.disconnect(qobjectwrapper, \"qt_signal_name\", lua_function)\n"
-		"       qt.disconnect(qobjectwrapper, \"qt_signal_name\")\n");
+	return ("usage: qt.disconnect(qobjectwrapper, \"qt_signal_signature()\", qobjectwrapper, \"qt_slot_signature()\")\n"
+		"       qt.disconnect(qobjectwrapper, \"qt_signal_signature()\", lua_function)\n"
+		"       qt.disconnect(qobjectwrapper, \"qt_signal_signature()\")\n");
       }
     } disconnect;
 
@@ -269,6 +286,123 @@ namespace QtLua {
     } new_widget;
 
     new_widget.register_(ls, "qt.new_widget");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	static QUiLoader uil;
+
+	meta_call_check_args(args, 1, 0, Value::TUserData, Value::TNone);
+	QMetaObjectWrapper::ptr mow = args[0].to_userdata_cast<QMetaObjectWrapper>();
+
+	return Value(ls, mow->create(args), true, true);
+      }
+
+      String get_description() const
+      {
+	return "dynamically create a new QObject";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.new_qobject( qt.meta.QClassName, [ Constructor arguments ] )");
+      }
+
+    } new_qobject;
+
+    new_qobject.register_(ls, "qt.new_qobject");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 2, 2, Value::TUserData, Value::TUserData);
+
+	QObject *obj = args[0].to_qobject();
+
+	QObjectWrapper::ptr qow = args[1].to_userdata_cast<QObjectWrapper>();
+	QObject &item = qow->get_object();
+
+	if (QLayout *la = dynamic_cast<QLayout*>(obj))
+	  {
+	    if (QLayoutItem *li = dynamic_cast<QLayoutItem*>(&item))
+	      {
+		qow->set_delete(false);
+		la->addItem(li);
+	      }
+	    else if (QWidget *w = dynamic_cast<QWidget*>(&item))
+	      la->addWidget(w);
+	    else
+	      goto err;
+	  }
+	else if (QWidget *w = dynamic_cast<QWidget*>(obj))
+	  {
+	    if (QLayout *la = dynamic_cast<QLayout*>(&item))
+	      {
+		delete w->layout();
+		w->setLayout(la);
+	      }
+	    else
+	      goto err;
+	  }
+	else
+	  goto err;
+
+	return QtLua::Value(ls);
+      err:
+	throw String("Bad layout object type");
+      }
+
+      String get_description() const
+      {
+	return "add an item to a QLayout or set QLayout of a QWidget";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.layout_add( layout|widget, widget|layout )");
+      }
+
+    } layout_add;
+
+    layout_add.register_(ls, "qt.layout_add");
+
+    //////////////////////////////////////////////////////////////////////
+
+    static class : public Function
+    {
+      Value::List meta_call(State *ls, const Value::List &args)
+      {
+	meta_call_check_args(args, 3, 5, Value::TUserData, Value::TNumber, Value::TNumber, Value::TNumber, Value::TNumber);
+
+	QLayout *la = args[0].to_qobject_cast<QLayout>();
+
+	la->addItem(new QSpacerItem(get_arg<int>(args, 1),
+				    get_arg<int>(args, 2),
+				    (QSizePolicy::Policy)get_arg<int>(args, 3, QSizePolicy::Minimum),
+				    (QSizePolicy::Policy)get_arg<int>(args, 4, QSizePolicy::Minimum)));
+
+	return QtLua::Value(ls);
+      }
+
+      String get_description() const
+      {
+	return "add an item to a QLayout";
+      }
+
+      String get_help() const
+      {
+	return ("usage: qt.layout_spacer( layout, width, height, hpolicy, vpolicy )");
+      }
+
+    } layout_spacer;
+
+    layout_spacer.register_(ls, "qt.layout_spacer");
 
     //////////////////////////////////////////////////////////////////////
 
