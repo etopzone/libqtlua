@@ -21,41 +21,47 @@
 #include <QtLua/State>
 #include <QtLua/Function>
 
+/* anchor 1 */
+QTLUA_FUNCTION(foo, "This function returns \"test\"",
+	       "usage: foo()")
+{
+  /* anchor 5 */
+  QtLua::String a = get_arg<QtLua::String>(args, 0);
+  int           b = get_arg<int>(args, 1, 42);
+
+  /* anchor end */
+  Q_UNUSED(a);
+  Q_UNUSED(b);
+
+  /* anchor 6 */
+  return QtLua::Value(ls, "test");
+}
+/* anchor end */
+
 int main()
 {
   try {
 
-    /* anchor 1 */
-    static class : public QtLua::Function
     {
-      /* anchor 6 */
-      QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args)
-      {
-	/* anchor 5 */
-	QtLua::String a = get_arg<QtLua::String>(args, 0);
-	int           b = get_arg<int>(args, 1, 42);
-
-	/* anchor 6 */
-	return QtLua::Value(ls, "foo");
-      }
       /* anchor 2 */
-      QtLua::String get_description() const
-      {
-	return "This function just returns \"foo\"";
-      }
+      QtLua::State state;
 
-      QtLua::String get_help() const
-      {
-	return ("usage: foo()");
-      }
+      static QtLua_Function_foo foo(&state, "bar.foo");
+      /* anchor end */
+
+      state.openlib(QtLua::QtLuaLib);
+      state.exec_statements("print(bar.foo(\"test\"))");
+    }
+
+    {
       /* anchor 3 */
-    } foo_function;
+      QtLua::State state;
 
-    /* anchor 4 */
-    QtLua::State state;
+      static QtLua_Function_foo foo;
 
-    foo_function.register_(&state, "bar.foo");
-    /* anchor end */
+      QtLua::Value f(&state, foo);
+      /* anchor end */
+    }
 
   } catch (QtLua::String &e) {
     std::cerr << e.constData() << std::endl;

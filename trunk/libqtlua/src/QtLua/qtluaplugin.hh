@@ -56,8 +56,8 @@ namespace QtLua {
    * @ref Function objects contained in plugin library must be
    * registered on the @ref Plugin object. This is done on @ref Plugin
    * creation by the @ref PluginInterface::register_members function.
-   * This function must call the @ref Function::__register_2__
-   * function for each @ref Function to register.
+   * This function must use the call the @ref #QTLUA_PLUGIN_FUNCTION_REGISTER
+   * macro for each @ref Function to register.
    *
    * An internal @ref Plugin::Loader {plugin loader} object is
    * allocated and referenced by the @ref Plugin object so that the Qt
@@ -152,8 +152,9 @@ namespace QtLua {
   public:
     virtual ~PluginInterface() { }
 
-    /** Register all plugin members, called on @ref Plugin initialization.
-	This function must contains invocations of the @ref QTLUA_PLUGIN_FUNCTION macro. */
+    /** Register all plugin members, called on @ref Plugin
+	initialization.  This function must contains invocations of
+	the @ref #QTLUA_PLUGIN_FUNCTION_REGISTER macro. */
     virtual void register_members(Plugin &plugin) = 0;
   };
 
