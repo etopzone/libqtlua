@@ -24,33 +24,16 @@
 # See autotroll.m4 :)
 
 
-SUFFIXES = .moc.cpp .moc.cc .moc.cxx .moc.C .h .hh \
-           .ui .ui.h .ui.hh \
-           .qrc .qrc.cpp .qrc.cc .qrc.cxx .qrc.C
+SUFFIXES = .moc.cc .hh \
+           .ui .ui.hh \
+           .qrc .qrc.cc
 
 # --- #
 # MOC #
 # --- #
 
-.hh.moc.cpp:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-.h.moc.cpp:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-
 .hh.moc.cc:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-.h.moc.cc:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-
-.hh.moc.cxx:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-.h.moc.cxx:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-
-.hh.moc.C:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
-.h.moc.C:
-	$(MOC) $(QT_CPPFLAGS) $< -o $@
+	$(MOC) $(QT_CPPFLAGS) `sed -n '/\/ __moc_flags__/ s:// __moc_flags__:: p' "$<"` $< -o $@
 
 # --- #
 # UIC #
@@ -59,23 +42,11 @@ SUFFIXES = .moc.cpp .moc.cc .moc.cxx .moc.C .h .hh \
 .ui.ui.hh:
 	$(UIC) $< -o $@
 
-.ui.ui.h:
-	$(UIC) $< -o $@
-
 # --- #
 # RCC #
 # --- #
 
-.qrc.qrc.cpp:
-	$(RCC) -name `echo "$<" | sed 's/\.qrc$$//'` $< -o $@
-
 .qrc.qrc.cc:
-	$(RCC) -name `echo "$<" | sed 's/\.qrc$$//'` $< -o $@
-
-.qrc.qrc.cxx:
-	$(RCC) -name `echo "$<" | sed 's/\.qrc$$//'` $< -o $@
-
-.qrc.qrc.C:
 	$(RCC) -name `echo "$<" | sed 's/\.qrc$$//'` $< -o $@
 
 DISTCLEANFILES = $(BUILT_SOURCES)

@@ -14,6 +14,7 @@
 
 # Find Qt4
 	SET(QT_USE_QTUITOOLS 1)
+	SET(QT_USE_QTXML 1)
 	FIND_PACKAGE(Qt4 REQUIRED)
 	INCLUDE(${QT_USE_FILE})
 
@@ -92,15 +93,15 @@
 		src/qtluadispatchproxy.cc )
 
 	# Generate moc files
-	SET(MOC_HEADERS	
-		src/QtLua/qtluaconsole.hh src/QtLua/qtluaitemselectionmodel.hh 
-		src/QtLua/qtluaitemmodel.hh src/QtLua/qtluatabletreemodel.hh 
-		src/QtLua/qtluatabledialog.hh src/QtLua/qtluastate.hh	
-		src/QtLua/qtluatablegridmodel.hh			
-		src/qtluaqtlib.hh	
-	)
-	
-	QT4_WRAP_CPP(MOC_OUTFILES ${MOC_HEADERS})
+ 
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaconsole.hh        OPTIONS -fQtLua/Console)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemselectionmodel.hh OPTIONS -fQtLua/ItemSelectionModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemmodel.hh      OPTIONS -fQtLua/ItemModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabletreemodel.hh OPTIONS -fQtLua/TableTreeModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabledialog.hh	   OPTIONS -fQtLua/TableDialog)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatablegridmodel.hh OPTIONS -fQtLua/TableGridModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluastate.hh          OPTIONS -fQtLua/State)
+	QT4_WRAP_CPP(MOC_OUTFILES src/qtluaqtlib.hh)
 	
 	ADD_LIBRARY(qtlua SHARED ${QTLUA_LIB_SRCS} ${MOC_OUTFILES})
 	TARGET_LINK_LIBRARIES(qtlua ${QT_LIBRARIES} ${LUA_LIBRARIES})
@@ -110,8 +111,13 @@
 	TARGET_LINK_LIBRARIES(qtlua_app qtlua)
 	SET_TARGET_PROPERTIES(qtlua_app  PROPERTIES OUTPUT_NAME qtlua CLEAN_DIRECT_OUTPUT 1)
 
+# qtlua_uic app
+	ADD_EXECUTABLE(qtlua_uic_app tools/uic/qtlua_uic.cc )
+	TARGET_LINK_LIBRARIES(qtlua_uic_app qtlua)
+	SET_TARGET_PROPERTIES(qtlua_uic_app  PROPERTIES OUTPUT_NAME qtlua_uic CLEAN_DIRECT_OUTPUT 1)
+
 # library and app install
-	INSTALL(TARGETS qtlua_app qtlua RUNTIME DESTINATION ${INSTALL_BIN}
+	INSTALL(TARGETS qtlua_app qtlua_uic_app qtlua RUNTIME DESTINATION ${INSTALL_BIN}
 			LIBRARY DESTINATION ${INSTALL_LIB}
 			ARCHIVE DESTINATION ${INSTALL_LIB})
 

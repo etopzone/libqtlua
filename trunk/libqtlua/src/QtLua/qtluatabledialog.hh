@@ -18,6 +18,7 @@
 
 */
 
+// __moc_flags__ -fQtLua/TableDialog
 
 #ifndef QTLUA_TABLEDIALOG_HH_
 #define QTLUA_TABLEDIALOG_HH_
