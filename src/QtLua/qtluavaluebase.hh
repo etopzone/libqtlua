@@ -158,7 +158,7 @@ public:
 
   /**
    * Specify lua operations performed on lua values.
-   * @see support @see UserData::meta_operation @see UserData::support
+   * @see UserData::meta_operation @see UserData::support
    */
   enum Operation
     {
@@ -373,7 +373,7 @@ public:
   /**
    * Convert a lua value into a @ref Ref pointer to an @ref UserData.
    * Throw exception if conversion fails.
-   * @see to_userdata_null
+   * @see to_userdata_cast_null
    * @see to_userdata_cast
    */
   Ref<UserData> to_userdata() const;

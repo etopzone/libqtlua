@@ -3,10 +3,6 @@
  @short Lua base classes
 @end moduledef
 
-@moduledef {Functions export}
- @short Expose C++ functions to lua
-@end moduledef
-
 @moduledef {Model/View}
  @short Lua / Qt model view hierarchic data structure classes
 @end moduledef

@@ -12,11 +12,22 @@
     @section T {Predefined lua functions}
       The @ref QtLua::QtLuaLib library contains the following lua functions:
       @list
-        @item The @tt print() lua function prints all passed values using the @ref QtLua::State::output signal.
-        @item The @tt list() lua function prints list of members of given table or global table if no argument.
-        @item The @tt each() lua function returns a lua iterator which can be used to iterate over lua tables and QtLua @ref UserData objects.
-        @item The @tt help() lua function can be used to display help about @ref QtLua::Function based objects.
-        @item The @tt plugin() function returns a @ref QtLua::Plugin object loaded from given plugin bare file name.
+        @item The @tt print() lua function prints all passed values
+          using the @ref QtLua::State::output signal.
+
+        @item The @tt list() lua function prints list of members of
+          given table or global table if no argument is passed.
+
+        @item The @tt each() lua function returns a lua iterator which
+          can be used to iterate over lua tables and QtLua @ref UserData
+          objects.
+
+        @item The @tt help() lua function can be used to display help
+          about @ref QtLua::Function based objects.
+
+        @item The @tt plugin() function returns a @ref QtLua::Plugin
+          object loaded from given plugin bare file name.
+
         @item The @tt qtype() function returns the QtLua type name of a value.
       @end list
     @end section
@@ -25,12 +36,34 @@
       The @ref QtLua::QtLib library contains some wrapped Qt functions and objects:
 
       @list
-        @item The @tt qt.connect() and @tt qt.disconnect() functions manage signals and slots connections, see @xref{Dynamic signals and slots}.
-        @item The @tt qt.dialog table contains all functions needed to display Qt dialogs.
-        @item The @tt qt.load_ui() function returns a Qt user interface file loaded using the @ref QUiLoader::load function.
-        @item The @tt qt.menu table contains functions to manage Qt menus.
-        @item The @tt qt.meta table contains all wrapped Qt meta objects, useful to access Qt enums and other meta data without @ref QObject instance.
-        @item The @tt qt.new_widget() function returns a new widget of given class name using the @ref QUiLoader::createWidget function.
+        @item The @tt qt.meta table contains wrapped Qt meta objects,
+          useful to access enums and other Qt meta data. This class
+          list can be extended by calling the @ref State::register_qobject_meta
+          function.
+
+        @item The @tt qt.new_qobject function creates a new @ref
+          QObject of given type. It relies on the @tt qt.meta table
+          provided by QtLua.
+
+        @item The @tt qt.new_widget function creates a new widget of
+          given type name using the @ref QUiLoader::createWidget Qt
+          function.
+
+        @item The @tt qt.load_ui function returns a Qt user interface
+          file loaded using the @ref QUiLoader::load Qt function.
+
+        @item The @tt qt.connect and @tt qt.disconnect functions
+          manage signals and slots connections, see @xref{Dynamic
+          signals and slots}.
+
+        @item The @tt qt.dialog table contains functions related to Qt
+          dialog invocation.
+
+        @item The @tt qt.menu table contains functions useful to
+          create and manage Qt menus.
+
+        @item The @tt qt.translator and @tt qt.tr functions can be used
+          to load translation files and translate strings.
       @end list
 
       The @tt help function can be used to display usage information on all functions in this library:
@@ -98,79 +131,79 @@ usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_s
         @item Qt meta type id
 
         @item boolean
-        @item @ref QMetaType::Bool
+        @item @tt QMetaType::Bool
 
         @item number	
-        @item @ref QMetaType::Int
+        @item @tt QMetaType::Int
 
         @item number	
-        @item @ref QMetaType::UInt
+        @item @tt QMetaType::UInt
 
         @item number	
-        @item @ref QMetaType::Long
+        @item @tt QMetaType::Long
 
         @item number	
-        @item @ref QMetaType::LongLong
+        @item @tt QMetaType::LongLong
 
         @item number	
-        @item @ref QMetaType::Short
+        @item @tt QMetaType::Short
 
         @item number	
-        @item @ref QMetaType::Char
+        @item @tt QMetaType::Char
 
         @item number	
-        @item @ref QMetaType::ULong
+        @item @tt QMetaType::ULong
 
         @item number	
-        @item @ref QMetaType::ULongLong
+        @item @tt QMetaType::ULongLong
 
         @item number	
-        @item @ref QMetaType::UShort
+        @item @tt QMetaType::UShort
 
         @item number	
-        @item @ref QMetaType::UChar
+        @item @tt QMetaType::UChar
 
         @item number	
-        @item @ref QMetaType::Double
+        @item @tt QMetaType::Double
 
         @item number	
-        @item @ref QMetaType::Float
+        @item @tt QMetaType::Float
 
         @item number	
-        @item @ref QMetaType::QChar
+        @item @tt QMetaType::QChar
 
         @item string	
-        @item @ref QMetaType::QString
+        @item @tt QMetaType::QString
 
         @item string	
-        @item @ref QMetaType::QByteArray
+        @item @tt QMetaType::QByteArray
 
         @item table of strings indexed from 1
-        @item @ref QMetaType::QStringList
+        @item @tt QMetaType::QStringList
 
         @item userdata (see @xref {QObject wrapping})
-        @item @ref QMetaType::QObjectStar
+        @item @tt QMetaType::QObjectStar
 
         @item userdata (see @xref {QObject wrapping}) 
-        @item @ref QMetaType::QWidgetStar
+        @item @tt QMetaType::QWidgetStar
 
         @item table with @tt width and @tt height fields
-        @item @ref QMetaType::QSize
+        @item @tt QMetaType::QSize
 
         @item table with @tt width and @tt height fields
-        @item @ref QMetaType::QSizeF
+        @item @tt QMetaType::QSizeF
 
         @item table with @tt x and @tt y fields
-        @item @ref QMetaType::QPoint
+        @item @tt QMetaType::QPoint
 
         @item table with @tt x and @tt y fields
-        @item @ref QMetaType::QPointF
+        @item @tt QMetaType::QPointF
 
         @item table with @tt x, @tt y, @tt width and @tt height fields
-        @item @ref QMetaType::QRect
+        @item @tt QMetaType::QRect
 
         @item table with @tt x, @tt y, @tt width and @tt height fields
-        @item @ref QMetaType::QRectF
+        @item @tt QMetaType::QRectF
 
         @item userdata (see @ref QtLua::UserData) 
         @item @ref QtLua::Ref pointer to @ref QtLua::UserData type. Qt meta type name is @tt "QtLua::UserData::ptr" .
@@ -193,7 +226,7 @@ usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_s
     QtLua heavily takes advantage of the Qt meta object system to expose
     all QObjects signals, slots, enums, properties and child objects to lua script.
 
-    See @xref{The qtlua interpreter tool} section for examples of @ref QObject manipulation from lua script.
+    See @xref{The qtlua interpreter} section for examples of @ref QObject manipulation from lua script.
 
     @section T{QObject ownership}
 

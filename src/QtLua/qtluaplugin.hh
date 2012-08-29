@@ -40,7 +40,7 @@ namespace QtLua {
   /**
    * @short QtLua plugin class
    * @header QtLua/Plugin
-   * @module {Functions export}
+   * @module {Base}
    * @see PluginInterface
    *
    * This class allows easy development and loading of Qt plugins
@@ -140,7 +140,7 @@ namespace QtLua {
   /**
    * @short QtLua plugin interface
    * @header QtLua/Plugin
-   * @module {Functions export}
+   * @module {Base}
    * @see Plugin
    *
    * This class describes the interface which must be implemented

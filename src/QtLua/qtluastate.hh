@@ -155,36 +155,41 @@ public:
    * original lua variable.
    *
    * @example examples/cpp/value/global.cc:i1|i2|1
-   * @alias operator_sqb1
+   * @alias operator_sqb1 @see __at_value__
    */
   inline Value operator[] (const Value &key) const;
 
   /**
    * Index operation on global table.
-   * @see __operator_sqb1__
+   * @see __operator_sqb1__ @alias at_value
    */
   Value at(const Value &key) const;
 
   /**
    * Index operation on global table, shortcut for string key access.
-   * @see __operator_sqb1__ @multiple
+   * @see __operator_sqb1__ @alias at_string
    */
   inline Value at(const String &key) const;
+
+  /**
+   * Index operation on global table, shortcut for string key access.
+   * @see __operator_sqb1__ @see __at_string__
+   */
   inline Value operator[] (const String &key) const;
 
   /**
    * Index operation on global table. This function return a @ref
    * ValueRef object which is a modifiable reference to requested
-   * global variable. It can assigned to modify original lua variable:
+   * global variable. It can be assigned to modify original lua value:
    *
    * @example examples/cpp/value/global.cc:i1|2
-   * @alias operator_sqb2
+   * @alias operator_sqb2 @see __at_value__
    */
   ValueRef operator[] (const Value &key);
 
   /**
    * Index operation on global table, shortcut for string key access.
-   * @see __operator_sqb2__
+   * @see __operator_sqb2__ @see __at_string__
    */
   inline ValueRef operator[] (const String &key);
 
