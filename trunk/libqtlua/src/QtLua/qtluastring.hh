@@ -35,7 +35,7 @@ namespace QtLua {
    * for QtLua.
    *
    * This class is used as string object in the QtLua project. It is
-   * based on @ref QByteArray with added conversion facilities.
+   * based on @ref QByteArray with added conversion functions.
    *
    * This class is also used as exceptions type for exceptions
    * associated with lua errors.

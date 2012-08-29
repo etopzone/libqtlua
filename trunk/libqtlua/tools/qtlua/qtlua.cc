@@ -34,7 +34,7 @@
 
 #include "config.hh"
 
-#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2011, Alexandre Becoulet"
+#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2012, Alexandre Becoulet"
 
 int main(int argc, char *argv[])
 {

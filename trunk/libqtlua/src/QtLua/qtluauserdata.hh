@@ -186,8 +186,6 @@ protected:
    * The current lua thread value is returned. The Value::call family
    * of functions can be used to resume the lua thread. The @tt nil
    * value is returned if not currently running inside a coroutine.
-   *
-   * @see State::set_use_threads
    */
   Value yield(State *ls) const;
 

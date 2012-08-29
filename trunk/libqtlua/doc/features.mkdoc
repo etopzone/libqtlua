@@ -46,7 +46,7 @@
    console widget with history and lua table completion capabilities.
   @end group
 
-  @group The @xref{The qtlua interpreter tool}{qtlua} tool can be used to execute and test
+  @group The @xref{The qtlua interpreter}{qtlua} tool can be used to execute and test
    Qt based lua scripts or play with Qt objects from lua in an interactive manner through
    a Qt console widget interface.
   @end group

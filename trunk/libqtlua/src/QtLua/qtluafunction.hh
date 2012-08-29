@@ -33,7 +33,7 @@ namespace QtLua {
   /** 
    * @short Functions like objects base class
    * @header QtLua/Function
-   * @module {Functions export}
+   * @module {Base}
    *
    * This class is a convenient base class for exposing functions like
    * objects to lua scripts. It's based on the @ref UserData class and
@@ -104,8 +104,8 @@ namespace QtLua {
     QtLua::Value::List QtLua_Function_##name				\
     ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
 
-    /** @This declare and register a @ref Function object on a QtLua @ref State. 
-	@showcontent */
+    /** @This declares and registers a @ref Function object on a QtLua
+	@ref State object as a global variable.  @showcontent */
 #define QTLUA_FUNCTION_REGISTER(state, prefix, name)	\
   static QtLua_Function_##name name(state, prefix #name)
 
