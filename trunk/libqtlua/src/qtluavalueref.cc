@@ -87,7 +87,24 @@ namespace QtLua {
     lua_rawset(lst, LUA_REGISTRYINDEX);
   }
 
-  void ValueRef::push_value() const
+  void ValueRef::push_value(lua_State *st) const
+  {
+    check_state();
+
+    lua_pushnumber(st, _table_id);
+    lua_rawget(st, LUA_REGISTRYINDEX);
+    lua_pushnumber(st, _key_id);
+    lua_rawget(st, LUA_REGISTRYINDEX);
+    try {
+      State::lua_pgettable(st, -2);
+    } catch (...) {
+      lua_pop(st, 2);
+      throw;
+    }
+    lua_remove(st, -2);
+  }
+
+  Value ValueRef::value() const
   {
     check_state();
     lua_State *lst = _st->_lst;
@@ -96,25 +113,11 @@ namespace QtLua {
     lua_rawget(lst, LUA_REGISTRYINDEX);
     lua_pushnumber(lst, _key_id);
     lua_rawget(lst, LUA_REGISTRYINDEX);
-    QTLUA_PROTECT_BEGIN(_st, p);
-    lua_gettable(lst, -2);
-    QTLUA_PROTECT_END(_st, p);
-    lua_remove(lst, -2);
-  }
-
-  Value ValueRef::value() const
-  {
-    check_state();
-    lua_State *lst = _st->_lst;
-
-    {
-      lua_pushnumber(lst, _table_id);
-      lua_rawget(lst, LUA_REGISTRYINDEX);
-      lua_pushnumber(lst, _key_id);
-      lua_rawget(lst, LUA_REGISTRYINDEX);
-      QTLUA_PROTECT_BEGIN(_st, p);
-      lua_gettable(lst, -2);
-      QTLUA_PROTECT_END(_st, p);
+    try {
+      State::lua_pgettable(lst, -2);
+    } catch (...) {
+      lua_pop(lst, 2);
+      throw;
     }
 
     Value res(-1, _st);
@@ -163,10 +166,20 @@ namespace QtLua {
 	  }
 	else
 	  {
-	    v.push_value();
-	    QTLUA_PROTECT_BEGIN(_st, p);
-	    lua_settable(lst, -3);
-	    QTLUA_PROTECT_END(_st, p);
+	    try {
+	      v.push_value(lst);
+	    } catch (...) {
+	      lua_pop(lst, 2);
+	      throw;
+	    }
+
+	    try {
+	      State::lua_psettable(lst, -3);
+	    } catch (...) {
+	      lua_pop(lst, 3);
+	      throw;
+	    }
+
 	    lua_pop(lst, 1);
 	  }
 	return;

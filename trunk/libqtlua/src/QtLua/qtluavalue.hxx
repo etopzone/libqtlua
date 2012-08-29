@@ -206,6 +206,13 @@ namespace QtLua {
     return t;
   }
 
+  Value Value::new_thread(const State *ls, const Value &main)
+  {
+    Value t(ls);
+    t.init_thread(main);
+    return t;
+  }
+
   template <typename ListContainer>
   inline void Value::from_list(const State *ls, const ListContainer &list)
   {

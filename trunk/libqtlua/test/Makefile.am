@@ -1,6 +1,6 @@
 include $(top_srcdir)/build/autotroll.mk
 
-noinst_PROGRAMS = test_value test_table test_qobject_arg test_item
+noinst_PROGRAMS = test_value test_table test_qobject_arg test_item test_coroutines
 
 test_value_SOURCES = test_value.cc test.hh
 test_value_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
@@ -27,7 +27,13 @@ test_qobject_arg_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
 test_qobject_arg_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
 test_qobject_arg_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
 
+test_coroutines_SOURCES = test_coroutines.cc test.hh
+test_coroutines_CXXFLAGS = $(QT_CXXFLAGS) $(AM_CXXFLAGS)
+test_coroutines_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
+test_coroutines_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
+test_coroutines_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
+
 BUILT_SOURCES = test_qobject_arg.moc.cc
 
-TESTS=test_value test_table test_qobject_arg test_item
+TESTS=test_value test_table test_qobject_arg test_item test_coroutines
 

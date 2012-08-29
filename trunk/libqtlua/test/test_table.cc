@@ -33,12 +33,52 @@ int main()
     QtLua::State ls;
 
     ls["t"] = Value::new_table(&ls);
+    ls.check_empty_stack();
+
     ls["t"]["a"] = 5;
+    ls.check_empty_stack();
+
     ls.at("t")["b"] = ls.at("t").at("a");
+    ls.check_empty_stack();
+
     ls["t"]["c"] = ls["t"]["b"].value();
+    ls.check_empty_stack();
 
     ASSERT(ls.at("t").at("c").to_integer() == 5);
+    ls.check_empty_stack();
+
     ASSERT(ls["t"]["c"].to_integer() == 5);
+    ls.check_empty_stack();
+
+    ASSERT(ls.get_global("t.c").to_integer() == 5);
+    ls.check_empty_stack();
+
+    ASSERT(ls.get_global("t.d").is_nil());
+    ls.check_empty_stack();
+
+    bool err = false;
+    try {
+      ls.get_global("t.c.d");
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls.set_global("t.c.d", QtLua::Value(&ls, 5));
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    ls.set_global("t.d.a", QtLua::Value(&ls, 42));
+    ls.check_empty_stack();
+
+    ASSERT(ls.get_global("t.d.a").to_integer() == 42);
+    ls.check_empty_stack();
   }
 
   {
@@ -48,35 +88,119 @@ int main()
     ls.openlib(QtLuaLib);
 
     ls.exec_statements("t={a=1, b=\"foo\", c=3}");
+    ls.check_empty_stack();
 
     ASSERT(ls.at("t")["a"].value().to_integer() == 1);
+    ls.check_empty_stack();
+
     ASSERT(ls["t"]["b"].value().to_string() == "foo");
+    ls.check_empty_stack();
+
     ASSERT(ls.at("t").at("c").to_integer() == 3);
+    ls.check_empty_stack();
 
     QtLua::Value t = ls.at("t");
+    ls.check_empty_stack();
 
     j = 0;
     for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++, j++)
-      ASSERT(t.at(i.key()) == i.value().value());
+      {
+	ASSERT(t.at(i.key()) == i.value().value());
+	ls.check_empty_stack();
+      }
     ASSERT(j == 3);
+    ls.check_empty_stack();
 
     j = 0;
     for (QtLua::Value::const_iterator i = t.begin(); i != t.end(); i++, j++)
-      ASSERT(t.at(i.key()) == i.value());
+      {
+	ASSERT(t.at(i.key()) == i.value());
+	ls.check_empty_stack();
+      }
+
     ASSERT(j == 3);
+    ls.check_empty_stack();
 
     for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++, j++)
-      *i = String(i.key().to_string() + "_foo");
+      {
+	*i = String(i.key().to_string() + "_foo");
+	ls.check_empty_stack();
+      }
 
     ASSERT(ls.at("t").at("a").to_string() == "a_foo");
+    ls.check_empty_stack();
+
     ASSERT(ls.at("t").at("b").to_string() == "b_foo");
+    ls.check_empty_stack();
+
     ASSERT(ls.at("t").at("c").to_string() == "c_foo");
+    ls.check_empty_stack();
 
     ASSERT(ls.exec_statements("i=0; r={}; for key, value in each(t) do r[key]=value..\"bar\"; i=i+1 end; return i").at(0).to_integer() == 3);
 
     ASSERT(ls.at("r").at("a").to_string() == "a_foobar");
+    ls.check_empty_stack();
+
     ASSERT(ls.at("r").at("b").to_string() == "b_foobar");
+    ls.check_empty_stack();
+
     ASSERT(ls.at("r").at("c").to_string() == "c_foobar");
+    ls.check_empty_stack();
+  }
+
+  {
+    QtLua::State ls;
+
+    ls.openlib(AllLibs);
+    ls.exec_statements("t={}; setmetatable(t, { "
+		       "__index = function() assert(false) end,"
+		       "__newindex = function() assert(false) end"
+		       " })");
+
+    bool err = false;
+    try {
+      ls.set_global("t.c", QtLua::Value(&ls, 5));
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls["t"]["a"] = 5;
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls.get_global("t.c");
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls.at("t").at("c").is_nil();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls["t"]["c"].is_nil();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
   }
 
   } catch (QtLua::String &e) {

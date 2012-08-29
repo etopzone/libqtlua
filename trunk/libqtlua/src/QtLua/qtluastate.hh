@@ -26,8 +26,6 @@
 #include <QObject>
 #include <QHash>
 
-#include <setjmp.h>
-
 #include "qtluastring.hh"
 #include "qtluavalue.hh"
 #include "qtluavalueref.hh"
@@ -98,7 +96,6 @@ class State : public QObject
 {
   Q_OBJECT
 
-  friend class Panic;
   friend class QObjectWrapper;
   friend class UserData;
   friend class ValueBase;
@@ -219,6 +216,11 @@ public:
   template <class QObject_T>
   static inline void register_qobject_meta();
 
+  /**
+   * @internal @This asserts internal lua stack is empty.
+   */
+  void check_empty_stack() const;
+
 public slots:
 
   /**
@@ -259,39 +261,14 @@ private:
 			      QStringList &list, const Value &tbl,
 			      int &cursor_offset);
 
-  bool set_global_r(const String &name, const Value &value, int tblidx);
+  void set_global_r(const String &name, const Value &value, int tblidx);
   void get_global_r(const String &name, Value &value, int tblidx) const;
 
   void reg_c_function(const char *name, int (*fcn)(lua_State *));
 
-  struct Panic
-  {
-    jmp_buf _b;
-    Panic *_prev;
-  };
-
-  /** @internal @showcontent
-   * Starts a block of C lua function calls which may raise lua errors
-   * that must be converted to QtLua exceptions. Must be paired with
-   * @ref #QTLUA_PROTECT_END. Objects allocated on stack inside the
-   * block will not be destoyed if an error is raised.
-   */
-#define QTLUA_PROTECT_BEGIN(st, var)		\
-  {						\
-    State::Panic var;				\
-						\
-    var._prev = st->_panic_head;		\
-    st->_panic_head = &var;			\
-    if (setjmp(var._b))				\
-      st->lua_panic_throw(&var);
-
-  /** @internal @showcontent @see #QTLUA_PROTECT_BEGIN */
-#define QTLUA_PROTECT_END(st, var)		\
-    st->_panic_head = var._prev;		\
-  }
-
-  void lua_panic_throw(const Panic *p) const;
-  static int lua_panic(lua_State *st);
+  static void lua_pgettable(lua_State *st, int index);
+  static void lua_psettable(lua_State *st, int index);
+  static int lua_pnext(lua_State *st, int index);
 
   // lua c functions
   static int lua_cmd_iterator(lua_State *st);
@@ -327,8 +304,9 @@ private:
   // QObjects wrappers are referenced here
   wrapper_hash_t _whash;
 
-  lua_State	*_lst;
-  mutable Panic *_panic_head;
+  lua_State	*_mst;      //< main thread state
+  lua_State	*_lst;      //< current thread state
+  bool          _yield_on_return;
 };
 
 }

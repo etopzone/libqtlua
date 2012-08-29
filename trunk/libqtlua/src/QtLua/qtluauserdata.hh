@@ -179,6 +179,19 @@ public:
 protected:
 
   /**
+   * When @this is invoked from the @ref meta_call function, QtLua
+   * will request lua to @em yield when the @ref meta_call function
+   * returns.
+   *
+   * The current lua thread value is returned. The Value::call family
+   * of functions can be used to resume the lua thread. The @tt nil
+   * value is returned if not currently running inside a coroutine.
+   *
+   * @see State::set_use_threads
+   */
+  Value yield(State *ls) const;
+
+  /**
    * This helper function can be used to check arguments types passed
    * to the @ref meta_call functions. This function throw an error
    * message if checking fails.
