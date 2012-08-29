@@ -71,6 +71,9 @@ namespace QtLua {
     template <class X>
     typename X::ptr get_member_throw(const String &name) const;
 
+    /** Recursively search for enum value in class and parent classes, return -1 if not found */
+    int get_enum_value(const String &name) const;
+
     /** Get member table */
     inline const member_cache_t & get_member_table() const;
 

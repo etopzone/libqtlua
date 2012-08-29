@@ -112,6 +112,27 @@ namespace QtLua {
     return m;
   }
 
+  int MetaCache::get_enum_value(const String &name) const
+  {
+    for (const QMetaObject *mo = _mo; mo; mo = mo->superClass())
+      {
+	for (int i = 0; i < mo->enumeratorCount(); i++)
+	  {
+	    int index = mo->enumeratorOffset() + i;
+	    QMetaEnum me = mo->enumerator(index);
+
+	    if (!me.isValid())
+	      continue;
+
+	    int value = me.keyToValue(name);
+	    if (value >= 0)
+	      return value;
+	  }
+      }
+
+    return -1;
+  }
+
   MetaCache & MetaCache::get_meta(const QMetaObject *mo)
   {
     meta_cache_t::iterator i = _meta_cache.find(mo);

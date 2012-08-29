@@ -52,7 +52,9 @@ namespace QtLua {
 
   typedef QMap<String, QMetaObjectWrapper > qmetaobject_table_t;
 
-  class QMetaObjectTable : public QHashProxyRo<qmetaobject_table_t>
+  class QMetaObjectTable
+    : public QHashProxyRo<qmetaobject_table_t>
+    , public QObject
   {
   public:
     QMetaObjectTable()
@@ -64,6 +66,8 @@ namespace QtLua {
 	  name.replace(':', '_');
 	  _mo_table.insert(name, QMetaObjectWrapper(*mo));
 	}
+
+      _mo_table.insert("Qt", QMetaObjectWrapper(&staticQtMetaObject));
     }
 
   private:

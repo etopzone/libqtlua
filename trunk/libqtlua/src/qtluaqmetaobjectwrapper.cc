@@ -35,9 +35,18 @@ namespace QtLua {
 
   Value QMetaObjectWrapper::meta_index(State *ls, const Value &key)
   {
-    Member::ptr m = MetaCache::get_meta(_mo).get_member(key.to_string());
+    const MetaCache &mc = MetaCache::get_meta(_mo);
+    String name(key.to_string());
 
-    return m.valid() ? Value(ls, m) : Value(ls);
+    Member::ptr m = mc.get_member(name);
+    if (m.valid())
+      return Value(ls, m);
+
+    int enum_value = mc.get_enum_value(name);    
+    if (enum_value >= 0)
+      return Value(ls, enum_value);
+
+    return Value(ls);
   }
 
   Ref<Iterator> QMetaObjectWrapper::new_iterator(State *ls)
