@@ -18,6 +18,7 @@
 
 */
 
+// __moc_flags__ -fQtLua/Console
 
 #ifndef QTLUACONSOLE_HH_
 #define QTLUACONSOLE_HH_

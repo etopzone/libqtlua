@@ -18,6 +18,8 @@
 
 */
 
+// __moc_flags__ -fQtLua/ItemSelectionModel
+
 #ifndef QTLUA_ITEMSELECTIONMODEL_HH_
 #define QTLUA_ITEMSELECTIONMODEL_HH_
 

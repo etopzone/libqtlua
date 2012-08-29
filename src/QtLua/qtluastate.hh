@@ -18,6 +18,7 @@
 
 */
 
+// __moc_flags__ -fQtLua/State
 
 #ifndef QTLUASTATE_HH_
 #define QTLUASTATE_HH_
@@ -312,4 +313,3 @@ private:
 }
 
 #endif
-
