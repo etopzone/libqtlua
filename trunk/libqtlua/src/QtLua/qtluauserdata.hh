@@ -176,19 +176,6 @@ public:
   /** Userdata compare less than, default implementation compares the @tt this pointers */
   virtual bool operator<(const UserData &ud);
 
-protected:
-
-  /**
-   * When @this is invoked from the @ref meta_call function, QtLua
-   * will request lua to @em yield when the @ref meta_call function
-   * returns.
-   *
-   * The current lua thread value is returned. The Value::call family
-   * of functions can be used to resume the lua thread. The @tt nil
-   * value is returned if not currently running inside a coroutine.
-   */
-  Value yield(State *ls) const;
-
   /**
    * This helper function can be used to check arguments types passed
    * to the @ref meta_call functions. This function throw an error
@@ -209,6 +196,19 @@ protected:
    *   all arguments above @tt min_count when @tt {max_count == 0}.
    */
   static void meta_call_check_args(const Value::List &args, int min_count, int max_count, ...);
+
+protected:
+
+  /**
+   * When @this is invoked from the @ref meta_call function, QtLua
+   * will request lua to @em yield when the @ref meta_call function
+   * returns.
+   *
+   * The current lua thread value is returned. The Value::call family
+   * of functions can be used to resume the lua thread. The @tt nil
+   * value is returned if not currently running inside a coroutine.
+   */
+  Value yield(State *ls) const;
 
   /**
    * This function may be reimplemented to further modify completion

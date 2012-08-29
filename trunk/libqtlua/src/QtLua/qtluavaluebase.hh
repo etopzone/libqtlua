@@ -267,6 +267,8 @@ public:
   /** Get a @ref const_iterator to traverse a lua userdata or lua table value. @multiple */
   inline const_iterator begin() const;
   inline const_iterator end() const;
+  inline const_iterator cbegin() const;
+  inline const_iterator cend() const;
 
   /** Return an @ref Iterator object suitable to iterate over lua value.
       This works for lua tables and @ref UserData objects. */
@@ -401,6 +403,22 @@ public:
   /** @see to_userdata_cast */
   template <class X>
   inline operator Ref<X> () const;
+
+  /**
+   * Convert a lua value into a @ref Ref pointer to an @ref UserData
+   * and perform a @tt dynamic_cast<X*>. Throw exception if
+   * conversion or cast fails.  @see to_class_cast
+   */
+  template <class X>
+  inline X* to_class_cast_null() const;
+
+  /**
+   * Convert a lua value into a @ref Ref pointer to an @ref UserData
+   * and perform a @tt dynamic_cast<X*>.  Throw exception if either
+   * conversion fails, pointer is null or cast fails. @see to_class_cast_null
+   */
+  template <class X>
+  inline X* to_class_cast() const;
 
   /**
    * Convert a lua value to a @ref QVariant.
