@@ -36,8 +36,8 @@
       The @tt help function can be used to display usage information on all functions in this library:
       @code R
 >> help(qt.connect)
-usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_name")
-       qt.connect(qobjectwrapper, "qt_signal_name", lua_function)
+usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_slot_signature()")
+       qt.connect(qobjectwrapper, "qt_signal_signature()", lua_function)
       @end code
 
     @end section
@@ -247,14 +247,14 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
       function.
 
       The @tt qt.connect lua function can be used to
-      connect a Qt slot either to a Qt signal or to a lua function:
+      connect a Qt signal either to a Qt slot or to a lua function:
 
       @code R
    -- connect signal and slot of given Qt objects
-   qt.connect(qobjectwrapper1, "qt_signal_name", qobjectwrapper2, "qt_slot_name")
+   qt.connect(qobjectwrapper1, "qt_signal_signature()", qobjectwrapper2, "qt_slot_signature()")
 
    -- connect slot to given lua function
-   qt.connect(qobjectwrapper, "qt_signal_name", lua_function)
+   qt.connect(qobjectwrapper, "qt_signal_signature()", lua_function)
       @end code
 
       When a lua function is called from a Qt signal, its first argument
@@ -266,13 +266,13 @@ usage: qt.connect(qobjectwrapper, "qt_signal_name", qobjectwrapper, "qt_slot_nam
 
       @code R
    -- disconnect signal and slot of given Qt objects
-   qt.disconnect(qobjectwrapper1, "qt_signal_name", qobjectwrapper2, "qt_slot_name")
+   qt.disconnect(qobjectwrapper1, "qt_signal_signature()", qobjectwrapper2, "qt_slot_signature()")
 
    -- disconnect signal from given lua function
-   qt.disconnect(qobjectwrapper, "qt_signal_name", lua_function)
+   qt.disconnect(qobjectwrapper, "qt_signal_signature()", lua_function)
 
    -- disconnect signal from all connected lua functions
-   qt.disconnect(qobjectwrapper, "qt_signal_name")
+   qt.disconnect(qobjectwrapper, "qt_signal_signature()")
       @end code
     @end section
 

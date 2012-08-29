@@ -23,12 +23,19 @@
 
 #include <QMetaObject>
 
+#include <QtLua/qtluastate.hh>
 #include <QtLua/qtluauserdata.hh>
 
 namespace QtLua {
 
+  struct meta_object_table_s
+  {
+    const QMetaObject *_mo;
+    qobject_creator *_creator;
+  };
+
   /** @internal */
-  extern const QMetaObject *meta_object_table[];
+  extern const meta_object_table_s meta_object_table[];
 
 /**
  * @short QMetaObject wrapper class
@@ -47,7 +54,12 @@ namespace QtLua {
   public:
     QTLUA_REFTYPE(QMetaObjectWrapper);
 
-    QMetaObjectWrapper(const QMetaObject *mo);
+    QMetaObjectWrapper(const QMetaObject *mo, qobject_creator *creator = 0);
+
+    /** @This invoke constructor of QObject. Class constructors which
+	can be invoked with no arguments and constructors which are
+	declared with the @tt Q_INVOKABLE modifier can be used. */
+    QObject *create(const Value::List &lua_args) const;
 
   private:
     Value meta_index(State *ls, const Value &key);
@@ -58,6 +70,7 @@ namespace QtLua {
     String get_value_str() const;
 
     const QMetaObject *_mo;
+    qobject_creator *_creator;
   };
 
 };

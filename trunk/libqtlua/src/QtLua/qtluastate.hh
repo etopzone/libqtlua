@@ -42,6 +42,16 @@ struct lua_State;
 
 namespace QtLua {
 
+  /** @internal */
+  typedef QObject * qobject_creator();
+
+  /** @internal */
+  template <class QObject_T>
+  static inline QObject * create_qobject();
+
+  /** @internal */
+  void qtlib_register_meta(const QMetaObject *mo, qobject_creator *creator);
+
   class UserData;
   class QObjectWrapper;
   class TableIterator;
@@ -196,7 +206,18 @@ public:
    */
   void lua_do(void (*func)(lua_State *st));
 
+  /**
+   * @This returns a pointer to the internal Lua state.
+   */
   inline lua_State *get_lua_state() const;
+
+  /**
+   * @This adds a new entry to the @tt{qt.meta} lua table. This allows
+   * lua script to access QObject members and create new objects of
+   * this type using the @tt{qt.new_qobject} lua function.
+   */
+  template <class QObject_T>
+  static inline void register_qobject_meta();
 
 public slots:
 

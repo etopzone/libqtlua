@@ -267,6 +267,14 @@ namespace QtLua {
 	size->setHeight(v.at(2).to_number());
 	return true;
       }
+      case QMetaType::QSizePolicy: {
+	QSizePolicy *sp = reinterpret_cast<QSizePolicy*>(data);
+	sp->setHorizontalStretch(v.at(1).to_number());
+	sp->setVerticalStretch(v.at(2).to_number());
+	sp->setHorizontalPolicy((QSizePolicy::Policy)v.at(3).to_integer());
+	sp->setVerticalPolicy((QSizePolicy::Policy)v.at(4).to_integer());
+	return true;
+      }
       case QMetaType::QRect: {
 	QRect *rect = reinterpret_cast<QRect*>(data);
 	rect->setX(v.at(1).to_number());

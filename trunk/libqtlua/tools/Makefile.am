@@ -1,3 +1,3 @@
 
-SUBDIRS = qtlua
+SUBDIRS = qtlua uic
 

@@ -57,6 +57,18 @@ namespace QtLua {
     return _lst;
   }
 
+  template <class QObject_T>
+  static inline QObject * create_qobject()
+  {
+    return new QObject_T();
+  }
+
+  template <class QObject_T>
+  void State::register_qobject_meta()
+  {
+    qtlib_register_meta(&QObject_T::staticMetaObject, &create_qobject<QObject_T>);
+  }
+
 }
 
 #endif

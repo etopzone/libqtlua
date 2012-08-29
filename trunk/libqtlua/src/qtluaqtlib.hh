@@ -51,6 +51,26 @@ namespace QtLua {
 #endif
   };
 
+  /** Fake QSizePolicy class needed to expose Policy enum */
+  class SizePolicy
+    : public QObject
+  {
+    Q_OBJECT;
+
+    Q_ENUMS(Policy);
+  public:
+    enum Policy
+      {
+	Fixed = ::QSizePolicy::Fixed,
+	Minimum = ::QSizePolicy::Minimum,
+	Maximum = ::QSizePolicy::Maximum,
+	Preferred = ::QSizePolicy::Preferred,
+	Expanding = ::QSizePolicy::Expanding,
+	MinimumExpanding = ::QSizePolicy::MinimumExpanding,
+	Ignored = ::QSizePolicy::Ignored,
+      };
+  };
+
 }
 
 #endif
