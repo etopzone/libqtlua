@@ -45,19 +45,21 @@ namespace QtLua {
    * function. See @xref{Qt/Lua types conversion} for supported
    * types and conversion operations.
    *
-   * This class allows definition of function description and help
-   * strings which are useful to the @ref QtLua::Console user.
+   * The @ref #QTLUA_FUNCTION macro is provided to easily declare a
+   * @ref Function sub class:
    *
-   * Defining a new function object is done by inheriting from this
-   * class and implementing the @ref meta_call function:
+   * @example examples/cpp/userdata/function.cc:1|6
    *
-   * @example examples/cpp/userdata/function.cc:1|6|3
+   * @ref Function objects can be exposed as a lua values:
    *
-   * @ref Function objects can be exposed as a lua values or
-   * registered on a @ref Plugin object. The @ref __register_1__
-   * function and @ref #QTLUA_FUNCTION macro offer convenient
-   * ways to register a @ref Function object in a lua table or on a
-   * @ref Plugin object.
+   * @example examples/cpp/userdata/function.cc:3
+   *
+   * A convenience constructor is provided to register functions as
+   * global lua variables:
+   *
+   * @example examples/cpp/userdata/function.cc:2
+   *
+   * Functions can also be registered on a @ref Plugin objects.
    */
 
   class Function : public UserData
@@ -65,19 +67,7 @@ namespace QtLua {
   public:
     QTLUA_REFTYPE(Function);
 
-    /**
-     * @alias register_1
-     * This function is provided for convenience and may be used to
-     * register the @ref Function object in lua global table or in
-     * package subtables. All intermediate tables in path will be
-     * created as needed.
-     *
-     * @param ls QtLua state where function must be registered.
-     * @param path table path to function value.
-     *
-     * Example:
-     * @example examples/cpp/userdata/function.cc:4
-     */
+    /** @internal */
     void register_(State *ls, const String &path);
 
     /** @internal @see Plugin */
@@ -91,28 +81,28 @@ namespace QtLua {
 	help string. */
     virtual String get_help() const;
 
-    /** This macro declare a new a @ref Function class named
-	@tt{QtLua_Function_}@em{name} with given description, help and
-	code for reimplementation of the @ref UserData::meta_call function.
+    /** This macro declares a new a @ref Function class named
+	@tt{QtLua_Function_}@em{name} with functions to handle
+	description, help and function call. User provided code is
+	used for reimplementation of the @ref UserData::meta_call
+	function.
 
-	@code
-QTLUA_FUNCTION(foo, "The foo function", "No help available")
-{
-  Q_UNUSED(args);
-  return QtLua::Value(ls, "foo");
-}
-	@end code
+	@example examples/cpp/userdata/function.cc:1|6
+	@showcontent
     */
-#define QTLUA_FUNCTION(name, description, help)				\
-class QtLua_Function_##name : public QtLua::Function			\
-  {									\
-    QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args); \
-    QtLua::String get_description() const { return description; }	\
-    QtLua::String get_help() const { return help; }			\
-  };									\
+#define QTLUA_FUNCTION(name, description, help)	\
+    class QtLua_Function_##name : public QtLua::Function		\
+    {									\
+      QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args); \
+      QtLua::String get_description() const { return description; }	\
+      QtLua::String get_help() const { return help; }			\
+    public:								\
+      QtLua_Function_##name() { }					\
+      QtLua_Function_##name(QtLua::State *ls, const QtLua::String &path) { register_(ls, path); } \
+    };									\
 									\
- QtLua::Value::List QtLua_Function_##name				\
-   ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
+    QtLua::Value::List QtLua_Function_##name				\
+    ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
 
   protected:
 
@@ -134,7 +124,7 @@ class QtLua_Function_##name : public QtLua::Function			\
      * @returns C++ converted value
      *
      * Example:
-     * @example examples/cpp/userdata/function.cc:6|5
+     * @example examples/cpp/userdata/function.cc:1|5
      *
      * @xsee{Qt/Lua types conversion}
      * @see __get_arg2__
