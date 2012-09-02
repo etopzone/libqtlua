@@ -122,13 +122,13 @@ namespace QtLua {
       }
   }
 
-  void QObjectWrapper::ref_drop(int count)
+  void QObjectWrapper::ref_single()
   {
 #ifdef QTLUA_QOBJECTWRAPPER_DEBUG
     qDebug() << "wrapper refdrop" << count << _delete << _obj;
 #endif
 
-    if (_obj && count == 1 && !_obj->parent() && _delete)
+    if ((!_obj || !_obj->parent()) && _delete)
       _drop();
   }
 
