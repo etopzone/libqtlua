@@ -106,7 +106,7 @@ namespace QtLua {
     String get_type_name() const;
     String get_value_str() const;
     void obj_destroyed();
-    void ref_drop(int count);
+    void ref_single();
 
   private:
 

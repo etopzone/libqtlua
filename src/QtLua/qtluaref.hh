@@ -23,7 +23,7 @@
 #define QTLUAREF_HH_
 
 #ifndef __GNUC__
-# warning GCC atomic operations are not available before, QtLua::Ref will not be thread-safe
+# warning GCC atomic operations are not available, QtLua::Ref will not be thread-safe
 #endif
 
 #include <QtGlobal> // for Q_UNUSED
@@ -412,13 +412,18 @@ namespace QtLua {
 
       assert(count >= 0);
 
-      if (count == 0 && (y->_state & REF_DELETE))
+      if (y->_state & REF_DELETE)
 	{
-	  delete y;
-	  return;
+	  switch (count)
+	    {
+	    case 0:
+	      delete y;
+	      return;
+	    case 1:
+	      y->ref_single();
+	      break;
+	    }
 	}
-
-      y->ref_drop(count);
     }
 
     void ref_allocated()
@@ -427,12 +432,10 @@ namespace QtLua {
       _state |= REF_DELETE;
     }
 
-    /** This functions is called when reference count has been decreased.
-	@param count new reference count.
-    */
-    virtual void ref_drop(int count)
+    /** This function is called when a dynamically allocated object
+	has its reference count decreased to 1. */
+    virtual void ref_single()
     {
-      Q_UNUSED(count);
     }
 
   public:
