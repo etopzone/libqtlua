@@ -18,8 +18,8 @@
 
 */
 
-
 #include <QIcon>
+#include <QSet>
 
 #include <QtLua/Item>
 #include <QtLua/ListItem>
@@ -119,7 +119,7 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
       if (i.valid())
 	{
-	  i->insert(*pi);
+	  i->insert(*pi, row);
 	  return true;
 	}
     }
@@ -127,14 +127,15 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
   else
     // internal existing items drop
     {
-      bool changed = false;
-
       switch (action)
 	{
 	case Qt::IgnoreAction:
 	  return true;
 
-	case Qt::MoveAction:
+	case Qt::MoveAction: {
+
+	  QSet<ListItem*> changed;
+
 	  emit layoutAboutToBeChanged();
 
 	  foreach(Item::ptr i, d->_itemlist)
@@ -148,22 +149,25 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 	      if (pi == p && row > i->_row)
 		row--;
 
-	      p->remove(i.ptr());
-	      i->_parent = pi;
 	      assert(row <= pi->get_child_count());
-	      i->_row = row;
-	      pi->insert(i.ptr(), row);
-	      pi->insert_name(i.ptr(), row++);
-	      changed = true;
 
+	      p->remove_child(i.ptr());
+
+	      pi->insert_child(i.ptr(), row);
+	      pi->insert_name(i.ptr(), row++);
+
+	      changed.insert(p);
 	      if (p != pi)
-		p->child_changed();
+		changed.insert(pi);
 	    }
 
-	  if (changed)
-	    pi->child_changed();
 	  emit layoutChanged();
+
+	  foreach(ListItem *li, changed)
+	    li->child_changed();
+
 	  return true;
+	}
 
 	default:
 	  break;
@@ -214,7 +218,7 @@ QModelIndex ItemModel::index(int row, int column, const QModelIndex &parent) con
   int c = p->get_column_count();
   assert(c > 0);
 
-  if (column < c && row < p->_child_list.size())
+  if (column >= 0 && column < c && row >= 0 && row < p->_child_list.size())
     return createIndex(row, column, p->_child_list[row].ptr());
   else
     return QModelIndex();

@@ -81,11 +81,12 @@ public:
   Item(const Item &item);
   ~Item();
 
-  /** Insert this item in parent container, remove from existing parent if any */
+  /** The as @ref insert. */
+  __attribute__((deprecated))
   void move(const Ref<ListItem> &parent);
 
-  /** Insert this item in parent container */
-  void insert(const Ref<ListItem> &parent);
+  /** Insert this item in parent container, remove from existing parent if any. */
+  void insert(const Ref<ListItem> &parent, int pos = -1);
 
   /** Remove this item from its container */
   void remove();
