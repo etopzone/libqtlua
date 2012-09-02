@@ -70,8 +70,9 @@ namespace QtLua {
 	// Remove all selected child items of selected parents from new selection
 	foreach (const QModelIndex &index, selection.indexes())
 	  {
+	    if (!index.isValid())
+	      continue;
 	    QItemSelection rm;
-
 	    select_childs(index, rm);
 	    sel.merge(rm, QItemSelectionModel::Deselect);
 	  }
@@ -81,6 +82,8 @@ namespace QtLua {
 
 	foreach (const QModelIndex &index, sel.indexes())
 	  {
+	    if (!index.isValid())
+	      continue;
 	    select_childs(index, desel);
 	    select_parents(index, desel);
 	  }

@@ -42,19 +42,38 @@ Value ListItem::meta_operation(State *ls, Value::Operation op, const Value &a, c
 void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
   
 {
+  Item::ptr old;
+  Value::ValueType t = key.type();
+  unsigned int c;
+
+  switch (t)
+    {
+    case Value::TString:
+      old = get_child(key.to_string());
+      break;
+
+    case Value::TNumber: {
+      const QList<Ref<Item> > &l = get_list();
+      c = key.to_integer();
+      if (c > 0 && c <= (unsigned int)l.size())
+	old = l[c - 1];
+      break;
+    }
+
+    default:
+      throw String("Bad item key type");
+    }
+
   switch (value.type())
     {
-    case Value::TNil: {
-      Item::ptr kbml = get_child(key.to_string());
-
-      if (kbml.valid())
+    case Value::TNil:
+      if (old.valid())
 	{
-	  if (!kbml->is_remove_allowed())
-	    throw String("Not allowed to remove '%' item from list.").arg(kbml->get_name());
-
-	  kbml->remove();
+	  if (!old->is_remove_allowed())
+	    throw String("Not allowed to remove '%' item from list.").arg(old->get_name());
+	  old->remove();
 	}
-    } break;
+      break;
 
     case Value::TUserData: {
       Item::ptr kbml = value.to_userdata_cast<Item>();
@@ -62,9 +81,7 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
       if (in_parent_path(kbml.ptr()))
 	throw String("Item '%' can not have one of its parent as child.").arg(kbml->get_name());
 
-      // remove item with same key if it exist
-      Item::ptr old = get_child(key.to_string());
-
+      // remove item with same key if it already exists
       if (old.valid())
 	{
 	  if (!old->is_replace_allowed())
@@ -73,15 +90,16 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
 	  old->remove();
 	}
 
-      if (kbml->_parent == this)
+      if (kbml->_parent == this && t != Value::TNumber)
 	{
+	  // rename
 	  if (!kbml->is_rename_allowed())
 	    throw String("Renaming '%' item is not allowed.").arg(kbml->get_name());
-
-	  // just rename
 	  kbml->set_name(key.to_string());
+	  break;
 	}
-      else
+
+      if (kbml->_parent != this)
 	{
 	  if (!kbml->is_move_allowed())
 	    throw String("Moving '%' item is not allowed.").arg(kbml->get_name());
@@ -89,17 +107,28 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
 	  if (!accept_child(kbml))
 	    throw String("Item '%' doesn't accept '%' as child.")
 	      .arg(get_name()).arg(kbml->get_name());
-
-	  // remove item from other tree if needed
-	  if (kbml->_parent)
-	    kbml->remove();
-
-	  // rename and insert item
-	  kbml->set_name(key.to_string());
-	  kbml->insert(*this);
 	}
 
-      } break;
+      // remove item from parent if needed
+      if (kbml->_parent)
+	kbml->remove();
+
+      switch (t)
+	{
+	case Value::TString:
+	  // rename and insert
+	  kbml->set_name(key.to_string());
+	  kbml->insert(*this);
+	  break;
+	case Value::TNumber:
+	  // insert
+	  kbml->insert(*this, c - 1);
+	  break;
+	default:
+	  abort();
+	}
+
+    } break;
 
     default:
       throw String("Item list can not store a % value.").arg(value.type_name_u());
@@ -109,21 +138,46 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
 Value ListItem::meta_index(State *ls, const Value &key)
   
 {
-  Item::ptr item = get_child(key.to_string());
+  switch (key.type())
+    {
+    case Value::TString: {
+      Item::ptr item = get_child(key.to_string());
+      if (item.valid())
+	return Value(ls, item);
+      break;
+    }
 
-  if (item.valid())
-    return Value(ls, item);
-  else
-    return Value(ls);
+    case Value::TNumber: {
+      const QList<Ref<Item> > &l = get_list();
+      unsigned int c = key.to_integer();
+      if (c > 0 && c <= (unsigned int)l.size())
+	return Value(ls, l[c - 1]);
+      break;
+    }
+
+    default:
+      break;
+    }
+
+  return Value(ls);
 }
 
 bool ListItem::meta_contains(State *ls, const Value &key)
 {
-  try {
-    return get_child(key.to_string()).valid();
-  } catch (String &e) {
-    return false;
-  }
+  switch (key.type())
+    {
+    case Value::TString:
+      return get_child(key.to_string()).valid();
+
+    case Value::TNumber: {
+      const QList<Ref<Item> > &l = get_list();
+      unsigned int c = key.to_integer();
+      return c > 0 && c <= (unsigned int)l.size();
+    }
+
+    default:
+      return false;
+    }
 }
 
 Iterator::ptr ListItem::new_iterator(State *ls)
@@ -164,21 +218,22 @@ void ListItem::change_indexes(int first)
     }
 }
 
-void ListItem::remove(Item *item)
+void ListItem::remove_child(Item *item)
 {
-  assert(item->get_parent() == this);
+  assert(item->_parent == this);
 
-  _child_hash.remove(item->get_name());
-  _child_list.removeAt(item->get_row());
-  if (_model)
-    _model->changePersistentIndex(item->get_model_index(), QModelIndex());
-  change_indexes(item->get_row());
+  _child_hash.remove(item->_name);
+  _child_list.removeAt(item->_row);
+  change_indexes(item->_row);
+  item->_parent = 0;
+  item->_row = -1;
 }
 
-void ListItem::insert(Item *item, int row)
+void ListItem::insert_child(Item *item, int row)
 {
   _child_list.insert(row, *item);
-  item->set_row(row);
+  item->_parent = this;
+  item->_row = row;
   change_indexes(row + 1);
 }
 
@@ -221,7 +276,7 @@ ListItem::ListItem()
 
 ListItem::~ListItem()
 {
-  foreach(Item::ptr tmp, _child_list)
+  foreach(const Item::ptr &tmp, _child_list)
     {
       assert(!tmp->_model);
       tmp->_parent = 0;
@@ -234,10 +289,10 @@ void ListItem::set_model(ItemModel* model)
   if (_model == model)
     return;
 
-  Item::set_model(model);
-
-  foreach(Item::ptr tmp, _child_list)
+  foreach(const Item::ptr &tmp, _child_list)
     tmp->set_model(model);
+
+  Item::set_model(model);
 }
 
 void ListItem::completion_patch(String &path, String &entry, int &offset)

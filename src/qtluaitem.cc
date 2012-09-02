@@ -18,7 +18,6 @@
 
 */
 
-
 #include <QtLua/ListItem>
 #include <QtLua/String>
 #include <QtLua/Item>
@@ -58,29 +57,29 @@ Item::~Item()
 
 void Item::move(const Ref<ListItem> &parent)
 {
-  if (_parent)
-    remove();
   insert(parent);
 }
 
-void Item::insert(const Ref<ListItem> &parent)
+void Item::insert(const Ref<ListItem> &parent, int pos)
 {
-  assert(!_parent);
+  if (_parent)
+    remove();
 
-  _parent = parent.ptr();
   set_model(parent->_model);
 
-  _row = _parent->get_child_count();
+  int row = pos < 0 || pos > parent->get_child_count()
+    ? parent->get_child_count() : pos;
 
   if (_model)
     emit _model->layoutAboutToBeChanged();
 
-  _parent->insert(this, _row);
-  _parent->insert_name(this, _row);
-  _parent->child_changed();
+  parent->insert_child(this, row);
+  parent->insert_name(this, row);
 
   if (_model)
     emit _model->layoutChanged();
+
+  parent->child_changed();
 }
 
 void Item::remove()
@@ -89,23 +88,25 @@ void Item::remove()
   Item::ptr this_ = *this;
 
   ItemModel *model = _model;
+  ListItem *parent = _parent;
 
   if (model)
     emit model->layoutAboutToBeChanged();
 
-  _parent->remove(this);
   set_model(0);
-  _parent->child_changed();
+  _parent->remove_child(this);
 
   if (model)
     emit model->layoutChanged();
 
-  _parent = 0;
-  _row = -1;
+  parent->child_changed();
 }
 
 void Item::set_model(ItemModel* model)
 {
+  if (_model && _model != model)
+    _model->changePersistentIndex(get_model_index(), QModelIndex());
+
   _model = model;
 }
 

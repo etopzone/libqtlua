@@ -104,9 +104,9 @@ private:
   void set_model(ItemModel* model);
 
   void change_indexes(int first);
-  void insert(Item *item, int row);
+  void insert_child(Item *item, int row);
   void insert_name(Item *item, int row);
-  void remove(Item *item);
+  void remove_child(Item *item);
   inline void remove_name(Item *item);
 
   QHash<String,Item*> _child_hash;
