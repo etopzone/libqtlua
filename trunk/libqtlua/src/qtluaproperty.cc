@@ -38,11 +38,8 @@ namespace QtLua {
     QObject &obj = qow.get_object();
 
     // Try to reset property if assign nil
-    if (value.type() == Value::TNil)
+    if (value.type() == Value::TNil && mp.isResettable())
       {
-	if (!mp.isResettable())
- 	  throw String("QObject property '%' is not resettable.").arg(mp.name());
-
 	if (!mp.reset(&obj))
  	  throw String("Unable to reset QObject property '%'.").arg(mp.name());
 	return;

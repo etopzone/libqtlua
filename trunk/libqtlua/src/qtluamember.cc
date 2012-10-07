@@ -172,7 +172,13 @@ namespace QtLua {
       }
       default:
 	if (type == ud_ref_type)
-	  return Value(ls, **(Ref<UserData>*)data);
+	  {
+	    const Ref<UserData> &ud = *(Ref<UserData>*)data;
+	    if (ud.valid())
+	      return Value(ls, ud);
+	    else
+	      return Value(ls);
+	  }
 
 	metatype_map_t::const_iterator i = types_map.find(type);
 
@@ -251,7 +257,7 @@ namespace QtLua {
 	QObject *obj = &v.to_userdata_cast<QObjectWrapper>()->get_object();
 	QWidget *w = qobject_cast<QWidget*>(obj);
 	if (!w)
-	  throw String("Can not convert lua value, QObject is not a QWidget.");
+	  return false;
 	*reinterpret_cast<QWidget**>(data) = w;
 	return true;
       }
