@@ -81,6 +81,40 @@ namespace QtLua {
 	help string. */
     virtual String get_help() const;
 
+    /** @This contains class declaration for @ref #QTLUA_FUNCTION.
+	@showcontent
+    */
+#define QTLUA_FUNCTION_DECL(name)					\
+    class QtLua_Function_##name : public QtLua::Function		\
+    {									\
+      QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args); \
+      QtLua::String get_description() const;				\
+      QtLua::String get_help() const;					\
+    public:								\
+      QtLua_Function_##name();						\
+      QtLua_Function_##name(QtLua::State *ls, const QtLua::String &path); \
+    };
+
+    /** @This contains functions definition for @ref #QTLUA_FUNCTION.
+	@showcontent
+    */
+#define QTLUA_FUNCTION_BODY(name, description, help)			\
+    QtLua::String QtLua_Function_##name					\
+    ::get_description() const { return description; }			\
+									\
+    QtLua::String QtLua_Function_##name					\
+    ::get_help() const { return help; }					\
+									\
+    QtLua_Function_##name						\
+    ::QtLua_Function_##name() { }					\
+    									\
+    QtLua_Function_##name						\
+    ::QtLua_Function_##name(QtLua::State *ls, const QtLua::String &path)\
+    { register_(ls, path); }						\
+									\
+    QtLua::Value::List QtLua_Function_##name				\
+    ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
+
     /** This macro declares a new a @ref Function class named
 	@tt{QtLua_Function_}@em{name} with functions to handle
 	description, help and function call. User provided code is
@@ -90,19 +124,9 @@ namespace QtLua {
 	@example examples/cpp/userdata/function.cc:1|6
 	@showcontent
     */
-#define QTLUA_FUNCTION(name, description, help)	\
-    class QtLua_Function_##name : public QtLua::Function		\
-    {									\
-      QtLua::Value::List meta_call(QtLua::State *ls, const QtLua::Value::List &args); \
-      QtLua::String get_description() const { return description; }	\
-      QtLua::String get_help() const { return help; }			\
-    public:								\
-      QtLua_Function_##name() { }					\
-      QtLua_Function_##name(QtLua::State *ls, const QtLua::String &path) { register_(ls, path); } \
-    };									\
-									\
-    QtLua::Value::List QtLua_Function_##name				\
-    ::meta_call(QtLua::State *ls, const QtLua::Value::List &args)
+#define QTLUA_FUNCTION(name, description, help)				\
+    QTLUA_FUNCTION_DECL(name)						\
+    QTLUA_FUNCTION_BODY(name, description, help)
 
     /** @This declares and registers a @ref Function object on a QtLua
 	@ref State object as a global variable.  @showcontent */
