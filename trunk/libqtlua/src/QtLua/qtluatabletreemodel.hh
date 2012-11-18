@@ -74,7 +74,9 @@ namespace QtLua {
       {
 	Recursive	= 0x00000001,	//< Expose nested tables too.
 	UserDataIter	= 0x00000002,	//< Iterate over UserData objects too.
-	HideType	= 0x00000004,	//< Do not show entry type in an additionnal column.
+	HideKey	        = 0x00000020,	//< Do not show key column.
+	HideValue	= 0x00000040,	//< Do not show value column.
+	HideType	= 0x00000004,	//< Do not show value type column.
 	UnquoteKeys	= 0x00000008,	//< Strip double quotes from string keys
 	UnquoteValues	= 0x00000010,	//< Strip double quotes from string values
 
