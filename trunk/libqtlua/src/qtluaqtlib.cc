@@ -23,6 +23,9 @@
 #include <QWidget>
 
 #include <QLayout>
+#include <QBoxLayout>
+#include <QGridLayout>
+#include <QFormLayout>
 #include <QColorDialog>
 #include <QFileDialog>
 #include <QErrorMessage>
@@ -230,56 +233,153 @@ namespace QtLua {
   {
     static QUiLoader uil;
 
-    meta_call_check_args(args, 1, 0, Value::TUserData, Value::TNone);
-    QMetaObjectWrapper::ptr mow = args[0].to_userdata_cast<QMetaObjectWrapper>();
+    QMetaObjectWrapper::ptr mow = get_arg_ud<QMetaObjectWrapper>(args, 0);
 
     return Value(ls, mow->create(args), true, true);
   }
 
 
   QTLUA_FUNCTION(layout_add, "Add an item to a QLayout or set QLayout of a QWidget.",
-		 "usage: qt.layout_add( layout, widget|layout )\n"
+		 "usage: qt.layout_add( box_layout, widget|layout )\n"
+		 "       qt.layout_add( grid_layout, widget|layout, row, column, [ row_span, col_span, align ] )\n"
+		 "       qt.layout_add( form_layout, widget|layout, row, column, [ col_span ] )\n"
+		 "       qt.layout_add( form_layout, text, widget|layout )\n"
 		 "       qt.layout_add( widget, layout )\n")
   {
-    meta_call_check_args(args, 2, 2, Value::TUserData, Value::TUserData);
+    meta_call_check_args(args, 2, 0, Value::TUserData, Value::TNone);
 
-    QObject *obj = args[0].to_qobject();
+    QObject *obj = get_arg_qobject<QObject>(args, 0);
 
-    QObjectWrapper::ptr qow = args[1].to_userdata_cast<QObjectWrapper>();
-    QObject &item = qow->get_object();
-
-    if (QLayout *la = dynamic_cast<QLayout*>(obj))
+    if (QFormLayout *la = dynamic_cast<QFormLayout*>(obj))
       {
-	if (QLayoutItem *li = dynamic_cast<QLayoutItem*>(&item))
+	if (args[1].type() == Value::TString)
+	  {
+	    QObjectWrapper::ptr qow2 = get_arg_ud<QObjectWrapper>(args, 2);
+	    QObject &item2 = qow2->get_object();
+
+	    // QFormLayout::addRow ( const QString & labelText, QLayout * field )
+	    if (QLayout *li = dynamic_cast<QLayout*>(&item2))
+	      {
+		qow2->set_delete(false);
+		la->addRow(args[1].to_string(), li);
+	      }
+
+	    // QFormLayout::addRow ( const QString & labelText, QWidget * field )
+	    else if (QWidget *w2 = dynamic_cast<QWidget*>(&item2))
+	      {
+		if (QLayout *ol = w2->layout())
+		  ol->removeWidget(w2);
+		la->addRow(args[1].to_string(), w2);
+	      }
+	    else
+	      goto err;
+
+	    return QtLua::Value(ls);
+	  }
+	else
+	  {
+	    QObjectWrapper::ptr qow = get_arg_ud<QObjectWrapper>(args, 1);
+	    QObject &item = qow->get_object();
+
+	    int row = get_arg<int>(args, 2);
+	    int col = get_arg<int>(args, 3);
+	    int col_span = get_arg<int>(args, 4, 1);
+	    if (col + col_span > 2)
+	      throw QtLua::String("Bad QFormLayout spanning");
+
+	    QFormLayout::ItemRole role = (col_span > 1 ? QFormLayout::SpanningRole :
+					  col ? QFormLayout::FieldRole : QFormLayout::LabelRole);
+
+	    // QFormLayout::setLayout ( int row, ItemRole role, QLayout * layout )
+	    if (QLayout *li = dynamic_cast<QLayout*>(&item))
+	      {
+		qow->set_delete(false);
+		la->setLayout(row, role, li);
+	      }
+
+	    // QFormLayout::setWidget ( int row, ItemRole role, QWidget * widget )
+	    else if (QWidget *w = dynamic_cast<QWidget*>(&item))
+	      {
+		if (QLayout *ol = w->layout())
+		  ol->removeWidget(w);
+		la->setWidget(row, role, w);
+	      }
+	    else
+	      goto err;
+
+	    return QtLua::Value(ls);
+	  }
+      }
+
+    if (QGridLayout *la = dynamic_cast<QGridLayout*>(obj))
+      {
+	QObjectWrapper::ptr qow = get_arg_ud<QObjectWrapper>(args, 1);
+	QObject &item = qow->get_object();
+
+	int row = get_arg<int>(args, 2);
+	int col = get_arg<int>(args, 3);
+	int row_span = get_arg<int>(args, 4, 1);
+	int col_span = get_arg<int>(args, 5, 1);
+	int align = get_arg<int>(args, 6, 0);
+
+	// QGridLayout::addLayout ( QLayout * layout, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment )
+	if (QLayout *li = dynamic_cast<QLayout*>(&item))
 	  {
 	    qow->set_delete(false);
-	    la->addItem(li);
+	    la->addLayout(li, row, col, row_span, col_span, (Qt::Alignment)align);
 	  }
-	else if (QWidget *w = dynamic_cast<QWidget*>(&item))
-	  la->addWidget(w);
-	else
-	  goto err;
-      }
-    else if (QWidget *w = dynamic_cast<QWidget*>(obj))
-      {
-	if (QLayout *la = dynamic_cast<QLayout*>(&item))
-	  {
-	    delete w->layout();
-	    w->setLayout(la);
-	  }
-	else
-	  goto err;
-      }
-    else
-      goto err;
 
-    return QtLua::Value(ls);
+	// QGridLayout::addWidget ( QWidget * widget, int row, int column, int rowSpan, int columnSpan, Qt::Alignment alignment )
+	else if (QWidget *w = dynamic_cast<QWidget*>(&item))
+	  {
+	    if (QLayout *ol = w->layout())
+	      ol->removeWidget(w);
+	    la->addWidget(w, row, col, row_span, col_span, (Qt::Alignment)align);
+	  }
+	else
+	  goto err;
+
+	return QtLua::Value(ls);
+      }
+
+    if (QBoxLayout *la = dynamic_cast<QBoxLayout*>(obj))
+      {
+	QObjectWrapper::ptr qow = get_arg_ud<QObjectWrapper>(args, 1);
+	QObject &item = qow->get_object();
+
+	if (QLayout *li = dynamic_cast<QLayout*>(&item))
+	  {
+	    qow->set_delete(false);
+	    la->addLayout(li);
+	  }
+
+	else if (QWidget *w = dynamic_cast<QWidget*>(&item))
+	  {
+	    if (QLayout *ol = w->layout())
+	      ol->removeWidget(w);
+	    la->addWidget(w);
+	  }
+	else
+	  goto err;
+
+	return QtLua::Value(ls);
+      }
+
+    if (QWidget *w = dynamic_cast<QWidget*>(obj))
+      {
+	QLayout *la = get_arg_qobject<QLayout>(args, 1);
+	delete w->layout();
+	w->setLayout(la);
+
+	return QtLua::Value(ls);
+      }
+
   err:
     throw String("Bad layout object type");
   }
 
 
-  QTLUA_FUNCTION(layout_spacer, "Add an item to a QLayout.",
+  QTLUA_FUNCTION(layout_spacer, "Add a spacer to a QLayout.",
 		 "usage: qt.layout_spacer( layout, width, height, hpolicy, vpolicy )\n")
   {
     meta_call_check_args(args, 3, 5, Value::TUserData, Value::TNumber, Value::TNumber, Value::TNumber, Value::TNumber);
