@@ -176,6 +176,7 @@ const meta_object_table_s meta_object_table[] = {
   { &QItemDelegate::staticMetaObject,		     &create_qobject<QItemDelegate> },
   { &QLCDNumber::staticMetaObject,		     &create_qobject<QLCDNumber> },
   { &QLabel::staticMetaObject,			     &create_qobject<QLabel> },
+  { &QLayout::staticMetaObject,			     0 },
   { &QLibrary::staticMetaObject,		     &create_qobject<QLibrary> },
   { &QLineEdit::staticMetaObject,		     &create_qobject<QLineEdit> },
   { &QListView::staticMetaObject,		     &create_qobject<QListView> },
