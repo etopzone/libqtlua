@@ -67,7 +67,8 @@ namespace QtLua {
 	refenrences to wrapper exists and it has no parent. */
     inline void set_delete(bool delete_);
 
-    /** Get reference to wrapped qobject. Throw QPointer has become null. */
+    /** Get reference to wrapped qobject.
+	Throw if the internal @ref QPointer has become null. */
     inline QObject & get_object();
 
     /** Check if wrapped qobject still exist */

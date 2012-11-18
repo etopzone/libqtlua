@@ -125,10 +125,10 @@ namespace QtLua {
   void QObjectWrapper::ref_single()
   {
 #ifdef QTLUA_QOBJECTWRAPPER_DEBUG
-    qDebug() << "wrapper refdrop" << count << _delete << _obj;
+    qDebug() << "wrapper refdrop" << _delete << _obj;
 #endif
 
-    if ((!_obj || !_obj->parent()) && _delete)
+    if ((_obj && !_obj->parent()) && _delete)
       _drop();
   }
 
@@ -146,19 +146,17 @@ namespace QtLua {
 	return -1;
       }
 
+    if (!_obj)
+      return -1;
+
     lua_slots_hash_t::iterator i = _lua_slots.find(id);
     assert(i != _lua_slots.end());
 
     Value::List lua_args;
 
     // first arg is sender object
-    if (_obj)
-      {
-	assert(_obj == sender());
-	lua_args.push_back(Value(_ls, QObjectWrapper::get_wrapper(_ls, _obj)));
-      }
-    else
-      lua_args.push_back(Value(_ls));
+    assert(_obj == sender());
+    lua_args.push_back(Value(_ls, QObjectWrapper::get_wrapper(_ls, _obj)));
 
     // push more args from parameter type informations
     QMetaMethod mm = _obj->metaObject()->method(i.value()._sigindex);
@@ -180,6 +178,8 @@ namespace QtLua {
 
   void QObjectWrapper::_lua_connect(int sigindex, const Value &value)
   {
+    get_object();
+
     switch (value.type())
       {
       case Value::TUserData:
@@ -206,6 +206,9 @@ namespace QtLua {
 
   bool QObjectWrapper::_lua_disconnect(int sigindex, const Value &value)
   {
+    if (!_obj)
+      return false;
+
     lua_slots_hash_t::iterator i;
 
     for (i = _lua_slots.begin(); i != _lua_slots.end(); )
@@ -227,6 +230,9 @@ namespace QtLua {
 
   void QObjectWrapper::_lua_disconnect_all(int sigindex)
   {
+    if (!_obj)
+      return;
+
     lua_slots_hash_t::iterator i;
 
     for (i = _lua_slots.begin(); i != _lua_slots.end(); )
@@ -245,6 +251,9 @@ namespace QtLua {
 
   void QObjectWrapper::_lua_disconnect_all()
   {
+    if (!_obj)
+      return;
+
     lua_slots_hash_t::iterator i;
 
     for (i = _lua_slots.begin(); i != _lua_slots.end(); )
@@ -339,6 +348,7 @@ namespace QtLua {
 
   Ref<Iterator> QObjectWrapper::new_iterator(State *ls)
   {
+    get_object();
     return QTLUA_REFNEW(QObjectIterator, ls, *this);
   }
 
@@ -357,7 +367,7 @@ namespace QtLua {
 
   String QObjectWrapper::get_type_name() const
   {
-    return _obj->metaObject()->className();
+    return _obj ? _obj->metaObject()->className() : "";
   }
 
   String QObjectWrapper::get_value_str() const
@@ -371,7 +381,8 @@ namespace QtLua {
 
   void QObjectWrapper::completion_patch(String &path, String &entry, int &offset)
   {
-    entry += ".";
+    if (_obj)
+      entry += ".";
   }
 
   String QObjectWrapper::qobject_name(QObject &obj)
