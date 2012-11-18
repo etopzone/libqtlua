@@ -84,9 +84,8 @@ int State::lua_cmd_iterator(lua_State *st)
       }
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   std::abort();
@@ -111,9 +110,8 @@ int State::lua_cmd_each(lua_State *st)
     lua_pushnil(st);
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
@@ -135,9 +133,8 @@ int State::lua_cmd_print(lua_State *st)
       }
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
@@ -163,9 +160,8 @@ int State::lua_cmd_plugin(lua_State *st)
     return 1;
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   std::abort();
@@ -194,9 +190,8 @@ int State::lua_cmd_list(lua_State *st)
       }
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
@@ -277,9 +272,8 @@ int State::lua_meta_item_##n(lua_State *st)				\
       std::abort();							\
 									\
   } catch (String &e) {							\
-    lua_pushstring(st, e.constData());					\
     QTLUA_RESTORE_THREAD(this_);					\
-    lua_error(st);							\
+    luaL_error(st, "%s", e.constData());				\
   }									\
 									\
   QTLUA_RESTORE_THREAD(this_);						\
@@ -300,9 +294,8 @@ int State::lua_meta_item_##n(lua_State *st)				\
      a.to_userdata()->meta_operation(this_, op, a, a).push_value(st);	\
 									\
   } catch (String &e) {							\
-    lua_pushstring(st, e.constData());					\
     QTLUA_RESTORE_THREAD(this_);					\
-    lua_error(st);							\
+    luaL_error(st, "%s", e.constData());				\
   }									\
 									\
   QTLUA_RESTORE_THREAD(this_);						\
@@ -340,9 +333,8 @@ int State::lua_meta_item_index(lua_State *st)
     v.push_value(st);
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
@@ -367,9 +359,8 @@ int State::lua_meta_item_newindex(lua_State *st)
     ud->meta_newindex(this_, op1, op2);
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
@@ -407,9 +398,8 @@ int State::lua_meta_item_call(lua_State *st)
       v.push_value(st);
 
   } catch (String &e) {
-    lua_pushstring(st, e.constData());
     QTLUA_RESTORE_THREAD(this_);
-    lua_error(st);
+    luaL_error(st, "%s", e.constData());
   }
 
   QTLUA_RESTORE_THREAD(this_);
