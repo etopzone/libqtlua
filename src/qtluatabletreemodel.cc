@@ -131,17 +131,22 @@ namespace QtLua {
 
       switch (role)
 	{
-	case Qt::DisplayRole:
+	case Qt::DisplayRole: {
+	  int i = -1, ki = -1, vi = -1, ti = -1;
+	  if (!(t->_attr & HideKey))
+	    ki = ++i;
+	  if (!(t->_attr & HideValue))
+	    vi = ++i;
+	  if (!(t->_attr & HideType))
+	    ti = ++i;
 
-	  switch (index.column())
-	    {
-	    case ColKey:
-	      return QVariant(t->get_key(index.row()).to_string_p(!(t->_attr & UnquoteKeys)));
-	    case ColType:
-	      return QVariant(t->get_value(index.row()).type_name_u());
-	    case ColValue:
-	      return QVariant(t->get_value(index.row()).to_string_p(!(t->_attr & UnquoteValues)));
-	    }
+	  if (index.column() == ki)
+	    return QVariant(t->get_key(index.row()).to_string_p(!(t->_attr & UnquoteKeys)));
+	  if (index.column() == vi)
+	    return QVariant(t->get_value(index.row()).to_string_p(!(t->_attr & UnquoteValues)));
+	  if (index.column() == ti)
+	    return QVariant(t->get_value(index.row()).type_name_u());
+	}
 
 	default:
 	  return QVariant();
@@ -356,17 +361,22 @@ namespace QtLua {
     if (orientation == Qt::Vertical)
       return QVariant(section + 1);
 
-    switch (section)
-      {
-      case ColKey:
-	return QVariant("key");
-      case ColType:
-	return QVariant("type");
-      case ColValue:
-	return QVariant("value");
-      default:
-	return QVariant();
-      }
+    int i = -1, ki = -1, vi = -1, ti = -1;
+    if (!(_table->_attr & HideKey))
+      ki = ++i;
+    if (!(_table->_attr & HideValue))
+      vi = ++i;
+    if (!(_table->_attr & HideType))
+      ti = ++i;
+
+    if (section == ki)
+      return QVariant("key");
+    if (section == vi)
+      return QVariant("Value");
+    if (section == ti)
+      return QVariant("Type");
+
+    return QVariant();
   }
 
   QModelIndex TableTreeModel::buddy(const QModelIndex &index) const
