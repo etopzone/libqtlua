@@ -171,6 +171,16 @@ static QString write_layout(QDomElement l, const QString &parent, bool add_layou
 
       if (tagname == "item")
 	{
+	  QString row(s.attribute("row"));
+	  QString col(s.attribute("column"));
+	  QString row_span(s.attribute("rowspan", "1"));
+	  QString col_span(s.attribute("colspan", "1"));
+	  QString extra;
+	  if (lclass == "QGridLayout")
+	    extra = QString(", ") + row + ", " + col + ", " + row_span + ", " + col_span;
+	  else if (lclass == "QFormLayout")
+	    extra = QString(", ") + row + ", " + col + ", " + col_span;
+
 	  for (QDomNode n = s.firstChild(); !n.isNull(); n = n.nextSibling())
 	    {
 	      QDomElement s = n.toElement();
@@ -183,12 +193,12 @@ static QString write_layout(QDomElement l, const QString &parent, bool add_layou
 	      if (tagname == "widget")
 		{
 		  QString n = write_widget(s, parent);
-		  out << "qt.layout_add(" << lname << ", " << n << ");\n";
+		  out << "qt.layout_add(" << lname << ", " << n << extra << ");\n";
 		}
 	      else if (tagname == "layout")
 		{
 		  QString n = write_layout(s, parent, false);
-		  out << "qt.layout_add(" << lname << ", " << n << ");\n";
+		  out << "qt.layout_add(" << lname << ", " << n << extra << ");\n";
 		}
 	      else if (tagname == "spacer")
 		{
