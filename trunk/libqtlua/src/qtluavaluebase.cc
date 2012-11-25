@@ -38,7 +38,11 @@ extern "C" {
 
 namespace QtLua {
 
+#if LUA_VERSION_NUM < 502
 double ValueBase::_id_counter = 0;
+#else
+double ValueBase::_id_counter = LUA_RIDX_LAST + 1;
+#endif
 
 void ValueBase::check_state() const
 {
@@ -136,8 +140,10 @@ Value::List ValueBase::call(const List &args) const
       if (!lua_checkstack(th, args.size()))
 	throw String("Unable to extend coroutine stack to handle % arguments").arg(args.size());
 
+#if LUA_VERSION_NUM >= 501
       if ((lua_status(th) != 0 || lua_gettop(th) == 0) && (lua_status(th) != LUA_YIELD))
 	throw String("Can not resume a dead coroutine");
+#endif
 
       int oldtop_th = lua_gettop(th);
 
@@ -146,13 +152,19 @@ Value::List ValueBase::call(const List &args) const
 	  v.push_value(th);
 
 	_st->_lst = th; // switch current thread State pointer
+#if LUA_VERSION_NUM < 502
 	int r = lua_resume(th, args.size());
+#else
+	int r = lua_resume(th, _st->_lst, args.size());
+#endif
 	_st->_lst = lst;
 
 	switch (r)
 	  {
-	  case 0: 
-	  case LUA_YIELD: {
+#if LUA_VERSION_NUM >= 501
+	  case LUA_YIELD: 
+#endif
+	  case 0: {
 	    Value::List res;
 	    int oldtop = lua_gettop(lst);
 	    lua_xmove(th, lst, lua_gettop(th));
@@ -183,6 +195,9 @@ Value::List ValueBase::call(const List &args) const
 
 bool ValueBase::is_dead() const
 {
+#if LUA_VERSION_NUM < 501
+  return false;
+#else
   check_state();
   lua_State *lst = _st->_lst;
   push_value(lst);
@@ -197,6 +212,7 @@ bool ValueBase::is_dead() const
   lua_pop(lst, 1);
 
   return ((lua_status(th) != 0 || lua_gettop(th) == 0) && (lua_status(th) != LUA_YIELD));
+#endif
 }
 
 Value ValueBase::at(const Value &key) const
@@ -385,7 +401,11 @@ String ValueBase::to_string() const
 
   if (str)
     {
+#if LUA_VERSION_NUM < 502
       String res(lua_tostring(lst, -1), lua_strlen(lst, -1));
+#else
+      String res(lua_tostring(lst, -1), lua_rawlen(lst, -1));
+#endif
       lua_pop(lst, 1);
       return res;
     }
@@ -557,8 +577,16 @@ int ValueBase::len() const
   switch (lua_type(lst, -1))
     {
     case TString:
+#if LUA_VERSION_NUM < 501
+      res = lua_strlen(lst, -1);
+#else
     case TTable:
+# if LUA_VERSION_NUM < 502
       res = lua_objlen(lst, -1);
+# else
+      res = lua_rawlen(lst, -1);
+# endif
+#endif
       break;
 
     case TUserData:
@@ -715,7 +743,7 @@ bool ValueBase::operator==(const Value &lv) const
     }
   else
     {
-      res = lua_equal(lst, -1, -2);
+      res = lua_rawequal(lst, -1, -2);
     }
 
   lua_pop(lst, 2);
@@ -759,7 +787,11 @@ bool ValueBase::operator<(const Value &lv) const
   else
     {
       if (lua_type(lst, -1) == lua_type(lst, -2))
+#if LUA_VERSION_NUM < 502
 	res = lua_lessthan(lst, -1, -2);
+#else
+	res = lua_compare(lst, -1, -2, LUA_OPLT);
+#endif
       else
 	res = lua_type(lst, -1) < lua_type(lst, -2);
     }
@@ -778,8 +810,11 @@ bool ValueBase::operator==(const String &str) const
 
   if (lua_isstring(lst, -1))
     {
+#if LUA_VERSION_NUM < 502
       String s(lua_tostring(lst, -1), lua_strlen(lst, -1));
-
+#else
+      String s(lua_tostring(lst, -1), lua_rawlen(lst, -1));
+#endif
       res = (str == s);
     }
 
@@ -833,7 +868,13 @@ uint ValueBase::qHash(lua_State *lst, int index)
     }
 
     case LUA_TSTRING:
-      return ::qHash(String(lua_tostring(lst, index), lua_strlen(lst, index)));
+      return ::qHash(String(lua_tostring(lst, index),
+#if LUA_VERSION_NUM < 502
+			    lua_strlen(lst, index)
+#else
+			    lua_rawlen(lst, index)
+#endif
+			    ));
 
     case LUA_TUSERDATA: {
       try {

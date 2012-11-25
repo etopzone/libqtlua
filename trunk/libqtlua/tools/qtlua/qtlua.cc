@@ -23,6 +23,15 @@
 
 */
 
+#include "config.hh"
+
+extern "C" {
+#include <lua.h>
+#ifdef HAVE_LUA_JITLIB
+# include <luajit.h>
+#endif
+}
+
 #include <QApplication>
 #include <QFile>
 #include <QDialog>
@@ -32,9 +41,18 @@
 #include <QtLua/State>
 #include <QtLua/Console>
 
-#include "config.hh"
+#ifndef LUA_RELEASE
+# define LUA_RELEASE LUA_VERSION
+#endif
 
-#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " Copyright (C) 2008-2012, Alexandre Becoulet"
+#ifndef LUAJIT_VERSION
+# define QTLUA_USING "(using Qt " QT_VERSION_STR " and " LUA_RELEASE ")"
+#else
+# define QTLUA_USING "(using Qt " QT_VERSION_STR " and " LUA_RELEASE ", " LUAJIT_VERSION ")"
+#endif
+
+#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " " QTLUA_USING "\n" \
+                        "Copyright (C) 2008-2012, Alexandre Becoulet"
 
 int main(int argc, char *argv[])
 {

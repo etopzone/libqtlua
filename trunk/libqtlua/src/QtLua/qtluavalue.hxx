@@ -199,6 +199,13 @@ namespace QtLua {
     return *this;
   }
 
+  Value Value::new_global_env(const State *ls)
+  {
+    Value t(ls);
+    t.init_global();
+    return t;
+  }
+
   Value Value::new_table(const State *ls)
   {
     Value t(ls);

@@ -451,7 +451,9 @@ public:
   /** Check if the value is @tt nil */
   inline bool is_nil() const;
 
-  /** Returns true if the value is a coroutine which is not resumable */
+  /** Returns true if the value is a coroutine which is not resumable.
+   This function always returns false if @ref State::lua_version()
+   returns a value less than 501. */
   bool is_dead() const;
 
   /** Dump the bytecode for a function object */

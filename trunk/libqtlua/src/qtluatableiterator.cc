@@ -40,7 +40,11 @@ TableIterator::TableIterator(State *st, int index)
 {
   lua_State *lst = _st->_lst;
   lua_pushlightuserdata(lst, this);
-  if (index < 0 && index != LUA_GLOBALSINDEX)
+  if (index < 0
+#if LUA_VERSION_NUM < 502
+      && index != LUA_GLOBALSINDEX
+#endif
+      )
     index--;
   lua_pushvalue(lst, index);
   assert(lua_type(lst, -1) == Value::TTable);

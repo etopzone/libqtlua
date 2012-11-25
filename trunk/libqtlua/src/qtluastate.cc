@@ -44,6 +44,7 @@ extern "C" {
 
 namespace QtLua {
 
+char State::_key_threads;
 char State::_key_item_metatable;
 char State::_key_this;
 
@@ -98,11 +99,14 @@ int State::lua_cmd_each(lua_State *st)
 
   int idx = 1;
 
-  if (lua_gettop(st) < 1)
-    idx = LUA_GLOBALSINDEX;
-
   try {
-    Value		table(idx, this_);
+    Value		table;
+
+    if (lua_gettop(st) < 1)
+      table = Value::new_global_env(this_);
+    else
+      table = Value(idx, this_);
+
     Iterator::ptr	i = table.new_iterator();
 
     lua_pushcfunction(st, lua_cmd_iterator);
@@ -173,12 +177,14 @@ int State::lua_cmd_list(lua_State *st)
   QTLUA_SWITCH_THREAD(this_, st);
 
   try {
-    int idx = lua_gettop(st) > 0 ? 1 : LUA_GLOBALSINDEX;
+    Value		table;
 
-    // display table object content
-    const Value	t = Value(idx, this_);
+    if (lua_gettop(st) < 1)
+      table = Value::new_global_env(this_);
+    else
+      table = Value(1, this_);
 
-    for (Value::const_iterator i = t.begin(); i != t.end(); i++)
+    for (Value::const_iterator i = table.begin(); i != table.end(); i++)
       {
 	try {
 	  this_->output_str(String("\033[18m") + i.value().type_name_u() + "\033[2m " +
@@ -205,7 +211,7 @@ int State::lua_cmd_help(lua_State *st)
 
   if (lua_gettop(st) < 1)
     {
-      this_->output_str("Usage: help(function)\n");
+      this_->output_str("Usage: help(QtLua::Function object)\n");
       QTLUA_RESTORE_THREAD(this_);
       return 0;
     }
@@ -433,7 +439,11 @@ void State::lua_pgettable(lua_State *st, int index)
   lua_pop(st, 1);
 
   lua_pushcfunction(st, lua_gettable_wrapper);
-  if (index < 0 && index != LUA_GLOBALSINDEX)
+  if (index < 0
+#if LUA_VERSION_NUM < 502
+      && index != LUA_GLOBALSINDEX
+#endif
+      )
     index--;
   lua_pushvalue(st, index);  // table
   lua_pushvalue(st, -3);     // key
@@ -459,7 +469,11 @@ void State::lua_psettable(lua_State *st, int index)
   lua_pop(st, 1);
 
   lua_pushcfunction(st, lua_settable_wrapper);
-  if (index < 0 && index != LUA_GLOBALSINDEX)
+  if (index < 0
+#if LUA_VERSION_NUM < 502
+      && index != LUA_GLOBALSINDEX
+#endif
+      )
     index--;
   lua_pushvalue(st, index);  // table
   lua_pushvalue(st, -4);     // key
@@ -485,7 +499,11 @@ int State::lua_pnext(lua_State *st, int index)
   lua_pop(st, 1);
 
   lua_pushcfunction(st, lua_next_wrapper);
-  if (index < 0 && index != LUA_GLOBALSINDEX)
+  if (index < 0
+#if LUA_VERSION_NUM < 502
+      && index != LUA_GLOBALSINDEX
+#endif
+      )
     index--;
   lua_pushvalue(st, index);  // table
   lua_pushvalue(st, -3);     // key
@@ -573,14 +591,25 @@ void State::set_global_r(const String &name, const Value &value, int tblidx)
 	{
 	  // bad existing intermediate value
 	  lua_pop(_lst, 1);
-	  throw String("Can not set global value, the `%' key already exists.").arg(name);
+	  throw String("Can not set global value, the `%' exists and is not a table.").arg(prefix);
 	}
     }
 }
 
 void State::set_global(const String &name, const Value &value)
 {
+#if LUA_VERSION_NUM < 502
   set_global_r(name, value, LUA_GLOBALSINDEX);
+#else
+  try {
+    lua_pushglobaltable(_lst);
+    set_global_r(name, value, lua_gettop(_lst));
+    lua_pop(_lst, 1);
+  } catch (...) {
+    lua_pop(_lst, 1);
+    throw;
+  }
+#endif
 }
 
 void State::get_global_r(const String &name, Value &value, int tblidx) const
@@ -619,7 +648,7 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
       if (!lua_istable(_lst, -1))
 	{
 	  lua_pop(_lst, 1);
-	  throw String("Can not get global value, the `%' key is not a table.").arg(name);
+	  throw String("Can not get global value, `%' is not a table.").arg(prefix);
 	}
 
       try {
@@ -636,28 +665,63 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
 Value State::get_global(const String &path) const
 {
   Value res(const_cast<State*>(this));
+
+#if LUA_VERSION_NUM < 502
   get_global_r(path, res, LUA_GLOBALSINDEX);
+#else
+  try {
+    lua_pushglobaltable(_lst);
+    get_global_r(path, res, lua_gettop(_lst));
+    lua_pop(_lst, 1);
+  } catch (...) {
+    lua_pop(_lst, 1);
+    throw;
+  }
+#endif
+
   return res;
 }
 
 Value State::at(const Value &key) const
 {
+#if LUA_VERSION_NUM < 502
   key.push_value(_lst);
-
   try {
     lua_pgettable(_lst, LUA_GLOBALSINDEX);
   } catch (...) {
-    lua_pop(_lst, -1);
+    lua_pop(_lst, 1);
+    throw;
   }
 
   Value res(-1, this);
   lua_pop(_lst, 1);
+#else
+
+  try {
+    lua_pushglobaltable(_lst);
+    key.push_value(_lst);
+  } catch (...) {
+    lua_pop(_lst, 1);
+    throw;
+  }
+
+  try {
+    lua_pgettable(_lst, -2);
+  } catch (...) {
+    lua_pop(_lst, 2);
+    throw;
+  }
+
+  Value res(-1, this);
+  lua_pop(_lst, 2);
+#endif
+
   return res;
 }
 
 ValueRef State::operator[] (const Value &key)
 {
-  return ValueRef(Value(LUA_GLOBALSINDEX, this), key);
+  return ValueRef(Value::new_global_env(this), key);
 }
 
 void State::check_empty_stack() const
@@ -677,7 +741,11 @@ State::State()
   assert(Value::TUserData == LUA_TUSERDATA);
   assert(Value::TThread == LUA_TTHREAD);
 
+#if LUA_VERSION_NUM < 501
   _mst = _lst = lua_open();
+#else
+  _mst = _lst = luaL_newstate();
+#endif
 
   if (!_mst)
     throw std::bad_alloc();
@@ -716,6 +784,20 @@ State::State()
   lua_pushlightuserdata(_mst, &_key_this);
   lua_pushlightuserdata(_mst, this);
   lua_rawset(_mst, LUA_REGISTRYINDEX);
+
+#if LUA_VERSION_NUM < 501
+  // create a weak table for threads, substitute for lua_pushthread
+  lua_pushlightuserdata(_mst, &_key_threads);
+  lua_newtable(_mst);
+
+  lua_newtable(_mst);    // metatable for weak table mode
+  lua_pushstring(_mst, "__mode");
+  lua_pushstring(_mst, "v");
+  lua_rawset(_mst, -3);
+  lua_setmetatable(_mst, -2);
+
+  lua_rawset(_mst, LUA_REGISTRYINDEX);
+#endif
 }
 
 State::~State()
@@ -786,7 +868,11 @@ Value::List State::exec_chunk(QIODevice &io)
   struct lua_reader_state_s rst;
   rst._io = &io;
 
+#if LUA_VERSION_NUM < 502
   if (lua_load(_lst, &lua_reader, &rst, ""))
+#else
+  if (lua_load(_lst, &lua_reader, &rst, "", NULL))
+#endif
     {
       String err(lua_tostring(_lst, -1));
       lua_pop(_lst, 1);
@@ -859,9 +945,8 @@ void State::gc_collect()
 
 void State::reg_c_function(const char *name, lua_CFunction f)
 {
-  lua_pushstring(_lst, name);
   lua_pushcfunction(_lst, f);
-  lua_rawset(_lst, LUA_GLOBALSINDEX);
+  lua_setglobal(_lst, name);
 }
 
 State * State::get_this(lua_State *st)
@@ -876,54 +961,96 @@ State * State::get_this(lua_State *st)
   return static_cast<State*>(data);
 }
 
-#define QTLUA_LUA_CALL(st, f)		\
+#if LUA_VERSION_NUM < 502
+# define QTLUA_LUA_CALL(st, f, modname)	\
   lua_pushcfunction(st, f);		\
   lua_call(st, 0, 0);
+#else
+# define QTLUA_LUA_CALL(st, f, modname)	\
+  luaL_requiref(st, modname, f, 1);     \
+  lua_pop(st, 1);
+#endif
 
-void State::openlib(Library lib)
+bool State::openlib(Library lib)
 {
   switch (lib)
     {
-    case BaseLib:
-      QTLUA_LUA_CALL(_lst, luaopen_base);
-      return;
-    case PackageLib:
-#ifdef HAVE_LUA_PACKAGELIB
-      QTLUA_LUA_CALL(_lst, luaopen_package);
+    case CoroutineLib:
+#if LUA_VERSION_NUM >= 502
+      QTLUA_LUA_CALL(_lst, luaopen_coroutine, "coroutine");
+      return true;
 #endif
-      return;
+    case BaseLib:
+      QTLUA_LUA_CALL(_lst, luaopen_base, "_G");
+      return true;
+#ifdef HAVE_LUA_PACKAGELIB
+    case PackageLib:
+      QTLUA_LUA_CALL(_lst, luaopen_package, "package");
+      return true;
+#endif
     case StringLib:
-      QTLUA_LUA_CALL(_lst, luaopen_string);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_string, "string");
+      return true;
     case TableLib:
-      QTLUA_LUA_CALL(_lst, luaopen_table);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_table, "table");
+      return true;
     case MathLib:
-      QTLUA_LUA_CALL(_lst, luaopen_math);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_math, "math");
+      return true;
     case IoLib:
-      QTLUA_LUA_CALL(_lst, luaopen_io);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_io, "io");
+      return true;
 #ifdef HAVE_LUA_OSLIB
     case OsLib:
-      QTLUA_LUA_CALL(_lst, luaopen_os);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_os, "os");
+      return true;
 #endif
     case DebugLib:
-      QTLUA_LUA_CALL(_lst, luaopen_debug);
-      return;
+      QTLUA_LUA_CALL(_lst, luaopen_debug, "debug");
+      return true;
+
+#if LUA_VERSION_NUM >= 502
+    case Bit32Lib:
+      QTLUA_LUA_CALL(_lst, luaopen_bit32, "bit32");
+      return true;
+#endif
+
+#ifdef HAVE_LUA_JITLIB
+    case JitLib:
+      QTLUA_LUA_CALL(_lst, luaopen_jit, "jit");
+      return true;
+#endif
+#ifdef HAVE_LUA_FFILIB
+    case FfiLib:
+      QTLUA_LUA_CALL(_lst, luaopen_ffi, "ffi");
+      return true;
+#endif
+
     case AllLibs:
-#ifdef HAVE_LUA_OPENLIBS
-      luaL_openlibs(_lst);
-#else
-      QTLUA_LUA_CALL(_lst, luaopen_base);
-      QTLUA_LUA_CALL(_lst, luaopen_string);
-      QTLUA_LUA_CALL(_lst, luaopen_table);
-      QTLUA_LUA_CALL(_lst, luaopen_math);
-      QTLUA_LUA_CALL(_lst, luaopen_io);
-      QTLUA_LUA_CALL(_lst, luaopen_debug);
+#if LUA_VERSION_NUM >= 502
+      QTLUA_LUA_CALL(_lst, luaopen_coroutine, "coroutine");
+      QTLUA_LUA_CALL(_lst, luaopen_bit32, "bit32");
+#endif
+#ifdef HAVE_LUA_OSLIB
+      QTLUA_LUA_CALL(_lst, luaopen_os, "os");
+#endif
+#ifdef HAVE_LUA_PACKAGELIB
+      QTLUA_LUA_CALL(_lst, luaopen_package, "package");
+#endif
+      QTLUA_LUA_CALL(_lst, luaopen_base, "_G");
+      QTLUA_LUA_CALL(_lst, luaopen_string, "string");
+      QTLUA_LUA_CALL(_lst, luaopen_table, "table");
+      QTLUA_LUA_CALL(_lst, luaopen_math, "math");
+      QTLUA_LUA_CALL(_lst, luaopen_io, "io");
+      QTLUA_LUA_CALL(_lst, luaopen_debug, "debug");
+#ifdef HAVE_LUA_JITLIB
+      QTLUA_LUA_CALL(_lst, luaopen_jit, "jit");
+#endif
+#ifdef HAVE_LUA_FFILIB
+      QTLUA_LUA_CALL(_lst, luaopen_ffi, "ffi");
 #endif
       qtluaopen_qt(this);
+
     case QtLuaLib:
       reg_c_function("print", lua_cmd_print);
       reg_c_function("list", lua_cmd_list);
@@ -931,11 +1058,24 @@ void State::openlib(Library lib)
       reg_c_function("help", lua_cmd_help);
       reg_c_function("plugin", lua_cmd_plugin);
       reg_c_function("qtype", lua_cmd_qtype);
-      return;
+      return true;
+
     case QtLib:
       qtluaopen_qt(this);
-      return;
+      return true;
+
+    default:
+      return false;
     }
+}
+
+int State::lua_version() const
+{
+#if LUA_VERSION_NUM < 501
+  return 500;
+#else
+  return LUA_VERSION_NUM;
+#endif
 }
 
 void State::lua_do(void (*func)(lua_State *st))
@@ -1047,7 +1187,7 @@ void State::fill_completion_list(const QString &prefix, QStringList &list, int &
 {
   String path;
 
-  fill_completion_list_r(path, prefix, list, Value(LUA_GLOBALSINDEX, this), cursor_offset);
+  fill_completion_list_r(path, prefix, list, Value::new_global_env(this), cursor_offset);
 }
 
 }

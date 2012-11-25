@@ -205,8 +205,16 @@ protected:
    * returns.
    *
    * The current lua thread value is returned. The Value::call family
-   * of functions can be used to resume the lua thread. The @tt nil
-   * value is returned if not currently running inside a coroutine.
+   * of functions can be used on a lua thread value to resume the
+   * coroutine from C++ code. The @tt nil value is returned if not
+   * currently running inside a coroutine.
+   *
+   * When the @ref State::lua_version function returns a value less
+   * than 501, this function is not able to return the current thread
+   * value if it has not been created using the @ref Value::new_thread
+   * function. If the current thread has been created by any other
+   * mean (like call to the @tt {coroutine.create} lua 5.0 function) a
+   * boolean @tt true value is returned instead of the thread value.
    */
   Value yield(State *ls) const;
 

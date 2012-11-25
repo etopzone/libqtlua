@@ -67,6 +67,8 @@ AC_CHECK_LIB($luaname, luaL_loadbuffer, lualibname=$luaname, AC_CHECK_LIB($luali
 AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lua package library is available]))
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
 AC_CHECK_LIB($lualibname, luaL_openlibs, AC_DEFINE(HAVE_LUA_OPENLIBS, 1, [lua os library is available]))
+AC_CHECK_LIB($lualibname, luaopen_jit, AC_DEFINE(HAVE_LUA_JITLIB, 1, [luajit jit library is available]))
+AC_CHECK_LIB($lualibname, luaopen_ffi, AC_DEFINE(HAVE_LUA_FFILIB, 1, [luajit ffi library is available]))
 
 CXXFLAGS="$CPPFLAGS -O2 -fPIC -Wall -Wno-unused-parameter -DQT_NO_CAST_FROM_BYTEARRAY -std=c++11 "
 

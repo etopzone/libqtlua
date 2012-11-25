@@ -108,6 +108,9 @@ public:
    */
   Value(State *ls, QObject *obj, bool delete_, bool reparent);
 
+  /** Create a new lua global environment value */
+  static inline Value new_global_env(const State *ls);
+
   /** Create a new lua table value */
   static inline Value new_table(const State *ls);
 
@@ -253,6 +256,7 @@ private:
   /** construct from value on lua stack. */
   Value(int index, const State *st);
 
+  void init_global();
   void init_table();
   void init_thread(const Value &main);
 
