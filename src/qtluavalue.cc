@@ -46,6 +46,19 @@ int Value::empty_fcn(lua_State *st)
   return 0;
 }
 
+void Value::init_global()
+{
+  check_state();
+  lua_State *lst = _st->_lst;
+  lua_pushnumber(lst, _id);
+#if LUA_VERSION_NUM < 502
+  lua_pushvalue(lst, LUA_GLOBALSINDEX);
+#else
+  lua_pushglobaltable(lst);
+#endif
+  lua_rawset(lst, LUA_REGISTRYINDEX);
+}
+
 void Value::init_table()
 {
   check_state();
@@ -61,6 +74,16 @@ void Value::init_thread(const Value &main)
   lua_State *lst = _st->_lst;
   lua_pushnumber(lst, _id);
   lua_State *th = lua_newthread(lst);
+
+#if LUA_VERSION_NUM < 501
+  // store the new thread in a weak metatable, substitute for lua_pushthread
+  lua_pushlightuserdata(lst, &State::_key_threads);
+  lua_rawget(lst, LUA_REGISTRYINDEX);
+  lua_pushlightuserdata(lst, th);
+  lua_pushvalue(lst, -3);
+  lua_rawset(lst, -3);
+  lua_pop(lst, 1);
+#endif
 
   try {
     main.push_value(lst);
@@ -242,7 +265,11 @@ Value::Value(int index, const State *st)
   lua_State *lst = _st->_lst;
 
   lua_pushnumber(lst, _id);
-  if (index < 0 && index != LUA_GLOBALSINDEX)
+  if (index < 0
+#if LUA_VERSION_NUM < 502
+      && index != LUA_GLOBALSINDEX
+#endif
+      )
     index--;
   lua_pushvalue(lst, index);
   lua_rawset(lst, LUA_REGISTRYINDEX);

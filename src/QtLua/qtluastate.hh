@@ -63,6 +63,7 @@ namespace QtLua {
   enum Library
     {
       BaseLib,		//< standard lua base library
+      CoroutineLib,	//< standard lua coroutine library, included in base before lua 5.2
       PackageLib,	//< standard lua package library
       StringLib,	//< standard lua string library
       TableLib,		//< standard lua table library
@@ -70,6 +71,9 @@ namespace QtLua {
       IoLib,		//< standard lua io library
       OsLib,		//< standard lua os library
       DebugLib,		//< standard lua debug library
+      Bit32Lib,		//< standard lua bit library
+      JitLib,		//< luajit jit library
+      FfiLib,		//< luajit ffi library
       QtLuaLib,		//< lua library with base functions, see @xref{Predefined lua functions} section.
       QtLib,		//< lua library with wrapped Qt functions, see @xref{Wrapped Qt functions} section.
       AllLibs,		//< All libraries wildcard
@@ -195,10 +199,11 @@ public:
 
   /** 
    * This function open a lua standard library or QtLua lua library.
+   * The function returns true if the library is available.
    * @see QtLua::Library
    * @xsee{QtLua lua libraries}
    */
-  void openlib(Library lib);
+  bool openlib(Library lib);
 
   /** 
    * Call given function pointer with internal @ref lua_State
@@ -226,6 +231,11 @@ public:
    * @internal @This asserts internal lua stack is empty.
    */
   void check_empty_stack() const;
+
+  /**
+   * @this returns lua version. Result is 500 for lua pior to version 5.1.
+   */
+  int lua_version() const;
 
 public slots:
 
@@ -304,6 +314,7 @@ private:
   static int lua_meta_item_gc(lua_State *st);
 
   // static member addresses are used as lua registry table keys
+  static char _key_threads;
   static char _key_item_metatable;
   static char _key_this;
 

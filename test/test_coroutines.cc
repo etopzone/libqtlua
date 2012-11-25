@@ -51,19 +51,22 @@ int main()
       Value r = co(Value(&ls, 7)).at(0);
       ls.check_empty_stack();
       ASSERT(r.to_integer() == 7);
-      ASSERT(!co.is_dead());
+      if (ls.lua_version() > 500)
+	ASSERT(!co.is_dead());
       ls.check_empty_stack();
 
       r = co(Value(&ls, 22)).at(0);
       ls.check_empty_stack();
       ASSERT(r.to_integer() == 22);
-      ASSERT(!co.is_dead());
+      if (ls.lua_version() > 500)
+	ASSERT(!co.is_dead());
       ls.check_empty_stack();
 
       r = co(Value(&ls, 142)).at(0);
       ls.check_empty_stack();
       ASSERT(r.to_integer() == 143);
-      ASSERT(co.is_dead());
+      if (ls.lua_version() > 500)
+	ASSERT(co.is_dead());
       ls.check_empty_stack();
 
       bool err = false;
@@ -119,7 +122,26 @@ int main()
 	err = s;
       }
       ls.check_empty_stack();
-      ASSERT(err == String("bad value!"));
+      ASSERT(err.endsWith(String("bad value!")));
+    }
+
+    {
+      QtLua_Function_test test;
+      QtLua::State ls;
+      ls.openlib(AllLibs);
+
+      ls["test"] = test;
+      Value co = ls.exec_statements("return coroutine.create(function(a, b) while (true) do b = test(a, b) + 1 end end)").at(0);
+
+      if (ls.lua_version() > 500)
+	{
+	  ASSERT(co(co, Value(&ls, 7)).at(0).to_integer() == 14);
+	}
+      else
+	{
+	  ASSERT(co(Value(&ls, Value::True), Value(&ls, 7)).at(0).to_integer() == 14);
+	}
+      ls.check_empty_stack();
     }
 
   } catch (QtLua::String &e) {
