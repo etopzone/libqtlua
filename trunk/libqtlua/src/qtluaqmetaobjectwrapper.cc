@@ -67,7 +67,11 @@ namespace QtLua {
 	      if (!tid)
 		goto wrong_prototype;
 
+#if QT_VERSION < 0x050000
 	      void *arg = QMetaType::construct(tid);
+#else
+	      void *arg = QMetaType::create(tid, 0);
+#endif
 
 	      qt_tid[i+1] = tid;
 	      qt_args[i+1] = arg;

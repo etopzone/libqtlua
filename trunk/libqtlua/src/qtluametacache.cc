@@ -52,10 +52,16 @@ namespace QtLua {
 	int index = mo->methodOffset() + i;
 	QMetaMethod mm = mo->method(index);
 
+#if QT_VERSION < 0x050000
 	if (!mm.signature())
 	  continue;
-
 	String signature(mm.signature());
+#else
+	String signature(mm.methodSignature());
+	if (signature.isNull())
+	  continue;	  
+#endif
+
 	String name(signature.constData(), signature.indexOf('('));
 
 	while (existing.contains(name) || _member_cache.contains(name))

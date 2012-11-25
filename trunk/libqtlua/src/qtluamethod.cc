@@ -67,7 +67,11 @@ namespace QtLua {
 	  if (!tid)
 	    throw String("Unsupported method return type, unable to convert % Qt type to lua value.").arg(mm.typeName());
 
+#if QT_VERSION < 0x050000
 	  qt_args[i++] = QMetaType::construct(tid);
+#else
+	  qt_args[i++] = QMetaType::create(tid, 0);
+#endif
 	}
       else
 	{
@@ -84,8 +88,11 @@ namespace QtLua {
 	  if (!tid)
 	    throw String("Unsupported method argument type, unable to convert lua value to % Qt type.").arg(String(pt));
 
+#if QT_VERSION < 0x050000
 	  void *arg = qt_args[i++] = QMetaType::construct(tid);
-
+#else
+	  void *arg = qt_args[i++] = QMetaType::create(tid, 0);
+#endif
 	  if (lua_args.size() >= i)
 	    Member::raw_set_object(tid, arg, lua_args[i - 1]);
 	}
@@ -131,7 +138,12 @@ namespace QtLua {
     QMetaMethod mm = _mo->method(_index);
     const char * t = mm.typeName();
 
-    return String(*t ? t : "void") + " " + _mo->className() + "::" + mm.signature();
+    return String(*t ? t : "void") + " " + _mo->className() + "::"
+#if QT_VERSION < 0x050000
+      + mm.signature();
+#else
+      + mm.methodSignature();
+#endif
   }
 
   bool Method::support(Value::Operation c) const

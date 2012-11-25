@@ -52,7 +52,11 @@ namespace QtLua {
 
     if (type > 0)
       {
+#if QT_VERSION < 0x050000
 	void *data = QMetaType::construct(type);
+#else
+	void *data = QMetaType::create(type, 0);
+#endif
 	assert(data);
 
 	if (Member::raw_set_object(type, data, value))

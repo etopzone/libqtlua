@@ -177,7 +177,7 @@ namespace QtLua {
     if ((_attr & RowColSwap ? row : column) >= column_count())
       return QModelIndex();
 
-    return createIndex(row, column, 0);
+    return createIndex(row, column, (void*)0);
   }
 
   QModelIndex TableGridModel::parent(const QModelIndex &index) const

@@ -93,7 +93,6 @@
 #include <QShortcut>
 #include <QSignalMapper>
 #include <QSlider>
-#include <QSound>
 #include <QSpinBox>
 #include <QSplashScreen>
 #include <QSplitter>
@@ -203,7 +202,6 @@ const meta_object_table_s meta_object_table[] = {
   { &QShortcut::staticMetaObject,		     0 },
   { &QSignalMapper::staticMetaObject,		     &create_qobject<QSignalMapper> },
   { &QSlider::staticMetaObject,			     &create_qobject<QSlider> },
-  { &QSound::staticMetaObject,			     0 },
   { &QSpinBox::staticMetaObject,		     &create_qobject<QSpinBox> },
   { &QSplashScreen::staticMetaObject,		     &create_qobject<QSplashScreen> },
   { &QSplitter::staticMetaObject,		     &create_qobject<QSplitter> },

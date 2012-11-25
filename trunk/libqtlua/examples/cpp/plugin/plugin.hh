@@ -10,6 +10,9 @@ class ExamplePlugin : public QObject, public QtLua::PluginInterface
 {
   Q_OBJECT
   Q_INTERFACES(QtLua::PluginInterface)
+#if QT_VERSION >= 0x050000
+  Q_PLUGIN_METADATA(IID "qtlua.ExamplePlugin")
+#endif
 
 public:
 

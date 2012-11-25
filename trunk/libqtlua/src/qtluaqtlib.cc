@@ -407,7 +407,9 @@ namespace QtLua {
     return Value(ls, QCoreApplication::translate(get_arg<String>(args, 0),
 						 get_arg<String>(args, 1),
 						 get_arg<String>(args, 2, ""),
+#if QT_VERSION < 0x050000
 						 QCoreApplication::UnicodeUTF8,
+#endif
 						 get_arg<int>(args, 3, -1)));
   }
 
@@ -681,7 +683,11 @@ namespace QtLua {
 		 "usage: qt.dialog.get_integer(\"title\", \"label\", value, min, max, step)\n")
   {
     bool ok;
+#if QT_VERSION < 0x050000
     int v = QInputDialog::getInteger(QApplication::activeWindow(),
+#else
+    int v = QInputDialog::getInt(QApplication::activeWindow(),
+#endif
 				     get_arg<QString>(args, 0, ""),
 				     get_arg<QString>(args, 1, ""),
 				     get_arg<int>(args, 2, 0),
