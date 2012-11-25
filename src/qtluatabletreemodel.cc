@@ -46,7 +46,12 @@ namespace QtLua {
   void TableTreeModel::update()
   {
     _table->clear();
+#if QT_VERSION < 0x050000
     reset();
+#else
+    beginResetModel();
+    endResetModel();
+#endif
   }
 
   TableTreeKeys * TableTreeModel::table_from_index(const QModelIndex &index) const

@@ -114,8 +114,10 @@ namespace QtLua {
 	return Value(ls, String(*reinterpret_cast<const QByteArray*>(data)));
       case QMetaType::QObjectStar:
 	return Value(ls, QObjectWrapper::get_wrapper(ls, *(QObject**)data));
+#if QT_VERSION < 0x050000
       case QMetaType::QWidgetStar:
 	return Value(ls, QObjectWrapper::get_wrapper(ls, *(QWidget**)data));
+#endif
       case QMetaType::QSize: {
 	Value value(Value::new_table(ls));
 	const QSize *size = reinterpret_cast<const QSize*>(data);
@@ -253,6 +255,7 @@ namespace QtLua {
       case QMetaType::QObjectStar:
 	*reinterpret_cast<QObject**>(data) = &v.to_userdata_cast<QObjectWrapper>()->get_object();
 	return true;
+#if QT_VERSION < 0x050000
       case QMetaType::QWidgetStar: {
 	QObject *obj = &v.to_userdata_cast<QObjectWrapper>()->get_object();
 	QWidget *w = qobject_cast<QWidget*>(obj);
@@ -261,6 +264,7 @@ namespace QtLua {
 	*reinterpret_cast<QWidget**>(data) = w;
 	return true;
       }
+#endif
       case QMetaType::QSize: {
 	QSize *size = reinterpret_cast<QSize*>(data);
 	size->setWidth(v.at(1).to_number());

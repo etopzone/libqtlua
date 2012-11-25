@@ -16,7 +16,7 @@ AC_PROG_LIBTOOL
 
 #AC_LANG(C++)
 
-AT_WITH_QT([core gui xml], [uitools])
+AT_WITH_QT([core gui xml widgets], [uitools])
 
 AC_CONFIG_FILES([
   Makefile
@@ -68,7 +68,7 @@ AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lu
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
 AC_CHECK_LIB($lualibname, luaL_openlibs, AC_DEFINE(HAVE_LUA_OPENLIBS, 1, [lua os library is available]))
 
-CXXFLAGS="$CPPFLAGS -O2 -Wall -Wno-unused-parameter -DQT_NO_CAST_FROM_BYTEARRAY -std=c++11 "
+CXXFLAGS="$CPPFLAGS -O2 -fPIC -Wall -Wno-unused-parameter -DQT_NO_CAST_FROM_BYTEARRAY -std=c++11 "
 
 eval shared_ext=\"$shrext_cmds\"
 AC_DEFINE_UNQUOTED(SHLIBEXT, $shared_ext, [suffix for dynamic libraries is $shared_ext])

@@ -5,7 +5,9 @@
 
 #include "plugin.hh"
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(example, ExamplePlugin);
+#endif
 
 QTLUA_FUNCTION(foo, "The foo function", "No help available")
 {

@@ -31,13 +31,11 @@ namespace QtLua {
     {
       if ((_type = QMetaType::type(name)))
 	{
-	  _typename = 0;
 	  if (types_map.contains(_type))
 	    throw String("Lua conversion handler already registered for type %").arg(_type);
 	}
       else
 	{
-	  _typename = name;
 	  _type = qRegisterMetaType<X>(name);
 	}
 
@@ -48,7 +46,6 @@ namespace QtLua {
   MetaType<X>::MetaType(int type)
     {
       _type = type;
-      _typename = 0;
 
       if (types_map.contains(type))
 	throw String("Lua conversion handler already registered for type %").arg(type);
@@ -60,8 +57,6 @@ namespace QtLua {
   MetaType<X>::~MetaType()
     {
       types_map.remove(_type);
-      if (_typename)
-	QMetaType::unregisterType(_typename);
     }
 
   template <typename X>
