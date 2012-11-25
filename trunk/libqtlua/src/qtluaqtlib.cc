@@ -37,6 +37,9 @@
 #include <QMainWindow>
 #include <QToolBar>
 
+#include <QAbstractItemView>
+#include <QComboBox>
+
 #include <QMenu>
 #include <QMenuBar>
 
@@ -847,6 +850,57 @@ namespace QtLua {
   }
 
 
+  ////////////////////////////////////////////////// MVC stuff
+
+
+  static void set_model(QWidget *obj, QAbstractItemModel *m)
+  {
+    if (QAbstractItemView *w = dynamic_cast<QAbstractItemView*>(obj))
+      w->setModel(m);
+    else if (QComboBox *w = dynamic_cast<QComboBox*>(obj))
+      w->setModel(m);
+    else
+      {
+	delete m;
+	throw QtLua::String("Don't know how to set MVC model of such object");
+      }
+  }
+
+  QTLUA_FUNCTION(new_table_tree_model, "Return a new QtLua::TableTreeModel object and set it has MVC model of some Qt views.",
+		 "usage: qt.new_table_tree_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
+  {
+    TableTreeModel::Attributes a = (TableTreeModel::Attributes)get_arg<int>(args, 1);
+    TableTreeModel *m = new TableTreeModel(args[0], a);
+
+    for (int i = 2; i < args.count(); i++)
+      set_model(get_arg_qobject<QWidget>(args, i), m);
+
+    return Value(ls, m, true, true);
+  }
+
+  QTLUA_FUNCTION(new_table_grid_model, "Return a new QtLua::TableGridModel object and set it has MVC model of some Qt views.",
+		 "usage: qt.new_table_grid_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
+  {
+    TableGridModel::Attributes a = (TableGridModel::Attributes)get_arg<int>(args, 1);
+    TableGridModel *m = new TableGridModel(args[0], a, true);
+
+    for (int i = 2; i < args.count(); i++)
+      set_model(get_arg_qobject<QWidget>(args, i), m);
+
+    return Value(ls, m, true, true);
+  }
+
+  QTLUA_FUNCTION(set_model, "Set a MVC model of one or more Qt views.",
+		 "usage: qt.set_model( model, view_widget [, view_widget, ... ] )\n")
+  {
+    QAbstractItemModel *m = get_arg_qobject<QAbstractItemModel>(args, 0);
+
+    for (int i = 1; i < args.count(); i++)
+      set_model(get_arg_qobject<QWidget>(args, i), m);
+
+    return Value::List();
+  }
+
   //////////////////////////////////////////////////
    
   void qtluaopen_qt(State *ls)
@@ -863,6 +917,10 @@ namespace QtLua {
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.", tr                    );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", translator            );
+
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_tree_model  );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_grid_model  );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", set_model             );
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_toolbar      );
     QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_menu         );
