@@ -58,6 +58,7 @@ class Console : public QTextEdit
   Q_PROPERTY(int history_size READ get_history_size WRITE set_history_size);
   Q_PROPERTY(int text_width READ get_text_width WRITE set_text_width);
   Q_PROPERTY(int text_height READ get_text_height WRITE set_text_height);
+  Q_PROPERTY(int scroll_back READ get_scroll_back WRITE set_scroll_back);
   Q_PROPERTY(QString prompt READ get_prompt WRITE set_prompt);
 
 public:
@@ -85,6 +86,13 @@ public:
   void set_history_size(int history_size);
   /** Get console max history entries count */
   int get_history_size() const;
+
+  /** Set number of lines in the scrollback buffer. Changes will
+      take effect next time a line is entered or a @ref print is
+      performed. Default value is 1000. */
+  void set_scroll_back(int scroll_back);
+  /** Get number of lines in the scrollback buffer. */
+  int get_scroll_back() const;
 
   /** Get current history. */
   inline const QStringList & get_history() const;
@@ -141,6 +149,9 @@ private:
   QRegExp		_complete_re;
   int			_text_width;
   int			_text_height;
+  QString               _print_buffer;
+  int                   _print_timer;
+  int                   _scroll_back;
 
   QSize sizeHint() const;
 
@@ -155,11 +166,13 @@ private:
   void delete_completion_list();
   void action_home();
   void action_end();
+  void print_flush();
 
   // Handle mouse events on console
   void mousePressEvent(QMouseEvent *e);
   void mouseReleaseEvent(QMouseEvent *e);
-  void mouseDoubleClickEvent(QMouseEvent *e) { (void)e; }
+  void mouseDoubleClickEvent(QMouseEvent *e);
+  void timerEvent(QTimerEvent *event);
 
   // Handle keypress
   void keyPressEvent(QKeyEvent * e);
