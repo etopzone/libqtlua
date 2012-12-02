@@ -306,10 +306,6 @@ public:
   inline operator String () const;
   inline operator QString () const;
 
-  /** Convert a lua string value to a @tt C string.
-      Throw exception if conversion fails. */
-  const char * to_cstring() const;
-
   /** Convert any type to a string representation suitable for pretty
       printing. Never throw. */
   String to_string_p(bool quote_string = true) const;
