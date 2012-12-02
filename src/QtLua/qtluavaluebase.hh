@@ -476,8 +476,17 @@ public:
   /** Check given operation support. @see UserData::support */
   bool support(Operation c) const;
 
-  /** Compare lua values. @multiple */
+  /** Compare two lua values. @This may not give the same result as
+      the lua compare operation depending on value type. @This is
+      designed to be used by ordered containers like @ref QMap. @This
+      can compare values of different types and never fails.  */
   bool operator<(const Value &lv) const;
+
+  /** Compare two lua values. @This may not give the same result as
+      the lua compare operation depending on value type. @ref UserData
+      values are considered equals if pointing to the same
+      object. Other values are compared using the @tt lua_rawequal
+      function of the lua API. @This never fails.  */
   bool operator==(const Value &lv) const;
 
   /** Compare lua values with given string. */

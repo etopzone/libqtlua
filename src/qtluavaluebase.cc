@@ -711,14 +711,17 @@ bool ValueBase::operator==(const Value &lv) const
 
   bool res;
 
-  if ((lua_type(lst, -1) == TUserData) &&
-      (lua_type(lst, -2) == TUserData))
+  if (lua_type(lst, -1) != lua_type(lst, -2))
+    {
+      res = false;
+    }
+  else if (lua_type(lst, -1) == TUserData)
     {
       try {
 	UserData::ptr a = UserData::get_ud(lst, -1);
 	UserData::ptr b = UserData::get_ud(lst, -2);
 
-	res = (a.valid() == b.valid()) && (!a.valid() || (*a == *b));
+	res = a.ptr() == b.ptr();
       } catch (const String &e) {
 	res = lua_rawequal(lst, -1, -2);
       }
@@ -735,7 +738,7 @@ bool ValueBase::operator==(const Value &lv) const
 bool ValueBase::operator<(const Value &lv) const
 {
   if (lv._st != _st)
-    return false;
+    return _st < lv._st;
 
   check_state();
 
@@ -748,35 +751,52 @@ bool ValueBase::operator<(const Value &lv) const
     throw;
   }
 
-  bool res;
+  bool res = false;
+  int t1 = lua_type(lst, -1);
+  int t2 = lua_type(lst, -2);
 
-  if ((lua_type(lst, -1) == TUserData) &&
-      (lua_type(lst, -2) == TUserData))
-    {
-#ifndef QTLUA_NO_USERDATA_CHECK
-      try {
-#endif
-	UserData::ptr a = UserData::get_ud(lst, -1);
-	UserData::ptr b = UserData::get_ud(lst, -2);
-
-	res = a.valid() && b.valid() && (*a < *b);
-#ifndef QTLUA_NO_USERDATA_CHECK
-      } catch (const String &e) {
-	res = lua_topointer(lst, -1) < lua_topointer(lst, -2);
-      }
-#endif
-    }
+  if (t1 < t2)
+    res = true;
+  else if (t1 > t2)
+    res = false;
   else
-    {
-      if (lua_type(lst, -1) == lua_type(lst, -2))
+    switch (t1)
+      {
+      case TUserData:
+#ifndef QTLUA_NO_USERDATA_CHECK
+	try {
+#endif
+	  UserData::ptr a = UserData::get_ud(lst, -1);
+	  UserData::ptr b = UserData::get_ud(lst, -2);
+
+	  res = a.ptr() < b.ptr();
+	  break;
+#ifndef QTLUA_NO_USERDATA_CHECK
+	} catch (const String &e) {
+	}
+#endif
+      case LUA_TLIGHTUSERDATA:
+      case TFunction:
+      case TThread:
+      case TTable:
+	res = lua_topointer(lst, -1) < lua_topointer(lst, -2);
+	break;
+
+      case TNone:
+      case TNil:
+	res = false;
+	break;
+
+      case TBool:
+      case TNumber:
+      case TString:
 #if LUA_VERSION_NUM < 502
 	res = lua_lessthan(lst, -1, -2);
 #else
 	res = lua_compare(lst, -1, -2, LUA_OPLT);
 #endif
-      else
-	res = lua_type(lst, -1) < lua_type(lst, -2);
-    }
+	break;
+      }
 
   lua_pop(lst, 2);
   return res;
