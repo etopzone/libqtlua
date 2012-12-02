@@ -47,7 +47,27 @@ namespace QtLua {
   {
   }
 
-  String & String::arg(const String &a)
+  String & String::arg(const QByteArray &a)
+  {
+    int i = indexOf('%');
+
+    if (i >= 0)
+      replace(i, 1, a);
+
+    return *this;
+  }
+
+  String & String::arg(const QString &a)
+  {
+    int i = indexOf('%');
+
+    if (i >= 0)
+      replace(i, 1, a.toUtf8());
+
+    return *this;
+  }
+
+  String & String::arg(const char *a)
   {
     int i = indexOf('%');
 
