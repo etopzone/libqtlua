@@ -471,24 +471,6 @@ String ValueBase::to_string_p(lua_State *st, int index, bool quote_string)
     }
 }
 
-const char * ValueBase::to_cstring() const
-{
-  check_state();
-  lua_State *lst = _st->_lst;
-  push_value(lst);
-
-  const char	*str = lua_tostring(lst, -1);
-
-  if (str)
-    {
-      lua_pop(lst, 1);
-      return str;
-    }
-
-  convert_error(TString);
-  std::abort();
-}
-
 UserData::ptr ValueBase::to_userdata() const
 {
   check_state();
