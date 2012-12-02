@@ -14,38 +14,47 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008-2011, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2012, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#include <internal/Member>
-#include <internal/QObjectWrapper>
+
+#ifndef QTLUAQMETAVALUE_HH_
+#define QTLUAQMETAVALUE_HH_
+
+#include <QObject>
+#include <QPointer>
+
+#include <QtLua/qtluametatype.hh>
+#include <QtLua/qtluavalue.hh>
 
 namespace QtLua {
 
-  void Member::assign(QObjectWrapper &obj, const Value &value)
+  class QMetaValue
   {
-    throw String("Can not assign value to '%' member").arg(get_type_name());
-  }
+    int _type;
+    void *_data;
 
-  Value Member::access(QObjectWrapper &qow)
-  {
-    return Value(qow.get_state(), *this);
-  }
+    inline void init(int type);
 
-  bool Member::check_class(const QMetaObject *mo) const
-  {
-    const QMetaObject *m = mo;
+  public:
+    static Value raw_get_object(State *ls, int type, const void *data);
+    static void raw_set_object(int type, void *data, const Value &v);
 
-    while (m)
-      {
-	if (!strcmp(_mo->className(), m->className()))
-	  return true;
-	m = m->superClass();
-      }
+  public:
 
-    return false;
-  }
+    inline void * get_data() const;
+
+    inline QMetaValue(int type, const Value &value);
+    inline QVariant to_qvariant() const;
+
+    inline QMetaValue(int type);
+    inline Value to_value(State *ls) const;
+
+    inline ~QMetaValue();
+  };
 
 }
+
+#endif
 

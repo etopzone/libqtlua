@@ -1,3 +1,4 @@
 
 #include "qtluaproperty.hh"
+#include "qtluaproperty.hxx"
 

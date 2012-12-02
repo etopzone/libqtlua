@@ -417,11 +417,21 @@ public:
   inline X* to_class_cast() const;
 
   /**
-   * Convert a lua value to a @ref QVariant.
+   * Convert a bool, string or number value to a @ref QVariant. The
+   * @ref __to_qvariant2__ alternate function can be used to attempt a
+   * conversion of the value to a specified registered Qt type.
    * @xsee {Qt/Lua types conversion} @multiple
    */
   QVariant to_qvariant() const; 
   inline operator QVariant () const;
+
+  /**
+   * Convert a lua value to a @ref QVariant. The lua value will be
+   * converted to an object of requested Qt type if possible.
+   * @xsee {Qt/Lua types conversion}
+   * @alias to_qvariant2
+   */
+  QVariant to_qvariant(int qt_type) const; 
 
   /** Index operation on a lua userdata or lua table value. @multiple */
   Value at(const Value &key) const;

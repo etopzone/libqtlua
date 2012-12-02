@@ -14,38 +14,15 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008-2011, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#include <internal/Member>
-#include <internal/QObjectWrapper>
 
-namespace QtLua {
+#ifndef QTLUAPROPERTY_HXX_
+#define QTLUAPROPERTY_HXX_
 
-  void Member::assign(QObjectWrapper &obj, const Value &value)
-  {
-    throw String("Can not assign value to '%' member").arg(get_type_name());
-  }
+#include <internal/qtluamember.hxx>
 
-  Value Member::access(QObjectWrapper &qow)
-  {
-    return Value(qow.get_state(), *this);
-  }
-
-  bool Member::check_class(const QMetaObject *mo) const
-  {
-    const QMetaObject *m = mo;
-
-    while (m)
-      {
-	if (!strcmp(_mo->className(), m->className()))
-	  return true;
-	m = m->superClass();
-      }
-
-    return false;
-  }
-
-}
+#endif
 

@@ -78,7 +78,7 @@ namespace QtLua {
   template <typename X>
   class MetaType
   {
-    friend class Member;
+    friend class QMetaValue;
 
   protected:
     /** Register a conversion handler for an already registered Qt

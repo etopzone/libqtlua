@@ -11,7 +11,7 @@ BUILT_SOURCES = QtLua/qtluaconsole.moc.cc QtLua/qtluaitemselectionmodel.moc.cc \
 		qtluaqtlib.moc.cc
 
 nodist_libqtlua_la_SOURCES = $(BUILT_SOURCES)
-libqtlua_la_SOURCES = qtluaconsole.cc qtluaenum.cc				\
+libqtlua_la_SOURCES = qtluaconsole.cc qtluaenum.cc qtluaqmetavalue.cc		\
 	qtluafunction.cc qtluaitem.cc qtluaitemmodel.cc	qtlualistitem.cc	\
 	qtlualistiterator.cc qtluamember.cc qtluametacache.cc qtluamethod.cc	\
 	qtluaplugin.cc qtluaqobjectwrapper.cc qtluaqtlib.cc qtluastate.cc	\

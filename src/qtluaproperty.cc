@@ -22,7 +22,7 @@
 
 #include <internal/QObjectWrapper>
 
-#include <internal/Member>
+#include <internal/QMetaValue>
 #include <internal/Property>
 
 namespace QtLua {
@@ -48,32 +48,8 @@ namespace QtLua {
     if (!mp.isWritable())
       throw String("QObject property '%' is read only.").arg(mp.name());
 
-    int type = mp.userType();
-
-    if (type > 0)
-      {
-#if QT_VERSION < 0x050000
-	void *data = QMetaType::construct(type);
-#else
-	void *data = QMetaType::create(type, 0);
-#endif
-	assert(data);
-
-	if (Member::raw_set_object(type, data, value))
-	  {
-	    bool ok = mp.write(&obj, QVariant(type, data));
-	    QMetaType::destroy(type, data);
-
-	    if (!ok)
-	      throw String("Unable to set QObject property.");
-
-	    return;
-	  }
-
-	QMetaType::destroy(type, data);
-      }
-
-    throw String("Unsupported convertion from % lua type to % Qt type.").arg(value.type_name_u()).arg(mp.typeName());
+    if (!mp.write(&obj, QMetaValue(mp.userType(), value).to_qvariant()))
+      throw String("Unable to set QObject property.");
   }
 
   Value Property::access(QObjectWrapper &qow)
@@ -89,7 +65,7 @@ namespace QtLua {
     if (!variant.isValid())
       throw String("Unable to get QObject property.");
 
-    return Value(Member::raw_get_object(qow.get_state(), variant.userType(), variant.constData()));
+    return Value(qow.get_state(), variant);
   }
 
   String Property::get_value_str() const

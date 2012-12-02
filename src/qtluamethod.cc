@@ -25,6 +25,8 @@
 #include <internal/QObjectWrapper>
 
 #include <internal/Method>
+#include <internal/QMetaValue>
+#include <internal/qtluapoolarray.hh>
 
 namespace QtLua {
 
@@ -50,74 +52,50 @@ namespace QtLua {
 
     QMetaMethod mm = _mo->method(_index);
 
-    if (mm.methodType() != QMetaMethod::Slot)
-      throw String("Can't call non-slot methods.");
+    if (mm.methodType() != QMetaMethod::Slot
+#if QT_VERSION >= 0x040500
+	&& mm.methodType() != QMetaMethod::Method
+#endif
+	)
+      throw String("The `%' QMetaMethod is not callable.").arg(mm.signature());
 
+    PoolArray<QMetaValue, 11> args;
     void *qt_args[11];
-    int qt_tid[11];
-    int tid, i = 0;
 
-    try {
+    // return value
+    if (*mm.typeName())
+      qt_args[0] = args.create(QMetaType::type(mm.typeName())).get_data();
+    else
+      qt_args[0] = 0;
 
-      // return value
-      if (*mm.typeName())
-	{
-	  tid = qt_tid[0] = QMetaType::type(mm.typeName());
+    int i = 1;
 
-	  if (!tid)
-	    throw String("Unsupported method return type, unable to convert % Qt type to lua value.").arg(mm.typeName());
+    QList<QByteArray> pt = mm.parameterTypes();
 
-#if QT_VERSION < 0x050000
-	  qt_args[i++] = QMetaType::construct(tid);
-#else
-	  qt_args[i++] = QMetaType::create(tid, 0);
-#endif
-	}
-      else
-	{
-	  qt_args[i++] = 0;
-	}
+    if (pt.size() != lua_args.size() - 1)
+      throw String("Wrong number of arguments for the `%' QMetaMethod.").arg(mm.signature());
 
-      // parameters
-      foreach(const QByteArray &pt, mm.parameterTypes())
-	{
-	  assert(i < 11);
+    // parameters
+    foreach (const QByteArray &pt, pt)
+      {
+	assert(i < 11);
 
-	  tid = qt_tid[i] = QMetaType::type(pt.constData());
+	//	if (i <= lua_args.size())
+	  qt_args[i] = args.create(QMetaType::type(pt.constData()), lua_args[i]).get_data();
 
-	  if (!tid)
-	    throw String("Unsupported method argument type, unable to convert lua value to % Qt type.").arg(String(pt));
+	  //	else
+	  //	  qt_args[i] = args.create(QMetaType::type(pt.constData())).get_data();
+	i++;
+      }
 
-#if QT_VERSION < 0x050000
-	  void *arg = qt_args[i++] = QMetaType::construct(tid);
-#else
-	  void *arg = qt_args[i++] = QMetaType::create(tid, 0);
-#endif
-	  if (lua_args.size() >= i)
-	    Member::raw_set_object(tid, arg, lua_args[i - 1]);
-	}
-
-      // actual invocation
-      if (!obj.qt_metacall(QMetaObject::InvokeMetaMethod, _index, qt_args))
-	throw String("Qt method invocation error.");
-
-    } catch (...) {
-      for (int j = i - 1; j >= 0; j--)
-	if (qt_args[j])
-	  QMetaType::destroy(qt_tid[j], qt_args[j]);
-      throw;
-    }
-
-    Value::List ret_val;
+    // actual invocation
+    if (!obj.qt_metacall(QMetaObject::InvokeMetaMethod, _index, qt_args))
+      throw String("Qt method invocation error.");
 
     if (qt_args[0])
-      ret_val.push_back(Member::raw_get_object(ls, qt_tid[0], qt_args[0]));
-
-    for (int j = i - 1; j >= 0; j--)
-      if (qt_args[j])
-	QMetaType::destroy(qt_tid[j], qt_args[j]);
-
-    return ret_val;
+      return args[0].to_value(ls);
+    else
+      return Value::List();
   }
 
   String Method::get_type_name() const
