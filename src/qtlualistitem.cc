@@ -44,7 +44,7 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
 {
   Item::ptr old;
   Value::ValueType t = key.type();
-  unsigned int c;
+  unsigned int c = 0;
 
   switch (t)
     {
