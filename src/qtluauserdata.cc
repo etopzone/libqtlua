@@ -149,13 +149,17 @@ bool UserData::support(Value::Operation c) const
 void UserData::meta_call_check_args(const Value::List &args,
 				    int min_count, int max_count, ...) 
 {
-  int			i;
-  va_list		ap;
+  int i;
+  va_list ap;
+  bool lua_vaarg = max_count < 0;
+
+  if (lua_vaarg)
+    max_count = -max_count;
 
   if (args.count() < min_count)
     throw String("Missing argument(s), at least % arguments expected").arg(min_count);
 
-  if (max_count && args.count() > max_count)
+  if (!lua_vaarg && max_count && args.count() > max_count)
     throw String("Too many argument(s), at most % arguments expected").arg(max_count);
 
   va_start(ap, max_count);
