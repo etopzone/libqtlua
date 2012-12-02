@@ -155,7 +155,7 @@ namespace QtLua {
     if (has_resize && value.type() == Value::TNil)
       {
 	if (index < min_resize)
-	  throw String("Can not reduce vector size below %.").arg(min_resize);
+	  throw String("Can not reduce vector size below %.").arg((int)min_resize);
 	if (index < _vector->size())
 	  _vector->resize(index);
       }
@@ -166,7 +166,7 @@ namespace QtLua {
 	    if (has_resize)
 	      {
 		if ((unsigned int)index >= max_resize)
-		  throw String("Can not increase vector size above %.").arg(max_resize);
+		  throw String("Can not increase vector size above %.").arg((int)max_resize);
 		_vector->resize(index + 1);
 	      }
 	    else
