@@ -190,10 +190,12 @@ public:
    * @param min_count Minimum expected arguments count.
    * @param max_count Maximum expected arguments count or 0 if no limit.
    * @param ... List of @ref QtLua::Value::ValueType matching expected 
-   *   arguments type. At least @tt{max(min_count, max_count)}
+   *   arguments type. At least @tt{max(min_count, abs(max_count))}
    *   types must be passed. @ref QtLua::Value::TNone may be 
-   *   used as wildcard. Last specified type is expected for
-   *   all arguments above @tt min_count when @tt {max_count == 0}.
+   *   used as wildcard. A negative value can be used for @tt max_count
+   *   to indicate a unlimited number of lua arguments with a type list
+   *   longer than @min_count. Last specified type is expected for
+   *   all arguments above @tt{max(min_count, -max_count)}.
    */
   static void meta_call_check_args(const Value::List &args, int min_count, int max_count, ...);
 
