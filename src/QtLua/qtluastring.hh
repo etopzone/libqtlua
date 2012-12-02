@@ -54,7 +54,11 @@ namespace QtLua {
     /** Copy constructor */
     inline String(const QString &s);
     /** Replace next @tt % character in string with given string  */
-    inline String & arg(const String &arg);
+    inline String & arg(const QByteArray &arg);
+    /** Replace next @tt % character in string with given string  */
+    inline String & arg(const QString &arg);
+    /** Replace next @tt % character in string with given integer  */
+    inline String & arg(const char *arg);
     /** Replace next @tt % character in string with given integer  */
     inline String & arg(int arg);
     /** @tt{const char *} cast operator */
