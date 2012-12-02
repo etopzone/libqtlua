@@ -184,6 +184,29 @@ namespace QtLua {
   }
 
 
+  QTLUA_FUNCTION(type, "Translate between a registered Qt type numeric handle and associated type name.",
+		 "usage: qt.type(\"type name\")\n"
+		 "       qt.type(type handle)\n")
+  {
+    meta_call_check_args(args, 1, 1, Value::TNone);
+
+    switch (args[0].type())
+      {
+      case Value::TString:
+	if (int t = QMetaType::type(args[0].to_string().constData()))
+	  return Value(ls, t);
+	break;
+      case Value::TNumber:
+	if (const char *n = QMetaType::typeName(args[0].to_integer()))
+	  return Value(ls, n);
+	break;
+      default:
+	break;
+      }
+
+    throw String("Unable to resolve Qt type");
+  }
+
   QTLUA_FUNCTION(load_ui, "Load a Qt ui file.",
 		 "usage: qt.load_ui(\"file.ui\", parent_qobjectwrapper)\n"
 		 "usage: qt.load_ui(\"file.ui\")\n")
@@ -915,6 +938,7 @@ namespace QtLua {
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.", connect               );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", disconnect            );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", type                  );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", load_ui               );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", new_widget            );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", new_qobject           );
