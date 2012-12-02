@@ -22,6 +22,7 @@
 #include <QtLua/Value>
 #include <QtLua/UserData>
 
+#include <QDebug>
 #include <QObject>
 
 using namespace QtLua;
@@ -35,10 +36,28 @@ public:
   {
   }
 
+#if QT_VERSION >= 0x040500
+  Q_INVOKABLE
+#endif
+  MyObjectUD(int num, QObject *parent)
+    : QObject(parent)
+  {
+    assert(num == 42);
+    assert(!parent);
+  }
+
   void send(QtLua::UserData::ptr ud)
   {
     emit ud_arg(ud);
   }
+
+#if QT_VERSION >= 0x040500
+  Q_INVOKABLE
+  double foo(double a)
+  {
+    return a * 42;
+  }
+#endif
 
   QtLua::UserData::ptr _ud;
 

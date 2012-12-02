@@ -25,7 +25,8 @@
 #include <internal/QMetaObjectWrapper>
 #include <internal/QObjectIterator>
 #include <internal/MetaCache>
-#include <internal/Member>
+#include <internal/QMetaValue>
+#include <internal/qtluapoolarray.hh>
 
 namespace QtLua {
 
@@ -41,61 +42,39 @@ namespace QtLua {
     if (lua_args.size() <= 1 && _creator)
       return _creator();
 
+#if QT_VERSION >= 0x040500
+    QObject *obj;
     void *qt_args[11];
-    int qt_tid[11];
-
-#warning Not tested yet
+    qt_args[0] = &obj;
 
     // iterate over Q_INVOKABLE constructors
     for (int j = 0; j < _mo->constructorCount(); j++)
       {
 	QMetaMethod mm = _mo->constructor(j);
 
-	int tid, i;
+	int i;
 
 	QList<QByteArray> ptlist = mm.parameterTypes();
 
 	if (ptlist.size() != lua_args.size() - 1)
 	  continue;
 
-	// get argument types
+	PoolArray<QMetaValue, 11> args;
+
 	try {
-	  for (i = 0; j < ptlist.size(); i++)
-	    {
-	      tid = QMetaType::type(ptlist[i].constData());
-
-	      if (!tid)
-		goto wrong_prototype;
-
-#if QT_VERSION < 0x050000
-	      void *arg = QMetaType::construct(tid);
-#else
-	      void *arg = QMetaType::create(tid, 0);
-#endif
-
-	      qt_tid[i+1] = tid;
-	      qt_args[i+1] = arg;
-
-	      Member::raw_set_object(tid, arg, lua_args[i + 1]);
-	    }
-
+	  // get argument types
+	  for (i = 0; i < ptlist.size(); i++)
+	    qt_args[i+1] = args.create(QMetaType::type(ptlist[i].constData()),
+				     lua_args[i+1]).get_data();
 	} catch (...) {
-	  for (int k = i; k >= 0; k--)
-	    if (qt_args[k])
-	      QMetaType::destroy(qt_tid[k], qt_args[k]);	  
-	  goto wrong_prototype;
+	  continue;
 	}
 
 	_mo->static_metacall(QMetaObject::CreateInstance, j, qt_args);
 
-	for (int j = i - 1; j > 0; j--)
-	  if (qt_args[j])
-	    QMetaType::destroy(qt_tid[j], qt_args[j]);
-
-	return (QObject*)qt_args[0];
-
-      wrong_prototype:;
+	return obj;
       }
+#endif
 
     throw QtLua::String("No suitable constructor found for `%' class").arg(_mo->className());
   }

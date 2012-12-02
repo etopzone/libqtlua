@@ -26,7 +26,7 @@
 #include <QtLua/String>
 #include <QtLua/State>
 
-#include <internal/Member>
+#include <internal/QMetaValue>
 #include <internal/QObjectWrapper>
 
 extern "C" {
@@ -178,7 +178,7 @@ Value & Value::operator=(QObject *obj)
 Value & Value::operator=(const QVariant &qv)
 {
   if (_st)
-    *this = Member::raw_get_object(_st, qv.type(), qv.constData());
+    *this = QMetaValue::raw_get_object(_st, qv.type(), qv.constData());
   return *this;
 }
 

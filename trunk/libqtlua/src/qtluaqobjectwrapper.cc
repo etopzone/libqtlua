@@ -25,7 +25,7 @@
 
 #include <internal/QObjectWrapper>
 
-#include <internal/Member>
+#include <internal/QMetaValue>
 #include <internal/Method>
 #include <internal/MetaCache>
 #include <internal/QObjectIterator>
@@ -164,7 +164,7 @@ namespace QtLua {
     foreach(const QByteArray &pt, mm.parameterTypes())
       {
 	qt_args++;
-	lua_args.push_back(Member::raw_get_object(_ls, QMetaType::type(pt.constData()), *qt_args));
+	lua_args.push_back(QMetaValue::raw_get_object(_ls, QMetaType::type(pt.constData()), *qt_args));
       }
 
     try {

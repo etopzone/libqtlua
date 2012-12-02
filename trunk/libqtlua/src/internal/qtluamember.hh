@@ -56,9 +56,6 @@ namespace QtLua {
     virtual void assign(QObjectWrapper &qow, const Value &value);
     virtual Value access(QObjectWrapper &qow);
 
-    static Value raw_get_object(State *ls, int type, const void *data);
-    static bool raw_set_object(int type, void *data, const Value &v);
-
   protected:
     const QMetaObject *_mo;
     int _index;

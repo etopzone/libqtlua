@@ -18,11 +18,15 @@
 
 */
 
+#include <QApplication>
+
 #include "test.hh"
 #include "test_qobject_arg.hh"
 
 int main()
 {
+  QApplication app(0, 0);
+
   try {
   {
     QtLua::State ls;
@@ -92,6 +96,21 @@ int main()
     ls.exec_statements("o:qo_slot(v)");
     ASSERT(myobj->_qo == qo);
   }
+
+#if QT_VERSION >= 0x040500
+  {
+    QtLua::State ls;
+
+    ls.openlib(QtLua::QtLib);
+    ls.register_qobject_meta<MyObjectUD>();
+
+    QtLua::Value::List r = ls.exec_statements("a = qt.new_qobject(qt.meta.MyObjectUD, 42, nil); return a;");
+    ASSERT(r[0].type() == Value::TUserData);
+
+    r = ls.exec_statements("return a:foo(2)");
+    ASSERT(r[0].to_number() == 84);
+  }
+#endif
 
   } catch (QtLua::String &e) {
     std::cout << e.constData() << std::endl;

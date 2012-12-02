@@ -31,6 +31,7 @@
 
 #include <internal/QObjectWrapper>
 #include <internal/TableIterator>
+#include <internal/QMetaValue>
 
 extern "C" {
 #include <lua.h>
@@ -520,6 +521,11 @@ QVariant ValueBase::to_qvariant() const
     default:
       throw String("Can not convert % type to QVariant.").arg(type_name());
     }
+}
+
+QVariant ValueBase::to_qvariant(int qt_type) const
+{
+  return QMetaValue(qt_type, *this).to_qvariant();
 }
 
 static int lua_writer(lua_State *L, const void* p, size_t sz, void* pv)
