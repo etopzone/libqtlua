@@ -21,10 +21,12 @@
 #include <iostream>
 #include <cstdlib>
 
-#define ASSERT(x)									\
-  if (x) {										\
-    std::cerr << __FILE__ ":" << __LINE__ << ":\x1b[92mOK\x1b[m" << std::endl;			\
-  } else {										\
-    std::cerr << __FILE__ ":" << __LINE__ << ":" #x " \x1b[91mfailed\x1b[m" << std::endl ; abort();	\
-  } 											\
+#define ASSERT(x)					\
+  do {									\
+    if (x) {								\
+      std::cerr << __FILE__ ":" << __LINE__ << ":\x1b[92mOK\x1b[m" << std::endl; \
+    } else {								\
+      std::cerr << __FILE__ ":" << __LINE__ << ":" #x " \x1b[91mfailed\x1b[m" << std::endl ; abort(); \
+    }									\
+  } while (0)
 

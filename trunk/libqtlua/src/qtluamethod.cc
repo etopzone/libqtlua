@@ -57,7 +57,12 @@ namespace QtLua {
 	&& mm.methodType() != QMetaMethod::Method
 #endif
 	)
-      throw String("The `%' QMetaMethod is not callable.").arg(mm.signature());
+      throw String("The `%' QMetaMethod is not callable.")
+#if QT_VERSION < 0x050000
+		 .arg(mm.signature());
+#else
+		 .arg(mm.methodSignature());
+#endif
 
     PoolArray<QMetaValue, 11> args;
     void *qt_args[11];
@@ -73,7 +78,12 @@ namespace QtLua {
     QList<QByteArray> pt = mm.parameterTypes();
 
     if (pt.size() != lua_args.size() - 1)
-      throw String("Wrong number of arguments for the `%' QMetaMethod.").arg(mm.signature());
+      throw String("Wrong number of arguments for the `%' QMetaMethod.")
+#if QT_VERSION < 0x050000
+		 .arg(mm.signature());
+#else
+		 .arg(mm.methodSignature());
+#endif
 
     // parameters
     foreach (const QByteArray &pt, pt)

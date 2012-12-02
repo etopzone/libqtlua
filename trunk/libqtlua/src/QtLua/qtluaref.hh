@@ -447,7 +447,7 @@ namespace QtLua {
 
 	This function must be used when an object is instantiated as a
 	member of an other object so that references to the member
-	object are used to keep the containing object alive. */
+	object are used to keep the container object alive. */
     void ref_delegate(RefobjBase *o)
     {
       while (o->_state & REF_DELEGATE)

@@ -499,11 +499,11 @@ public:
       function of the lua API. @This never fails.  */
   bool operator==(const Value &lv) const;
 
-  /** Compare lua values with given string. */
+  /** Compare the lua value with the given string. */
   bool operator==(const String &str) const;
-  /** Compare lua values with given C string. */
+  /** Compare the lua value with the given C string. */
   bool operator==(const char *str) const;
-  /** Compare lua values with given number. */
+  /** Compare the lua value with the given number. */
   bool operator==(double n) const;
 
   /** Get associated lua state. */

@@ -598,7 +598,7 @@ bool ValueBase::support(Operation c) const
   check_state();
   lua_State *lst = _st->_lst;
   push_value(lst);
-  bool res;
+  bool res = false;
 
   switch (lua_type(lst, -1))
     {
@@ -871,8 +871,12 @@ uint ValueBase::qHash(lua_State *lst, int index)
       return lua_toboolean(lst, index);
 
     case LUA_TNUMBER: {
-      lua_Number n = lua_tonumber(lst, index);
-      return *(uint*)&n;
+      union {
+	lua_Number n;
+	uint u;
+      };
+      n = lua_tonumber(lst, index);
+      return u;
     }
 
     case LUA_TSTRING:
