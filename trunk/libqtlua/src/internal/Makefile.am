@@ -8,5 +8,7 @@ noinst_HEADERS = Enum ListIterator Member MetaCache Method		\
 	qtluaproperty.hh qtluaproperty.hxx Property \
 	QMetaObjectWrapper qtluaqmetaobjectwrapper.hh \
 	QObjectWrapper qtluaqobjectwrapper.hh qtluaqobjectwrapper.hxx \
-	qtluatabletreekeys.hh qtluatabletreekeys.hxx TableTreeKeys
+	qtluatabletreekeys.hh qtluatabletreekeys.hxx TableTreeKeys \
+	qtluapoolarray.hh
+
 
