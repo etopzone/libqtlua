@@ -37,6 +37,12 @@ namespace QtLua {
 
 void Value::push_value(lua_State *st) const
 {
+  if (!_st)
+    {
+      lua_pushnil(st);
+      return;
+    }
+
   lua_pushnumber(st, _id);
   lua_rawget(st, LUA_REGISTRYINDEX);  
 }
@@ -281,7 +287,11 @@ uint qHash(const Value &lv)
     return 0;
 
   lua_State *lst = lv._st->_lst;
-  lv.push_value(lst);
+  try {
+    lv.push_value(lst);
+  } catch (...) {
+    return 0;
+  }
 
   uint	res = ValueBase::qHash(lst, -1);
   lua_pop(lst, 1);

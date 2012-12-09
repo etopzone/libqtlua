@@ -89,7 +89,11 @@ namespace QtLua {
 
   void ValueRef::push_value(lua_State *st) const
   {
-    check_state();
+    if (!_st)
+      {
+	lua_pushnil(st);
+	return;
+      }
 
     lua_pushnumber(st, _table_id);
     lua_rawget(st, LUA_REGISTRYINDEX);

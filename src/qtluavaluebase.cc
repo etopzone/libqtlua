@@ -21,6 +21,7 @@
 #include <cstdlib>
 #include <cassert>
 
+#include <QDebug>
 #include <QMetaMethod>
 
 #include <QtLua/Value>
@@ -261,6 +262,102 @@ Value ValueBase::at(const Value &key) const
     }
 }
 
+bool ValueBase::is_empty() const
+{
+  check_state();
+  lua_State *lst = _st->_lst;
+  push_value(lst);
+
+  int t = lua_type(lst, -1);
+
+  switch (t)
+    {
+    case TTable: {
+      try {
+	lua_pushnil(lst);
+	if (State::lua_pnext(lst, -2))
+	  {
+	    lua_pop(lst, 3);
+	    return false;
+	  }
+	lua_pop(lst, 1);
+	return true;
+      } catch (...) {
+	lua_pop(lst, 2);
+	throw;
+      }
+    }
+
+    case TUserData: {
+      UserData::ptr ptr = UserData::pop_ud(lst);
+      return ptr->meta_operation(_st, ValueBase::OpLen, *this, *this).to_integer() == 0;
+    }
+
+    default:
+      lua_pop(lst, 1);
+      throw String("Can not test emptiness of a lua::% value.").arg(lua_typename(lst, t));
+    }
+}
+
+void ValueBase::table_shift(int pos, int count, const Value &init, int len)
+{
+  check_state();
+  lua_State *lst = _st->_lst;
+  push_value(lst);
+
+  if (lua_type(lst, -1) != LUA_TTABLE)
+    {
+      lua_pop(lst, 1);
+      throw String("Can only shift values in a lua::table value.");
+    }
+
+  int i;
+  if (len < 0)
+    len = lua_objlen(lst, -1);
+
+  if (count > 0)
+    {
+      try {
+	init.push_value(lst);
+      } catch (...) {
+	lua_pop(lst, 1);
+	throw;
+      }
+
+      // insert
+      for (i = len; i >= pos; i--)
+	{
+	  lua_rawgeti(lst, -2, i);
+	  lua_rawseti(lst, -3, i + count);
+	}
+      for (i = std::min(pos, len + 1); i < pos + count; i++)
+	{
+	  lua_pushvalue(lst, -1);
+	  lua_rawseti(lst, -3, i);
+	}
+
+      lua_pop(lst, 1);
+    }
+  else if (count < 0)
+    {
+      // remove
+      if (count > len - pos)
+	count = len - pos;
+      for (i = pos; i <= len - count; i++)
+	{
+	  lua_rawgeti(lst, -1, i - count);
+	  lua_rawseti(lst, -2, i);
+	  if (i >= len + count)
+	    {
+	      lua_pushnil(lst);
+	      lua_rawseti(lst, -2, i - count);
+	    }
+	}
+    }
+
+  lua_pop(lst, 1);
+}
+
 Ref<Iterator> ValueBase::new_iterator() const
 {
   check_state();
@@ -332,6 +429,7 @@ String ValueBase::type_name_u() const
   if (!_st)
     return "lua::nil";
 
+  String res;
   lua_State *lst = _st->_lst;
   push_value(lst);
   int t = lua_type(lst, -1);
@@ -339,15 +437,18 @@ String ValueBase::type_name_u() const
   if (t == TUserData)
     {
       try {
-	UserData::ptr ud = UserData::pop_ud(lst);
+	UserData::ptr ud = UserData::get_ud(lst, -1);
 	if (ud.valid())
-	  return ud->get_type_name();
+	  res = ud->get_type_name();
       } catch (const String &e) {
       }
     }
 
+  if (res.isNull())
+    res = String("lua::") + lua_typename(lst, t); 
+
   lua_pop(lst, 1);
-  return String("lua::") + lua_typename(lst, t);
+  return res;
 }
 
 void ValueBase::convert_error(ValueType type) const
@@ -562,7 +663,9 @@ int ValueBase::len() const
   push_value(lst);
   size_t res;
 
-  switch (lua_type(lst, -1))
+  int t = lua_type(lst, -1);
+
+  switch (t)
     {
     case TString:
 #if LUA_VERSION_NUM < 501
@@ -575,22 +678,19 @@ int ValueBase::len() const
       res = lua_rawlen(lst, -1);
 # endif
 #endif
-      break;
+      lua_pop(lst, 1);
+      return res;
 
-    case TUserData:
-      try {
-	UserData::ptr ptr = UserData::get_ud(lst, -1);
-	res = ptr->meta_operation(_st, ValueBase::OpLen, *this, *this).to_integer();
-	break;
-      } catch (const String &s) {
-      }
-
-    default:
-      res = 0;
+    case TUserData: {
+      UserData::ptr ptr = UserData::pop_ud(lst);
+      return ptr->meta_operation(_st, ValueBase::OpLen, *this, *this).to_integer();
     }
 
-  lua_pop(lst, 1);
-  return res;
+    default:
+      lua_pop(lst, 1);
+      throw String("Can evaluate length of a lua::% value.").arg(lua_typename(lst, t));
+    }
+
 }
 
 bool ValueBase::support(Operation c) const
@@ -701,18 +801,20 @@ bool ValueBase::support(Operation c) const
 
 bool ValueBase::operator==(const Value &lv) const
 {
-  if (lv._st != _st)
+  if (!_st || lv._st != _st)
     return false;
 
-  check_state();
   lua_State *lst = _st->_lst;
-
-  lv.push_value(lst);
   try {
-    push_value(lst);
+    lv.push_value(lst);
+    try {
+      push_value(lst);
+    } catch (...) {
+      lua_pop(lst, 1);
+      return false;
+    }
   } catch (...) {
-    lua_pop(lst, 1);
-    throw;
+    return false;
   }
 
   bool res;
@@ -743,18 +845,20 @@ bool ValueBase::operator==(const Value &lv) const
 
 bool ValueBase::operator<(const Value &lv) const
 {
-  if (lv._st != _st)
+  if (!_st || lv._st != _st)
     return _st < lv._st;
 
-  check_state();
-
   lua_State *lst = _st->_lst;
-  lv.push_value(lst);
   try {
-    push_value(lst);
+    lv.push_value(lst);
+    try {
+      push_value(lst);
+    } catch (...) {
+      lua_pop(lst, 1);
+      return false;
+    }
   } catch (...) {
-    lua_pop(lst, 1);
-    throw;
+    return false;
   }
 
   bool res = false;
@@ -903,6 +1007,12 @@ uint ValueBase::qHash(lua_State *lst, int index)
     }
 }
 
+QDebug operator<<(QDebug dbg, const ValueBase &c)
+{
+  dbg.nospace() << "(" << c.type_name_u() << ", " << c.to_string_p() << ")";
+
+  return dbg.space();
+}
 
 }
 

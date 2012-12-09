@@ -63,10 +63,9 @@ namespace QtLua {
   ValueRef::ValueRef(Value &&table, const T &key)
     : ValueBase(table._st)
     , _table_id(table._id)
-    , _key_id(_id_counter++)
   {
     table._st = 0;
-    Value k(table._st, key);
+    Value k(_st, key);
     _key_id = k._id;
     k._st = 0;
   }

@@ -452,6 +452,11 @@ namespace QtLua {
     return _st.data();
   }
 
+  void ValueBase::table_shift(int pos, int count, int len)
+  {
+    return table_shift(pos, count, Value(), len);
+  }
+
   ValueBase::iterator ValueBase::begin()
   {
     return iterator(new_iterator());
