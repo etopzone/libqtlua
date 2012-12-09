@@ -434,9 +434,12 @@ static int lua_gettable_wrapper(lua_State *st)
 
 void State::lua_pgettable(lua_State *st, int index)
 {
-  if (!lua_getmetatable(st, index))
-    return lua_rawget(st, index);
-  lua_pop(st, 1);
+  if (lua_type(st, index) == LUA_TTABLE)
+    {
+      if (!lua_getmetatable(st, index))
+	return lua_rawget(st, index);
+      lua_pop(st, 1);
+    }
 
   lua_pushcfunction(st, lua_gettable_wrapper);
   if (index < 0
@@ -464,9 +467,12 @@ static int lua_settable_wrapper(lua_State *st)
 
 void State::lua_psettable(lua_State *st, int index)
 {
-  if (!lua_getmetatable(st, index))
-    return lua_rawset(st, index);
-  lua_pop(st, 1);
+  if (lua_type(st, index) == LUA_TTABLE)
+    {
+      if (!lua_getmetatable(st, index))
+	return lua_rawset(st, index);
+      lua_pop(st, 1);
+    }
 
   lua_pushcfunction(st, lua_settable_wrapper);
   if (index < 0
@@ -492,12 +498,11 @@ static int lua_next_wrapper(lua_State *st)
   return lua_next(st, 1) ? 2 : 0;
 }
 
+/** Protected lua_next, same behavior as lua_next. On error this
+    function throw an exception and leave the lua stack untouched (the
+    key is not poped). */
 int State::lua_pnext(lua_State *st, int index)
 {
-  if (!lua_getmetatable(st, index))
-    return lua_next(st, index);
-  lua_pop(st, 1);
-
   lua_pushcfunction(st, lua_next_wrapper);
   if (index < 0
 #if LUA_VERSION_NUM < 502
@@ -1130,12 +1135,12 @@ void State::fill_completion_list_r(String &path, const String &prefix,
 				entry += "[]";
 				cursor_offset = -1;
 			      }
-			    lua_pop(_lst, 2);
+			    lua_pop(_lst, 2);  // pop key/value
 			  }
 		      } catch (...) {
-			lua_pop(_lst, 2);
+			lua_pop(_lst, 1);  // pop key on pnext error
 		      }
-		      lua_pop(_lst, 1);
+		      lua_pop(_lst, 1);    // pop table
 		    } catch (...) {
 		    }
 		    check_empty_stack();

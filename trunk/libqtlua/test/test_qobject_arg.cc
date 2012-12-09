@@ -23,9 +23,9 @@
 #include "test.hh"
 #include "test_qobject_arg.hh"
 
-int main()
+int main(int argc, char **argv)
 {
-  QApplication app(0, 0);
+  QApplication app(argc, argv);
 
   try {
   {

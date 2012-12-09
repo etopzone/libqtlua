@@ -31,6 +31,7 @@
 #include "qtluaref.hh"
 
 struct lua_State;
+class QDebug;
 
 namespace QtLua {
 
@@ -457,6 +458,12 @@ public:
   /** Check if the value is @tt nil */
   inline bool is_nil() const;
 
+  /** Check if a table or userdata contains at leasts one entry. For
+      lua tables this is different from comparing the result of the
+      @ref len function with zero because this function will return
+      true even if the table keys are not integers. */
+  bool is_empty() const;
+
   /** Returns true if the value is a coroutine which is not resumable.
    This function always returns false if @ref State::lua_version()
    returns a value less than 501. */
@@ -479,9 +486,14 @@ public:
   String type_name_u() const;
 
   /** Return the lua len of tables and strings. Return the result of
-      the @ref OpLen operation on @ref UserData objects or 0 if not
+      the @ref OpLen operation on @ref UserData objects if @ref OpLen is
       supported. */
   int len() const;
+
+  /** Make room in a lua table at given position if count > 0 or
+      remove entries if count < 0. @multiple */
+  void table_shift(int pos, int count, const Value &init, int len = -1);
+  inline void table_shift(int pos, int count, int len = -1);
 
   /** Check given operation support. @see UserData::support */
   bool support(Operation c) const;
@@ -556,6 +568,8 @@ protected:
   /** @internal */
   static double _id_counter;
 };
+
+QDebug operator<<(QDebug dbg, const ValueBase &c);
 
 }
 

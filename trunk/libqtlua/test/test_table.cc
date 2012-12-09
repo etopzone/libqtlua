@@ -18,6 +18,7 @@
 
 */
 
+#include <QDebug>
 #include "test.hh"
 
 #include <QtLua/State>
@@ -201,7 +202,155 @@ int main()
     }
     ls.check_empty_stack();
     ASSERT(err);
+
+    err = false;
+    try {
+      QtLua::Value t = ls.at("t");
+      for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++)
+	;
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(!err);
   }
+
+  {
+    QtLua::State ls;
+
+    ls.exec_statements("t=function() end");
+
+    bool err = false;
+    try {
+      ls.set_global("t.c", QtLua::Value(&ls, 5));
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls["t"]["a"] = 5;
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls.get_global("t.c");
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls.at("t").at("c").is_nil();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls["t"]["c"].is_nil();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      QtLua::Value t = ls.at("t");
+      for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++)
+	;
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+  }
+
+  {
+    QtLua::State ls;
+    ls.openlib(AllLibs);
+
+    ls.exec_statements("t = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };"
+		       "q = { };"
+		       "s = { key = 42 };"
+		       "e = function() end");
+
+    ASSERT(ls["t"].len() == 9);
+    ls.check_empty_stack();
+    ASSERT(ls["q"].len() == 0);
+    ls.check_empty_stack();
+    ASSERT(ls["s"].len() == 0);
+    ls.check_empty_stack();
+    ASSERT(ls["qt"]["meta"].len() > 0);
+    ls.check_empty_stack();
+
+    ASSERT(!ls["t"].is_empty());
+    ls.check_empty_stack();
+    ASSERT(ls["q"].is_empty());
+    ls.check_empty_stack();
+    ASSERT(!ls["s"].is_empty());
+    ls.check_empty_stack();
+    ASSERT(!ls["qt"]["meta"].is_empty());
+    ls.check_empty_stack();
+
+    bool err = false;
+    try {
+      ls["e"].len();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+
+    err = false;
+    try {
+      ls["e"].is_empty();
+    } catch (...) {
+      err = true;
+    }
+    ls.check_empty_stack();
+    ASSERT(err);
+  }
+
+#if 0
+  {
+    QtLua::State ls;
+    ls.openlib(AllLibs);
+
+    {
+      ls.exec_statements("t = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };");
+      QtLua::Value t = ls["t"];
+
+      t.table_shift(6, -2);
+      ls.check_empty_stack();
+      for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++)
+	qDebug() << i.key() << i.value();
+    }
+
+    qDebug() << "";
+
+    {
+      ls.exec_statements("t = { 10, 20, 30, 40, 50, 60, 70, 80, 90 };");
+      QtLua::Value t = ls["t"];
+
+      t.table_shift(9, 3, QtLua::Value(&ls, 42));
+      ls.check_empty_stack();
+      for (QtLua::Value::iterator i = t.begin(); i != t.end(); i++)
+	qDebug() << i.key() << i.value();
+    }
+  }
+#endif
 
   } catch (QtLua::String &e) {
     std::cout << e.constData() << std::endl;
