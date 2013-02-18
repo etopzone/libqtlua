@@ -5,75 +5,7 @@
   @insert localtoc
 
   @section TP {QtLua lua libraries}
-
-    QtLua comes with two lua libraries: some general purpose global lua functions useful when running lua script
-    from the QtLua environment, and a Qt library which give access to Qt essential functions.
-
-    @section T {Predefined lua functions}
-      The @ref QtLua::QtLuaLib library contains the following lua functions:
-      @list
-        @item The @tt print() lua function prints all passed values
-          using the @ref QtLua::State::output signal.
-
-        @item The @tt list() lua function prints list of members of
-          given table or global table if no argument is passed.
-
-        @item The @tt each() lua function returns a lua iterator which
-          can be used to iterate over lua tables and QtLua @ref UserData
-          objects.
-
-        @item The @tt help() lua function can be used to display help
-          about @ref QtLua::Function based objects.
-
-        @item The @tt plugin() function returns a @ref QtLua::Plugin
-          object loaded from given plugin bare file name.
-
-        @item The @tt qtype() function returns the QtLua type name of a value.
-      @end list
-    @end section
-
-    @section T {Wrapped Qt functions}
-      The @ref QtLua::QtLib library contains some wrapped Qt functions and objects:
-
-      @list
-        @item The @tt qt.meta table contains wrapped Qt meta objects,
-          useful to access enums and other Qt meta data. This class
-          list can be extended by calling the @ref State::register_qobject_meta
-          function.
-
-        @item The @tt qt.new_qobject function creates a new @ref
-          QObject of given type. It relies on the @tt qt.meta table
-          provided by QtLua.
-
-        @item The @tt qt.new_widget function creates a new widget of
-          given type name using the @ref QUiLoader::createWidget Qt
-          function.
-
-        @item The @tt qt.load_ui function returns a Qt user interface
-          file loaded using the @ref QUiLoader::load Qt function.
-
-        @item The @tt qt.connect and @tt qt.disconnect functions
-          manage signals and slots connections, see @xref{Dynamic
-          signals and slots}.
-
-        @item The @tt qt.dialog table contains functions related to Qt
-          dialog invocation.
-
-        @item The @tt qt.menu table contains functions useful to
-          create and manage Qt menus.
-
-        @item The @tt qt.translator and @tt qt.tr functions can be used
-          to load translation files and translate strings.
-      @end list
-
-      The @tt help function can be used to display usage information on all functions in this library:
-      @code R
->> help(qt.connect)
-usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_slot_signature()")
-       qt.connect(qobjectwrapper, "qt_signal_signature()", lua_function)
-      @end code
-
-    @end section
+    @include qtlib.mkdoc
   @end section
 
   @section TP {Error handling and exceptions}
@@ -272,41 +204,6 @@ usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_s
       The example below shows how @ref QObject ownership is handled in C++ code:
       @example examples/cpp/qobject/qobject_owner.cc:1
 
-    @end section
-
-    @section T{Dynamic signals and slots}
-      Qt signals and slots connections can be managed dynamically from
-      lua script. Moreover a Qt signal can be connected directly to a lua
-      function.
-
-      The @tt qt.connect lua function can be used to
-      connect a Qt signal either to a Qt slot or to a lua function:
-
-      @code R
-   -- connect signal and slot of given Qt objects
-   qt.connect(qobjectwrapper1, "qt_signal_signature()", qobjectwrapper2, "qt_slot_signature()")
-
-   -- connect slot to given lua function
-   qt.connect(qobjectwrapper, "qt_signal_signature()", lua_function)
-      @end code
-
-      When a lua function is called from a Qt signal, its first argument
-      is the sender object and following arguments are converted signal
-      parameters (see @xref{Qt/Lua types conversion}).
-
-      The @tt qt.disconnect lua functions can be used to
-      disconnect a Qt slot:
-
-      @code R
-   -- disconnect signal and slot of given Qt objects
-   qt.disconnect(qobjectwrapper1, "qt_signal_signature()", qobjectwrapper2, "qt_slot_signature()")
-
-   -- disconnect signal from given lua function
-   qt.disconnect(qobjectwrapper, "qt_signal_signature()", lua_function)
-
-   -- disconnect signal from all connected lua functions
-   qt.disconnect(qobjectwrapper, "qt_signal_signature()")
-      @end code
     @end section
 
   @end section
