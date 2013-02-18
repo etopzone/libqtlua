@@ -2,7 +2,7 @@
 
 -- Load user interface file
 
-ui = qt.load_ui("hello.ui");
+ui = qt.ui.load_ui("hello.ui");
 
 -- Connect the quit button click signal to the application closeAllWindows slot.
 

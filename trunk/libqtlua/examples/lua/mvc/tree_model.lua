@@ -2,14 +2,14 @@
 
 data = { "a", "b", "c", { "d", "e" } };
 
-model = qt.new_table_tree_model(data, qt.meta.QtLua__TableTreeModel.Recursive +
-				qt.meta.QtLua__TableTreeModel.EditAll +
-				qt.meta.QtLua__TableTreeModel.EditLuaEval
-			       );
+model = qt.mvc.new_table_tree_model(data, qt.meta.QtLua__TableTreeModel.Recursive +
+				    qt.meta.QtLua__TableTreeModel.EditAll +
+				    qt.meta.QtLua__TableTreeModel.EditLuaEval
+				   );
 
 view = qt.new_qobject(qt.meta.QTreeView);
 
-dialog = qt.dialog.new_itemview_dialog(0, model, view);
+dialog = qt.mvc.new_itemview_dialog(0, model, view);
 
 dialog.edit_actions = 
 	   qt.meta.QtLua__ItemViewDialog.EditData +

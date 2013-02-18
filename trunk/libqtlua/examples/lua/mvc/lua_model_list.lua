@@ -5,9 +5,9 @@ function create_model(array)
    -- fetch some constant values
    local display_role          = qt.meta.QtLua__LuaModel.DisplayRole;
    local background_color_role = qt.meta.QtLua__LuaModel.BackgroundColorRole;
-   local QColor_type           = qt.type("QColor")
+   local QColor_type           = qt.meta_type("QColor")
 
-   return qt.new_lua_model(
+   return qt.mvc.new_lua_model(
 
       function(role, item_id, child_row, child_col)     -- get
 
@@ -39,7 +39,7 @@ function create_model(array)
 	 end
       end,
 
-      function(role, item_id, value)                   -- set data
+      function(role, item_id, value)                   -- set
 	 array[item_id] = value;
 	 return true;
       end,
@@ -74,7 +74,7 @@ model = create_model(data)
 
 view = qt.new_qobject(qt.meta.QListView);
 
-qt.set_model(model, view);
+qt.mvc.set_model(model, view);
 
 view:show()
 
