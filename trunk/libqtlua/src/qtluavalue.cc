@@ -184,7 +184,7 @@ Value & Value::operator=(QObject *obj)
 Value & Value::operator=(const QVariant &qv)
 {
   if (_st)
-    *this = QMetaValue::raw_get_object(_st, qv.type(), qv.constData());
+    *this = QMetaValue::raw_get_object(_st, qv.userType(), qv.constData());
   return *this;
 }
 
