@@ -313,7 +313,11 @@ void ValueBase::table_shift(int pos, int count, const Value &init, int len)
 
   int i;
   if (len < 0)
+# if LUA_VERSION_NUM < 502
     len = lua_objlen(lst, -1);
+# else
+    len = lua_rawlen(lst, -1);
+# endif
 
   if (count > 0)
     {
