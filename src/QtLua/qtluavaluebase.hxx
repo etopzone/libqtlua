@@ -377,7 +377,7 @@ namespace QtLua {
   template <class X>
   inline X *ValueBase::to_qobject_cast() const
   {
-    X *p = qobject_cast<X*>(to_qobject());
+    X *p = dynamic_cast<X*>(to_qobject());
     if(!p)
       throw String("Can not cast QObject to %.").arg(X::staticMetaObject.className());
     return p;
