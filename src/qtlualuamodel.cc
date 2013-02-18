@@ -59,11 +59,29 @@ namespace QtLua {
     this_->_remove_cols = Value();
   }
 
+  void LuaModel::cached_get(intptr_t item_id, int child_row, int child_col) const
+  {
+    State *ls = _get.get_state();
+
+    if (_item_id != item_id || _child_row != child_row || _child_col != child_col)
+      {
+	Value::List r = _get(Value(ls), Value(ls, (double)item_id),
+			     Value(ls, child_row), Value(ls, child_col));
+	_rsize = r.size();
+
+	for (int i = 0; i < std::min(7, _rsize); i++)
+	  _res[i] = r[i].to_integer();
+
+	_item_id = item_id;
+	_child_row = child_row;
+	_child_col = child_col;
+      }
+  }
+
   QModelIndex LuaModel::index(int row, int column, const QModelIndex &parent) const
   {
     if (_get.is_nil())
       return QModelIndex();
-    State *ls = _get.get_state();
 
 #ifdef QTLUA_LUAMODEL_DEBUG
     qDebug() << __func__ << row << column << parent;
@@ -77,17 +95,15 @@ namespace QtLua {
       else
 	p = (intptr_t)parent.internalPointer();
 
-      Value::List r = _get(Value(ls), Value(ls, p),
-			   Value(ls, row + 1), Value(ls, column + 1));
+      cached_get(p, row + 1, column + 1);
 
-      if (r.size() < 3)
+      if (_rsize < 3)
 	{
 	  error("index: lua code must return at least 3 values");
 	  return QModelIndex();
 	}
 
-      int child_id = r[2].to_integer();
-
+      int child_id = _res[2];
       if (child_id == p)
 	{
 	  error("index: child_id returned by lua code is the same has its parent (item_id)");
@@ -106,7 +122,6 @@ namespace QtLua {
   {
     if (_get.is_nil())
       return QModelIndex();
-    State *ls = _get.get_state();
 
 #ifdef QTLUA_LUAMODEL_DEBUG
     qDebug() << __func__ << index;
@@ -118,13 +133,12 @@ namespace QtLua {
     try {
       int item_id = (intptr_t)index.internalPointer();
 
-      Value::List r = _get(Value(ls), Value(ls, item_id),
-			   Value(ls, index.row() + 1), Value(ls, index.column() + 1));
-      if (r.size() < 6)
+      cached_get(item_id, index.row() + 1, index.column() + 1);
+
+      if (_rsize < 6)
 	return QModelIndex();
 
-      int parent_id = (intptr_t)r[3].to_integer();
-
+      int parent_id = _res[3];
       if (!parent_id)
 	return QModelIndex();
 
@@ -134,9 +148,7 @@ namespace QtLua {
 	  return QModelIndex();
 	}
 
-      return createIndex(r[4].to_integer(),
-			 r[5].to_integer(),
-			 (void*)(intptr_t)parent_id);
+      return createIndex(_res[4], _res[5], (void*)(intptr_t)parent_id);
 
     } catch (const String &err) {
       error(String("lua error in parent(): ") + err);
@@ -148,7 +160,6 @@ namespace QtLua {
   {
     if (_get.is_nil())
       return 0;
-    State *ls = _get.get_state();
 
 #ifdef QTLUA_LUAMODEL_DEBUG
     qDebug() << __func__ << index;
@@ -162,11 +173,11 @@ namespace QtLua {
       else
 	p = (intptr_t)index.internalPointer();
 
-      Value::List r = _get(Value(ls), Value(ls, p),
-			   Value(ls, index.row() + 1), Value(ls, index.column() + 1));
-      if (r.size() < 3)
+      cached_get(p, index.row() + 1, index.column() + 1);
+
+      if (_rsize < 3)
 	return 0;
-      return r[0].to_integer();
+      return _res[0];
 
     } catch (const String &err) {
       error(String("lua error in rowCount(): ") + err);
@@ -178,7 +189,6 @@ namespace QtLua {
   {
     if (_get.is_nil())
       return 0;
-    State *ls = _get.get_state();
 
 #ifdef QTLUA_LUAMODEL_DEBUG
     qDebug() << __func__ << index;
@@ -192,11 +202,11 @@ namespace QtLua {
       else
 	p = (intptr_t)index.internalPointer();
 
-      Value::List r = _get(Value(ls), Value(ls, p),
-			   Value(ls, index.row() + 1), Value(ls, index.column() + 1));
-      if (r.size() < 3)
+      cached_get(p, index.row() + 1, index.column() + 1);
+
+      if (_rsize < 3)
 	return 0;
-      return r[1].to_integer();
+      return _res[1];
 
     } catch (const String &err) {
       error(String("lua error in columnCount(): ") + err);
@@ -208,7 +218,6 @@ namespace QtLua {
   {
     if (_get.is_nil())
       return 0;
-    State *ls = _get.get_state();
 
 #ifdef QTLUA_LUAMODEL_DEBUG
     qDebug() << __func__ << index;
@@ -222,13 +231,12 @@ namespace QtLua {
       else
 	p = (intptr_t)index.internalPointer();
 
-      Value::List r = _get(Value(ls), Value(ls, p),
-			   Value(ls, index.row() + 1), Value(ls, index.column() + 1));
+      cached_get(p, index.row() + 1, index.column() + 1);
 
       int f = Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 
-      if (r.size() >= 7)
-	f = r[6].to_integer();
+      if (_rsize >= 7)
+	f = _res[6];
       else if (!_set.is_nil())
 	f |= Qt::ItemIsEditable;
 

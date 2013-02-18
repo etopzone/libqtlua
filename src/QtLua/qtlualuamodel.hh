@@ -42,15 +42,15 @@ namespace QtLua {
 
      At least one lua function must be provided to implement a
      read-only model. This mandatory function is responsible for
-     exposing the item layout and data:
+     exposing the model layout and data:
 
      @code
 function get(role, item_id, child_row, child_col)
      @end code
 
-     The get function may be first called multiple times with a @tt
-     nil value in the role parameter in order to retrieve layout
-     information:
+     The get function may be first called multiple times by the
+     wrapper with a @tt nil value in the @tt role parameter. In this
+     case, the lua code must expose the data layout:
 
      @list
        @item @tt role is a @tt nil value.
@@ -60,8 +60,8 @@ function get(role, item_id, child_row, child_col)
          a child item under the queried item, starting at 1.
      @end list
 
-     In this case, the lua code must return at least 3 values. This is
-     enough if the queried item has no parent:
+     The lua code must then return at least 3 values. This is enough if the
+     queried item has no parent:
 
      @code
 return (item_rows, item_cols, child_id, parent_id, item_row, item_col, flags)
@@ -190,6 +190,12 @@ function remove_cols(check, parent_id, pos, count)
     bool insertColumns(int col, int count, const QModelIndex& parent);
     bool removeColumns(int col, int count, const QModelIndex& parent);
     void error(const String &err) const;
+
+    void cached_get(intptr_t item_id, int child_row, int child_col) const;
+
+    mutable intptr_t _item_id;
+    mutable int _child_row, _child_col, _rsize;
+    mutable intptr_t _res[7];
 
     Value _get;
     Value _set;
