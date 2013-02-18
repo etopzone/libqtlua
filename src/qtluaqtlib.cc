@@ -14,7 +14,7 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2008-2013, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
@@ -35,13 +35,21 @@
 #include <QTranslator>
 #include <QActionGroup>
 #include <QMainWindow>
+#include <QDockWidget>
 #include <QToolBar>
+#include <QStackedWidget>
+#include <QToolBar>
+#include <QScrollArea>
+#include <QSplitter>
+#include <QMdiArea>
+#include <QWorkspace>
 
 #include <QAbstractItemView>
 #include <QComboBox>
 
 #include <QMenu>
 #include <QMenuBar>
+#include <QStatusBar>
 
 #include <QtLua/State>
 #include <QtLua/Function>
@@ -96,7 +104,7 @@ namespace QtLua {
   }
 
 
-  ////////////////////////////////////////////////// widgets and qobjects
+  ////////////////////////////////////////////////// qobjects
 
 
   QTLUA_FUNCTION(connect, "Connect a Qt signal to a Qt slot or lua function.",
@@ -187,9 +195,17 @@ namespace QtLua {
   }
 
 
-  QTLUA_FUNCTION(type, "Translate between a registered Qt type numeric handle and associated type name.",
-		 "usage: qt.type(\"type name\")\n"
-		 "       qt.type(type handle)\n")
+  QTLUA_FUNCTION(connect_slots_by_name, "Invoke the QMetaObject::connectSlotsByName function.",
+		 "usage: qt.connect_slots_by_name(qobjectwrapper)\n")
+  {
+    QMetaObject::connectSlotsByName(get_arg_qobject<QObject>(args, 0));
+
+    return Value(ls);
+  }
+
+  QTLUA_FUNCTION(meta_type, "Translate between a registered Qt type numeric handle and associated type name.",
+		 "usage: qt.meta_type(\"QTypeName\")\n"
+		 "       qt.meta_type(type_handle)\n")
   {
     meta_call_check_args(args, 1, 1, Value::TNone);
 
@@ -207,12 +223,26 @@ namespace QtLua {
 	break;
       }
 
-    throw String("Unable to resolve Qt type");
+    throw String("Unable to resolve Qt meta type");
   }
 
+
+  QTLUA_FUNCTION(new_qobject, "Dynamically create a new QObject.",
+		 "usage: qt.new_qobject( qt.meta.QClassName, [ Constructor arguments ] )\n")
+  {
+    static QUiLoader uil;
+
+    QMetaObjectWrapper::ptr mow = get_arg_ud<QMetaObjectWrapper>(args, 0);
+
+    return Value(ls, mow->create(args), true, true);
+  }
+
+
+  ////////////////////////////////////////////////// ui
+
+
   QTLUA_FUNCTION(load_ui, "Load a Qt ui file.",
-		 "usage: qt.load_ui(\"file.ui\", parent_qobjectwrapper)\n"
-		 "usage: qt.load_ui(\"file.ui\")\n")
+		 "usage: qt.ui.load_ui(\"file.ui\", [ parent ])\n")
   {
     static QUiLoader uil;
 
@@ -233,7 +263,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(new_widget, "Dynamically create a new Qt Widget using QUiLoader.",
-		 "usage: qt.new_widget(\"QtClassName\", [ \"name\", parent_qobjectwrapper ] )\n")
+		 "usage: qt.ui.new_widget(\"QtClassName\", [ \"name\", parent ] )\n")
   {
     static QUiLoader uil;
 
@@ -256,24 +286,12 @@ namespace QtLua {
     return Value(ls, w, true, true);
   }
 
-
-  QTLUA_FUNCTION(new_qobject, "Dynamically create a new QObject.",
-		 "usage: qt.new_qobject( qt.meta.QClassName, [ Constructor arguments ] )\n")
-  {
-    static QUiLoader uil;
-
-    QMetaObjectWrapper::ptr mow = get_arg_ud<QMetaObjectWrapper>(args, 0);
-
-    return Value(ls, mow->create(args), true, true);
-  }
-
-
   QTLUA_FUNCTION(layout_add, "Add an item to a QLayout or set QLayout of a QWidget.",
-		 "usage: qt.layout_add( box_layout, widget|layout )\n"
-		 "       qt.layout_add( grid_layout, widget|layout, row, column, [ row_span, col_span, align ] )\n"
-		 "       qt.layout_add( form_layout, widget|layout, row, column, [ col_span ] )\n"
-		 "       qt.layout_add( form_layout, text, widget|layout )\n"
-		 "       qt.layout_add( widget, layout )\n")
+		 "usage: qt.ui.layout_add( box_layout, widget|layout )\n"
+		 "       qt.ui.layout_add( grid_layout, widget|layout, row, column, [ row_span, col_span, align ] )\n"
+		 "       qt.ui.layout_add( form_layout, widget|layout, row, column, [ col_span ] )\n"
+		 "       qt.ui.layout_add( form_layout, text, widget|layout )\n"
+		 "       qt.ui.layout_add( widget, layout )\n")
   {
     meta_call_check_args(args, 2, 0, Value::TUserData, Value::TNone);
 
@@ -409,7 +427,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(layout_spacer, "Add a spacer to a QLayout.",
-		 "usage: qt.layout_spacer( layout, width, height, hpolicy, vpolicy )\n")
+		 "usage: qt.ui.layout_spacer( layout, width, height, h QSizePolicy, v QSizePolicy )\n")
   {
     meta_call_check_args(args, 3, 5, Value::TUserData, Value::TNumber, Value::TNumber, Value::TNumber, Value::TNumber);
 
@@ -460,24 +478,8 @@ namespace QtLua {
   ////////////////////////////////////////////////// menus
   
 
-  QTLUA_FUNCTION(add_toolbar, "Add a new QToolBar to a QMainWindow.",
-		 "usage: qt.menu.add_toolbar( main_window, \"text\", [ \"name\" ] )\n")
-  {
-    meta_call_check_args(args, 2, 3, Value::TUserData, Value::TString, Value::TString);
-
-    QMainWindow *mw = args[0].to_qobject_cast<QMainWindow>();
-    String text = args[1].to_string();
-    QObject *result = mw->addToolBar(text);
-
-    if (args.size() > 2)
-      result->setObjectName(args[2]);
-
-    return QtLua::Value(ls, result, true, true);
-  }
-
-
-  QTLUA_FUNCTION(add_menu, "Add a new QMenu to a QMenu or QMenuBar container.",
-		 "usage: qt.menu.add_menu( container, \"text\", [ \"name\" ] )\n")
+  QTLUA_FUNCTION(add_menu, "Add a new QMenu to a QMenu or QMenuBar.",
+		 "usage: qt.ui.menu.add_menu( menu|menubar, \"text\", [ \"object_name\" ] )\n")
   {
     meta_call_check_args(args, 2, 3, Value::TUserData, Value::TString, Value::TString);
 
@@ -500,7 +502,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(add_separator, "Add a separator QAction to a QMenu or QToolBar.",
-		 "usage: qt.menu.add_separator( container, [ \"name\" ] )\n")
+		 "usage: qt.ui.menu.add_separator( menu|toolbar, [ \"name\" ] )\n")
   {
     meta_call_check_args(args, 1, 2, Value::TUserData, Value::TString);
 
@@ -522,35 +524,39 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(add_action, "Add a QAction to a QMenuBar, QMenu or QActionGroup.",
-		 "usage: qt.menu.add_action( container, \"text\"|qaction, [ \"name\" ] )\n")
+		 "usage: qt.ui.menu.add_action( menu|menubar|... , \"text\", [ \"name\" ] )\n")
   {
     meta_call_check_args(args, 2, 3, Value::TUserData, Value::TNone, Value::TString);
 
     QObject *obj = args[0].to_qobject();
+    String text = args[1].to_string();
     QObject *result;
 
-    switch (args[1].type())
+    if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+      result = menu->addAction(text);
+    else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
+      result = menubar->addAction(text);
+    else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
+      result = group->addAction(text);
+    else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
+      result = tb->addAction(text);
+    else
+      throw String("Bad QAction container object type");
+
+    if (args.size() > 2)
+      result->setObjectName(args[2].to_string());
+
+    return QtLua::Value(ls, result, true, true);
+  }
+
+  QTLUA_FUNCTION(menu_attach, "Attach QAction, QActionGroup, QMenu, QMenuBar and QToolBar together.",
+		 "usage: qt.ui.menu.attach( container, part )\n")
+  {
+    QObject *obj = get_arg_qobject<QObject>(args, 0);
+    QObject *obj2 = get_arg_qobject<QObject>(args, 1);
+
+    if (QAction *action = dynamic_cast<QAction*>(obj2))
       {
-      case Value::TString: {
-	String text = args[1].to_string();
-
-	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
-	  result = menu->addAction(text);
-	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
-	  result = menubar->addAction(text);
-	else if (QActionGroup *group = dynamic_cast<QActionGroup*>(obj))
-	  result = group->addAction(text);
-	else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
-	  result = tb->addAction(text);
-	else
-	  throw String("Bad QAction container object type");
-	break;
-      }
-
-      case Value::TUserData: {
-	QAction *action = args[1].to_qobject_cast<QAction>();
-	result = action;
-
 	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
 	  menu->addAction(action);
 	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
@@ -560,23 +566,30 @@ namespace QtLua {
 	else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
 	  tb->addAction(action);
 	else
-	  throw String("Bad QAction container object type");
-	break;
+	  goto err;
       }
-
-      default:
-	throw String("Bad QAction object");
+    else if (QMenu *submenu = dynamic_cast<QMenu*>(obj2))
+      {
+	if (QMenu *menu = dynamic_cast<QMenu*>(obj))
+	  menu->addAction(submenu->menuAction());
+	else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
+	  menubar->addAction(submenu->menuAction());
+	else
+	  goto err;
       }
+    else
+      goto err;
 
-    if (args.size() > 2)
-      result->setObjectName(args[2].to_string());
-
-    return QtLua::Value(ls, result, true, true);
+    return QtLua::Value(ls);
+  err:
+    throw String("Can not attach a % to a % object")
+      .arg(obj2->metaObject()->className())
+      .arg(obj->metaObject()->className());
   }
 
 
   QTLUA_FUNCTION(new_action_group, "Create a new QActionGroup and add passed actions.",
-		 "usage: qt.menu.new_action_group( action [, action ...] )\n")
+		 "usage: qt.ui.menu.new_action_group( action [, action ...] )\n")
   {
     QAction *a[args.size()];
 
@@ -590,9 +603,20 @@ namespace QtLua {
     return QtLua::Value(ls, result, true, true);
   }
 
+  QTLUA_FUNCTION(new_action, "Create a new QAction.",
+		 "usage: qt.ui.menu.new_action( parent )\n")
+  {
+    return QtLua::Value(ls, new QAction(get_arg_qobject<QObject>(args, 0)), true, true);
+  }
+
+  QTLUA_FUNCTION(new_menu, "Create a new QMenu.",
+		 "usage: qt.ui.menu.new_menu( parent )\n")
+  {
+    return QtLua::Value(ls, new QMenu(get_arg_qobject<QWidget>(args, 0)), true, true);
+  }
 
   QTLUA_FUNCTION(remove, "Remove a QAction or QMenu action from a QWidget or QActionGroup.",
-		 "usage: qt.menu.remove( qaction|qmenu [, qwidget|qactiongroup ] )\n")
+		 "usage: qt.ui.menu.remove( qaction|qmenu [, qwidget|qactiongroup ] )\n")
   {
     meta_call_check_args(args, 1, 2, Value::TUserData, Value::TUserData);
 
@@ -623,12 +647,63 @@ namespace QtLua {
     return QtLua::Value(ls);
   }
 
+  ////////////////////////////////////////////////// main window
+
+  QTLUA_FUNCTION(ui_attach, "Invoke setWidget or addWidget like functions on various widgets.",
+		 "usage: qt.ui.attach( container, part, [ attributes ] )\n")
+  {
+    QObject *obj = get_arg_qobject<QObject>(args, 0);
+    QObject *obj2 = get_arg_qobject<QObject>(args, 1);
+
+    if (QMainWindow *mainwin = dynamic_cast<QMainWindow*>(obj))
+      {
+	if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj2))
+	  mainwin->setMenuBar(menubar);
+	else if (QStatusBar *statusbar = dynamic_cast<QStatusBar*>(obj2))
+	  mainwin->setStatusBar(statusbar);
+	else if (QToolBar *toolbar = dynamic_cast<QToolBar*>(obj2))
+	  mainwin->addToolBar(toolbar);
+	else if (QDockWidget *dw = dynamic_cast<QDockWidget*>(obj2))
+	  mainwin->addDockWidget((Qt::DockWidgetArea)get_arg<int>(args, 2, Qt::LeftDockWidgetArea), dw);
+	else if (QWidget *w = dynamic_cast<QWidget*>(obj2))
+	  mainwin->setCentralWidget(w);
+	else
+	  goto err;
+      }
+    else if (QWidget *w = dynamic_cast<QWidget*>(obj2))
+      {
+	if (QDockWidget *dw = dynamic_cast<QDockWidget*>(obj))
+	  dw->setWidget(w);
+	else if (QStackedWidget *x = dynamic_cast<QStackedWidget*>(obj))
+	  x->addWidget(w);
+	else if (QToolBar *x = dynamic_cast<QToolBar*>(obj))
+	  x->addWidget(w);
+	else if (QScrollArea *x = dynamic_cast<QScrollArea*>(obj))
+	  x->setWidget(w);
+	else if (QSplitter *x = dynamic_cast<QSplitter*>(obj))
+	  x->addWidget(w);
+	else if (QMdiArea *x = dynamic_cast<QMdiArea*>(obj))
+	  x->addSubWindow(w);
+	else if (QWorkspace *x = dynamic_cast<QWorkspace*>(obj))
+	  x->addWindow(w);
+	else
+	  goto err;
+      }
+    else
+      goto err;
+
+    return QtLua::Value(ls);
+  err:
+    throw String("Can not attach a % to a % object")
+      .arg(obj2->metaObject()->className())
+      .arg(obj->metaObject()->className());
+  }
 
   ////////////////////////////////////////////////// dialogs
 
 
   QTLUA_FUNCTION(get_existing_directory, "Wrap QFileDialog::getExistingDirectory function.",
-		 "usage: qt.dialog.get_existing_directory( [ \"caption\", \"directory\", options ] )\n")
+		 "usage: qt.dialog.get_existing_directory( [ \"caption\", \"directory\", QFileDialog::Option ] )\n")
   {
     return Value(ls, QFileDialog::getExistingDirectory(QApplication::activeWindow(),
 						       get_arg<QString>(args, 0, ""),
@@ -639,7 +714,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(get_open_filename, "Wrap QFileDialog::getOpenFileName function.",
-		 "usage: qt.dialog.get_open_filename( [ \"caption\", \"directory\", \"filter\", options ] )\n")
+		 "usage: qt.dialog.get_open_filename( [ \"caption\", \"directory\", \"filter\", QFileDialog::Option ] )\n")
   {
     return Value(ls, QFileDialog::getOpenFileName(QApplication::activeWindow(),
 						  get_arg<QString>(args, 0, ""),
@@ -650,7 +725,7 @@ namespace QtLua {
   }
 
   QTLUA_FUNCTION(get_open_filenames, "Wrap QFileDialog::getOpenFileNames function.",
-		 "usage: qt.dialog.get_open_filenames( [ \"caption\", \"directory\", \"filter\", options ] )\n")
+		 "usage: qt.dialog.get_open_filenames( [ \"caption\", \"directory\", \"filter\", QFileDialog::Option ] )\n")
   {
     return Value(ls, QFileDialog::getOpenFileNames(QApplication::activeWindow(),
 						   get_arg<QString>(args, 0, ""),
@@ -662,7 +737,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(get_save_filename, "Wrap QFileDialog::getSaveFileName function.",
-		 "usage: qt.dialog.get_save_filename( [ \"caption\", \"directory\", \"filter\", options ] )\n")
+		 "usage: qt.dialog.get_save_filename( [ \"caption\", \"directory\", \"filter\", QFileDialog::Option] )\n")
   {
     return Value(ls, QFileDialog::getSaveFileName(QApplication::activeWindow(),
 						  get_arg<QString>(args, 0, ""),
@@ -689,7 +764,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(get_double, "Wrap QInputDialog::getDouble function.",
-		 "usage: qt.dialog.get_double(\"title\", \"label\", value, min, max, decimals)\n")
+		 "usage: qt.dialog.get_double( [ \"title\", \"label\", value, min, max, decimals ] )\n")
   {
     bool ok;
     double v = QInputDialog::getDouble(QApplication::activeWindow(),
@@ -706,7 +781,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(get_integer, "Wrap QInputDialog::getInteger function.",
-		 "usage: qt.dialog.get_integer(\"title\", \"label\", value, min, max, step)\n")
+		 "usage: qt.dialog.get_integer( [ \"title\", \"label\", value, min, max, step ] )\n")
   {
     bool ok;
 #if QT_VERSION < 0x050000
@@ -727,7 +802,7 @@ namespace QtLua {
 
 
   QTLUA_FUNCTION(get_text, "Wrap QInputDialog::getText function.",
-		 "usage: qt.dialog.get_text(\"title\", \"label\", \"text\")\n")
+		 "usage: qt.dialog.get_text( [ \"title\", \"label\", \"init_text\" ] )\n")
   {
     bool ok;
     QString v = QInputDialog::getText(QApplication::activeWindow(),
@@ -811,16 +886,6 @@ namespace QtLua {
   }
 
 
-  QTLUA_FUNCTION(new_itemview_dialog, "Dynamically create a new QtLua::ItemViewDialog.",
-		 "usage: qt.dialog.new_itemview_dialog( ItemViewDialog::EditActions, model, view )\n")
-  {
-    return Value(ls, new ItemViewDialog((ItemViewDialog::EditActions)get_arg<int>(args, 0),
-					get_arg_qobject<QAbstractItemModel>(args, 1),
-					get_arg_qobject<QAbstractItemView>(args, 2)
-					));
-  }
-
-
   QTLUA_FUNCTION(tree_view, "Expose a lua table in a QTreeView.",
 		 "usage: qt.dialog.tree_view( table [ , TableTreeModel::Attribute, \"title\" ] )\n")
   {
@@ -898,7 +963,7 @@ namespace QtLua {
   }
 
   QTLUA_FUNCTION(new_table_tree_model, "Return a new QtLua::TableTreeModel object and set it has MVC model of some Qt views.",
-		 "usage: qt.new_table_tree_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
+		 "usage: qt.mvc.new_table_tree_model( table, TableTreeModel::Attributes, [ view_widget, ... ] )\n")
   {
     meta_call_check_args(args, 2, -3, Value::TNone, Value::TNumber, Value::TUserData);
 
@@ -912,7 +977,7 @@ namespace QtLua {
   }
 
   QTLUA_FUNCTION(new_table_grid_model, "Return a new QtLua::TableGridModel object and set it has MVC model of some Qt views.",
-		 "usage: qt.new_table_grid_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
+		 "usage: qt.mvc.new_table_grid_model( table, TableGridModel::Attributes, [ view_widget, ... ] )\n")
   {
     meta_call_check_args(args, 2, -3, Value::TNone, Value::TNumber, Value::TUserData);
 
@@ -926,7 +991,8 @@ namespace QtLua {
   }
 
   QTLUA_FUNCTION(new_lua_model, "Return a new QtLua::LuaModel object and set it has MVC model of some Qt views.",
-		 "usage: qt.new_lua_model( get_function, [ view_widget, view_widget, ... ] )\n")
+		 "usage: qt.mvc.new_lua_model( get_fcn [ , set_fcn, ins_row_fcn, \n"
+		 "                             del_row_fnc, ins_col_fcn, del_col_fcn, view_widget, ... ] )\n")
   {
     LuaModel *m = new LuaModel(get_arg<Value>(args, 0),
 				 get_arg<Value>(args, 1, Value()),
@@ -943,7 +1009,7 @@ namespace QtLua {
   }
 
   QTLUA_FUNCTION(set_model, "Set a MVC model of one or more Qt views.",
-		 "usage: qt.set_model( model, view_widget [, view_widget, ... ] )\n")
+		 "usage: qt.mvc.set_model( model, view_widget [, view_widget, ... ] )\n")
   {
     meta_call_check_args(args, 2, 0, Value::TUserData, Value::TUserData);
 
@@ -955,35 +1021,51 @@ namespace QtLua {
     return Value::List();
   }
 
+  QTLUA_FUNCTION(new_itemview_dialog, "Dynamically create a new QtLua::ItemViewDialog.",
+		 "usage: qt.mvc.new_itemview_dialog( ItemViewDialog::EditActions, model, view )\n")
+  {
+    return Value(ls, new ItemViewDialog((ItemViewDialog::EditActions)get_arg<int>(args, 0),
+					get_arg_qobject<QAbstractItemModel>(args, 1),
+					get_arg_qobject<QAbstractItemView>(args, 2)
+					));
+  }
+
+
   //////////////////////////////////////////////////
    
   void qtluaopen_qt(State *ls)
   {
     ls->set_global("qt.meta", Value(ls, qt_meta));
 
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", connect               );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", disconnect            );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", type                  );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", load_ui               );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_widget            );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", new_qobject           );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", layout_add            );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", layout_spacer         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", connect               );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", connect_slots_by_name );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", disconnect            );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", meta_type             );
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.", tr                    );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", translator            );
 
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_tree_model  );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_grid_model  );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_lua_model  );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.", set_model             );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.", load_ui            );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.", new_widget         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.", layout_add         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.", layout_spacer      );
+    QTLUA_FUNCTION_REGISTER2(ls, "qt.ui.attach", ui_attach );
 
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_toolbar      );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_menu         );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_separator    );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_action       );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", new_action_group );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", remove           );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", add_menu         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", add_separator    );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", add_action       );
+    QTLUA_FUNCTION_REGISTER2(ls, "qt.ui.menu.attach", menu_attach);
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", new_action_group );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", new_action       );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", new_menu         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.ui.menu.", remove           );
+
+    QTLUA_FUNCTION_REGISTER(ls, "qt.mvc.", new_table_tree_model  );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.mvc.", new_table_grid_model  );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.mvc.", new_lua_model     );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.mvc.", set_model         );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.mvc.", new_itemview_dialog   );
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", get_existing_directory);
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", get_open_filename     );
@@ -999,7 +1081,6 @@ namespace QtLua {
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_information       );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_question          );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_warning           );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", new_itemview_dialog   );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", tree_view             );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", table_view            );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", grid_view             );

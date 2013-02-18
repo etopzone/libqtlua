@@ -27,14 +27,18 @@
 
 #include <QtXml>
 #include <QTextStream>
+#include <QHash>
 
 #include "config.hh"
 
-#define QTLUA_COPYRIGHT "QtLua user interface compiler " PACKAGE_VERSION " Copyright (C) 2012, Alexandre Becoulet"
+#define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " user interface compiler, Copyright (C) 2012-2013, Alexandre Becoulet"
 
 QTextStream out(stdout);
 QTextStream err(stderr);
 QString input_filename;
+
+QString add_actions;
+QString ui_class;
 
 static QTextStream & warning(const QDomNode &node)
 {
@@ -42,7 +46,7 @@ static QTextStream & warning(const QDomNode &node)
   return err;
 }
 
-static QString write_widget(QDomElement w, const QString &parent);
+static QString write_widget(QDomElement w, const QString &parent, const QString &parent_class);
 
 static void write_spacer(QDomElement s, const QString &parent)
 {
@@ -86,11 +90,80 @@ static void write_spacer(QDomElement s, const QString &parent)
     }
 
   if (orientation == "Qt::Vertical")
-    out << "qt.layout_spacer(" << parent << ", " << size << ", qt.meta.QSizePolicy.Minimum, qt.meta." << type << ");\n";
+    out << "qt.ui.layout_spacer(" << parent << ", " << size << ", qt.meta.QSizePolicy.Minimum, qt.meta." << type << ");\n";
   else if (orientation == "Qt::Horizontal")
-    out << "qt.layout_spacer(" << parent << ", " << size << ", qt.meta." << type << ", qt.meta.QSizePolicy.Minimum);\n";
+    out << "qt.ui.layout_spacer(" << parent << ", " << size << ", qt.meta." << type << ", qt.meta.QSizePolicy.Minimum);\n";
   else
     warning(s) << "bad spacer orientation `" << orientation << "'\n";
+}
+
+static QString get_prop_value(const QDomElement &v)
+{
+  QString tagname2(v.tagName());
+  QString value;
+
+  if (tagname2 == "bool" || tagname2 == "number")
+    {
+      value = v.text();
+    }
+  else if (tagname2 == "string")
+    {
+      value = QString("\"") + v.text() + "\"";
+    }
+  else if (tagname2 == "rect")
+    {
+      value = QString("{ ")
+	+ v.elementsByTagName("x").at(0).toElement().text() + ", "
+	+ v.elementsByTagName("y").at(0).toElement().text() + ", "
+	+ v.elementsByTagName("width").at(0).toElement().text() + ", "
+	+ v.elementsByTagName("height").at(0).toElement().text()+ " }";
+    }
+  else if (tagname2 == "size")
+    {
+      value = QString("{ "
+	      + v.elementsByTagName("width").at(0).toElement().text() + ", "
+	      + v.elementsByTagName("height").at(0).toElement().text() + " }");
+    }
+  else if (tagname2 == "sizepolicy")
+    {
+      value = QString("{ ")
+	      + v.elementsByTagName("horstretch").at(0).toElement().text() + ", "
+	      + v.elementsByTagName("verstretch").at(0).toElement().text()+ ", "
+	      + "qt.meta.QSizePolicy." + v.attribute("hsizetype") + ", "
+	      + "qt.meta.QSizePolicy." + v.attribute("vsizetype") + " }";
+    }
+  else if (tagname2 == "enum")
+    {
+      value = QString("qt.meta.") + v.text().replace("::", ".");
+    }
+  else if (tagname2 == "set")
+    {
+      value = QString("qt.meta.") + v.text().replace("::", ".").replace("|", " + qt.meta.");
+    }
+  else if (tagname2 == "iconset")
+    {
+      QString normal_off;
+
+      for (QDomNode n = v.firstChild(); !n.isNull(); n = n.nextSibling())
+	{
+	  if (n.isElement())
+	    {
+	      QString name(n.nodeName());
+
+	      if (name == "normaloff")
+		normal_off = n.toElement().text();
+	      else
+		warning(v) << "ignored iconset state `" << name << "'\n";
+	    }
+	  else if (n.isText() && normal_off.isNull())
+	    normal_off = n.toText().data();
+	}
+
+      if (!normal_off.isNull())
+	value = QString("\"") + normal_off + "\";\n";
+    }
+
+  return value;
 }
 
 static void write_property(QDomElement s, const QString &parent)
@@ -100,55 +173,17 @@ static void write_property(QDomElement s, const QString &parent)
 
   if (!v.isNull() && !prop.isEmpty())
     {
-      QString tagname2(v.tagName());
+      QString value = get_prop_value(v);
 
-      if (tagname2 == "bool" || tagname2 == "number")
-	{
-	  out << parent << "." << prop << " = " << v.text() << ";\n";
-	}
-      else if (tagname2 == "string")
-	{
-	  out << parent << "." << prop << " = \"" << v.text() << "\";\n";
-	}
-      else if (tagname2 == "rect")
-	{
-	  out << parent << "." << prop << " = { "
-	      << v.elementsByTagName("x").at(0).toElement().text() << ", "
-	      << v.elementsByTagName("y").at(0).toElement().text() << ", "
-	      << v.elementsByTagName("width").at(0).toElement().text() << ", "
-	      << v.elementsByTagName("height").at(0).toElement().text()<< " };\n";
-	}
-      else if (tagname2 == "size")
-	{
-	  out << parent << "." << prop << " = { "
-	      << v.elementsByTagName("width").at(0).toElement().text() << ", "
-	      << v.elementsByTagName("height").at(0).toElement().text()<< " };\n";
-	}
-      else if (tagname2 == "sizepolicy")
-	{
-	  out << parent << "." << prop << " = { "
-	      << v.elementsByTagName("horstretch").at(0).toElement().text() << ", "
-	      << v.elementsByTagName("verstretch").at(0).toElement().text()<< ", "
-	      << "qt.meta.QSizePolicy." << v.attribute("hsizetype") << ", "
-	      << "qt.meta.QSizePolicy." << v.attribute("vsizetype") << " };\n";
-	}
-      else if (tagname2 == "enum")
-	{
-	  out << parent << "." << prop << " = qt.meta." << v.text().replace("::", ".") << ";\n";
-	}
-      else if (tagname2 == "set")
-	{
-	  out << parent << "." << prop << " = qt.meta." << v.text().replace("::", ".").replace("|", " + qt.meta.") << ";\n";
-	}
+      if (!value.isNull())
+	out << parent << "." << prop << " = " << value << "\n";
       else
-	{
-	  warning(v) << "skipped property `" << prop
-		     << "' with unsupported type `" << tagname2 << "'\n";
-	}
+	warning(v) << "skipped property `" << prop
+		   << "' with unsupported type `" << v.tagName() << "'\n";
     }
 }
 
-static QString write_layout(QDomElement l, const QString &parent, bool add_layout)
+static QString write_layout(QDomElement l, const QString &parent, const QString &parent_class, bool add_layout)
 {
   QString lclass(l.attribute("class"));
 
@@ -158,7 +193,7 @@ static QString write_layout(QDomElement l, const QString &parent, bool add_layou
   out << "\nlocal " << lname << " = qt.new_qobject(qt.meta." << lclass << ");" << "\n";
 
   if (add_layout)
-    out << "qt.layout_add(" << parent << ", " << lname << ");\n";
+    out << "qt.ui.layout_add(" << parent << ", " << lname << ");\n";
 
   for (QDomNode n = l.firstChild(); !n.isNull(); n = n.nextSibling())
     {
@@ -192,13 +227,13 @@ static QString write_layout(QDomElement l, const QString &parent, bool add_layou
 
 	      if (tagname == "widget")
 		{
-		  QString n = write_widget(s, parent);
-		  out << "qt.layout_add(" << lname << ", " << n << extra << ");\n";
+		  QString n = write_widget(s, parent, parent_class);
+		  out << "qt.ui.layout_add(" << lname << ", " << n << extra << ");\n";
 		}
 	      else if (tagname == "layout")
 		{
-		  QString n = write_layout(s, parent, false);
-		  out << "qt.layout_add(" << lname << ", " << n << extra << ");\n";
+		  QString n = write_layout(s, parent, parent_class, false);
+		  out << "qt.ui.layout_add(" << lname << ", " << n << extra << ");\n";
 		}
 	      else if (tagname == "spacer")
 		{
@@ -223,15 +258,99 @@ static QString write_layout(QDomElement l, const QString &parent, bool add_layou
   return lname;
 }
 
-static QString write_widget(QDomElement w, const QString &parent)
+static void write_action(QDomElement w, const QString &parent, const QString &parent_class);
+
+static QString write_widget(QDomElement w, const QString &parent, const QString &parent_class)
 {
   QString wclass(w.attribute("class").replace("::", "__"));
   QString wname(w.attribute("name"));
 
-  out << "\nlocal " << wname << " = qt.new_qobject(qt.meta." << wclass << ");" << "\n";
+  if (wclass == "QMenu")
+    {
+      out << "\nlocal " << wname << " = qt.ui.menu.new_menu(" << parent << ");" << "\n";
+      out << wname << ".objectName = \"" << wname << "\";\n";
+    }
+  else
+    {
+      out << "\nlocal " << wname << " = qt.new_qobject(qt.meta." << wclass << ");" << "\n";
 
-  if (!parent.isEmpty())
-    out << parent << "." << wname << " = " << wname << ";\n";
+      if (parent.isNull())
+	out << wname << ".objectName = \"" << wname << "\";\n";
+
+      if (!parent.isEmpty())
+	out << parent << "." << wname << " = " << wname << ";\n";
+    }
+
+  QHash<QString, QString> attrs;
+
+  for (QDomNode n = w.firstChild(); !n.isNull(); n = n.nextSibling())
+    {
+      QDomElement s = n.toElement();
+
+      if (s.isNull())
+	continue;
+
+      QString tagname(s.tagName());
+
+      if (tagname == "property")
+	  write_property(s, wname);
+
+      else if (tagname == "widget")
+	  write_widget(s, wname, wclass);
+
+      else if (tagname == "layout")
+	  write_layout(s, wname, wclass, true);
+
+      else if (tagname == "action")
+	  write_action(s, wname, wclass);
+
+      else if (tagname == "addaction")
+	{
+	  QString aname(s.attribute("name"));
+
+	  if (aname == "separator")
+	    add_actions += "qt.ui.menu.add_separator(" + wname + ");\n";
+	  else
+	    add_actions += "qt.ui.menu.attach(" + wname + ", " + aname + ");\n";
+	}
+
+      else if (tagname == "attribute")
+	{
+	  QString aname(s.attribute("name"));
+	  attrs[aname] = get_prop_value(s.firstChild().toElement());
+	}
+
+      else
+	  warning(s) << "skipped unsupported widget node `" << tagname << "'\n";
+    }
+
+  // special handling for some parent classes
+  if (parent_class == "QToolBox")
+    warning(w) << "QToolBox not supported yet\n";
+
+  else if (parent_class == "QTabWidget")
+    warning(w) << "QTabWidget not supported yet\n";
+
+  else if (parent_class == "QMainWindow" && wname == "QDockWidget" &&
+	   attrs.contains("dockWidgetArea"))
+    out << "qt.ui.attach(" << parent << ", " << wname << ", " << attrs["dockWidgetArea"] << ");\n";
+
+  else if (parent_class == "QMainWindow" || parent_class == "QDockWidget" ||
+	   parent_class == "QStackedWidget" || parent_class == "QToolBar" ||
+	   parent_class == "Q3WidgetStack" || parent_class == "QScrollArea" ||
+	   parent_class == "QSplitter" || parent_class == "QMdiArea" ||
+	   parent_class == "QWorkspace" || parent_class == "QWizard")
+    out << "qt.ui.attach(" << parent << ", " << wname << ");\n";
+
+  return wname;
+}
+
+static void write_action(QDomElement w, const QString &parent, const QString &parent_class)
+{
+  QString aname(w.attribute("name"));
+
+  out << "\nlocal " << aname << " = qt.ui.menu.new_action(" << parent << ");\n";
+  out << aname << ".objectName = \"" << aname << "\";\n";
 
   for (QDomNode n = w.firstChild(); !n.isNull(); n = n.nextSibling())
     {
@@ -244,23 +363,13 @@ static QString write_widget(QDomElement w, const QString &parent)
 
       if (tagname == "property")
 	{
-	  write_property(s, wname);
-	}
-      else if (tagname == "widget")
-	{
-	  write_widget(s, wname);
-	}
-      else if (tagname == "layout")
-	{
-	  write_layout(s, wname, true);
+	  write_property(s, aname);
 	}
       else
 	{
-	  warning(s) << "skipped unsupported widget node `" << tagname << "'\n";
+	  warning(s) << "skipped unsupported action node `" << tagname << "'\n";
 	}
     }
-
-  return wname;
 }
 
 static void write_connections(QDomElement c)
@@ -349,10 +458,11 @@ int main(int argc, char *argv[])
 
       if (tagname == "class")
 	{
+	  ui_class = s.text();
 	}
       else if (tagname == "widget")
 	{
-	  root = write_widget(s, "");
+	  root = write_widget(s, QString(), QString());
 	}
       else if (tagname == "connections")
 	{
@@ -363,6 +473,11 @@ int main(int argc, char *argv[])
 	  warning(s) << "skipped unsupported ui file section `" << tagname << "'" << "\n";
 	}
     }
+
+  if (!add_actions.isNull())
+    out << "\n" << add_actions;
+
+  out << "qt.connect_slots_by_name(" << root << ");\n";
 
   out << "\nreturn " << root << ";\n";
 
