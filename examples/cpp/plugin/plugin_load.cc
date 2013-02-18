@@ -24,9 +24,12 @@
 int main()
 {
     try {
-/* anchor 1 */
+							/* anchor 1 */
       QtLua::State state;
       state.openlib(QtLua::QtLuaLib);
+							/* anchor end */
+      state.enable_qdebug_print(true);
+							/* anchor 1 */
 
       // forge plugin filename
       QtLua::String filename = QtLua::String("plugin") + QtLua::Plugin::get_plugin_ext();
@@ -43,7 +46,7 @@ int main()
       state["plugin_userdata"] = QTLUA_REFNEW(QtLua::Plugin, filename);
       state.exec_statements("print(plugin_userdata.foo())");
 
-/* anchor end */
+							/* anchor end */
     } catch (QtLua::String &e) {
       std::cerr << e.constData() << std::endl;
     }

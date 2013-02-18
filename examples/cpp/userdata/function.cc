@@ -46,10 +46,11 @@ int main()
       /* anchor 2 */
       QtLua::State state;
 
-      static QtLua_Function_foo foo(&state, "bar.foo");
+      QTLUA_FUNCTION_REGISTER(&state, "bar.", foo);
       /* anchor end */
 
       state.openlib(QtLua::QtLuaLib);
+      state.enable_qdebug_print(true);
       state.exec_statements("print(bar.foo(\"test\"))");
     }
 

@@ -69,6 +69,11 @@ namespace QtLua {
     qtlib_register_meta(&QObject_T::staticMetaObject, &create_qobject<QObject_T>);
   }
 
+  void State::enable_qdebug_print(bool enabled)
+  {
+    _debug_output = enabled;
+  }
+
 }
 
 #endif
