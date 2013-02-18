@@ -1,0 +1,466 @@
+
+QtLua provides two sets of lua functions:
+@list
+  @item A few general purpose global lua functions are provided.
+    useful when running a lua script in the QtLua environment.
+  @item A Qt library is provided which gives access to some Qt
+    features which are not available from the Qt meta object system.
+@end list
+
+@section T {Predefined lua functions}
+  The @ref QtLua::QtLuaLib library contains the following lua functions:
+  @list
+    @item The @tt print() lua function prints all passed values
+      using the @ref QtLua::State::output signal.
+
+    @item The @tt list() lua function prints list of members of
+      given table or global table if no argument is passed.
+
+    @item The @tt each() lua function returns a lua iterator which
+      can be used to iterate over lua tables and QtLua @ref UserData
+      objects.
+
+    @item The @tt help() lua function can be used to display help
+      about @ref QtLua::Function based objects:
+
+      @code R
+>> help(qt.connect)
+usage: qt.connect(qobjectwrapper, "qt_signal_signature()", qobjectwrapper, "qt_slot_signature()")
+       qt.connect(qobjectwrapper, "qt_signal_signature()", lua_function)
+          @end code
+
+        @item The @tt plugin() function returns a @ref QtLua::Plugin
+          object loaded from the given plugin bare file name.
+
+        @item The @tt qtype() function returns the lua type or userdata
+          QtLua type name of a value.
+      @end list
+    @end section
+
+@section T {Qt related functions}
+  The @ref QtLua::QtLib library contains some wrapped Qt functions and
+  meta objects. Those are covered in this section.
+
+  @section {QObject related functions}
+    
+    @c---------------------------------------------
+
+    @section {qt.meta table}
+      @index {qt.meta} {qtlib}
+      
+      The @tt qt.meta table contains wrapped Qt meta objects, useful
+      to access enums and other Qt meta data exposed by Qt.
+
+      This list can be extended by adding user defined @ref QObject
+      classes using the @ref State::register_qobject_meta function.
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.new_qobject function}
+      @index {qt.new_qobject} {qtlib}
+
+      The @tt qt.new_qobject function creates a new @ref
+      QObject of given type. It relies on the @tt qt.meta table
+      provided by QtLua (see above):
+
+      @code
+qobject = qt.new_qobject( qt.meta.QClassName, [ Constructor arguments ] )
+      @end code
+
+      Constructor arguments can be provided to use a constructors
+      declared with the Qt @tt Q_INVOKABLE attribute. Most Qt classes
+      have constructors which can be called without argument and can
+      thus be instantiated by this function without requiring the @tt
+      Q_INVOKABLE attribute.
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.connect function}
+      @index {qt.connect} {qtlib}
+
+      The @tt qt.connect function creates a connection between a Qt
+      signal and a Qt slot or between a Qt signal and a lua function:
+
+      @code R
+-- connect signal and slot of given Qt objects
+qt.connect(qobject1, "qt_signal_signature()", qobject2, "qt_slot_signature()")
+
+-- connect slot to given lua function
+qt.connect(qobject, "qt_signal_signature()", lua_function)
+      @end code
+
+      When a lua function is called from a Qt signal, its first
+      argument is the sender object and next arguments are converted
+      signal parameters (see @xref{Qt/Lua types conversion}).
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.disconnect function}
+      @index {qt.disconnect} {qtlib}
+
+      The @tt qt.disconnect lua functions can be used to
+      disconnect a Qt slot:
+
+      @code R
+-- disconnect signal and slot of given Qt objects
+qt.disconnect(qobjectwrapper1, "qt_signal_signature()", qobjectwrapper2, "qt_slot_signature()")
+
+-- disconnect signal from given lua function
+qt.disconnect(qobjectwrapper, "qt_signal_signature()", lua_function)
+
+-- disconnect signal from all connected lua functions
+qt.disconnect(qobjectwrapper, "qt_signal_signature()")
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.meta_type function}
+      @index {qt.meta_type} {qtlib}
+
+      The @tt qt.type function translate between a registered Qt
+      type numeric handle and the associated Qt type name:
+
+      @code
+type_handle = qt.meta_type( "QTypeName" )
+type_name = qt.meta_type( 42 )
+      @end code
+
+      @see {MetaType}
+    @end section
+
+  @end section
+
+  @c---------------------------------------------
+
+  @section {GUI related functions}
+
+    @section {qt.ui.new_widget function}
+      @index {qt.ui.new_widget} {qtlib}
+      The @tt  function creates a new widget of given type name
+      using the @ref QUiLoader::createWidget Qt function.
+
+      @code
+widget = qt.new_widget( "QtClassName", [ "name", parent ] )
+      @end code
+
+      Use of the @xref {qt.new_qobject} is preferred.
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.load_ui function}
+      @index {qt.ui.load_ui} {qtlib}
+
+      The @tt qt.load_ui function returns a Qt user interface file
+      loaded using the @ref QUiLoader::load Qt function:
+
+      @code
+ui = qt.load_ui( "file.ui", [ parent ] )
+      @end code
+
+      The @xref {qtlua_uic} {qtlua_uic} tool can be used instead to
+      compile a Qt @tt .ui file to a lua scripts which creates the
+      user interface.
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.layout_add function}
+      @index {qt.ui.layout_add} {qtlib}
+
+      The @tt qt.layout_add function is able to bind @ref QWidget
+      objects to various kind of @ref QLayout objects.
+
+      @code
+-- add a widget to a layout
+qt.layout_add( box_layout, widget|layout )
+qt.layout_add( grid_layout, widget|layout, row, column, [ row_span, col_span, align ] )
+qt.layout_add( form_layout, widget|layout, row, column, [ col_span ] )
+qt.layout_add( form_layout, text, widget|layout )
+
+-- set layout of a widget
+qt.layout_add( widget, layout )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.layout_spacer function}
+      @index {qt.ui.layout_spacer} {qtlib}
+
+      The @tt qt.layout_spacer function adds a @ref QSpacerItem
+      object to a @ref QLayout object.
+
+      @code
+qt.ui.layout_spacer( layout, width, height, h QSizePolicy, v QSizePolicy )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.attach function}
+      @index {qt.ui.attach} {qtlib}
+
+      The @tt qt.ui.attach function invokes one of the following qt
+      functions depending on passed @ref QObject types:
+      @ref QMainWindow::setMenuBar,
+      @ref QMainWindow::setStatusBar,
+      @ref QMainWindow::addToolBar,
+      @ref QMainWindow::addDockWidget,
+      @ref QMainWindow::setCentralWidget,
+      @ref QDockWidget::setWidget,
+      @ref QStackedWidget::addWidget,
+      @ref QToolBar::addWidget,
+      @ref QScrollArea::setWidget,
+      @ref QSplitter::addWidget,
+      @ref QMdiArea::addSubWindow or
+      @ref QWorkspace::addWindow.
+    @end section
+
+  @c---------------------------------------------
+
+    @section {qt.ui.menu.add_menu}
+      @index {qt.ui.menu.add_menu} {qtlib}
+
+      The @tt qt.ui.menu.add_menu function creates and adds a new menu to
+      a @ref QMenu or @ref QMenuBar object. The new @ref QMenu
+      object is returned.
+
+      @code
+menu = qt.ui.menu.add_menu( menu|menubar, "text", [ "object_name" ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.add_separator}
+      @index {qt.ui.menu.add_separator} {qtlib}
+
+      The @tt qt.ui.menu.add_separator function creates and adds a new
+      separator to a @ref QMenu or @ref QToolBar.
+
+      @code
+sep = qt.ui.menu.add_separator( menu|toolbar, [ "object_name" ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.add_action}
+      @index {qt.ui.menu.add_action} {qtlib}
+
+      The @tt qt.ui.menu.add_action function creates and adds a new @ref
+      QAction to a @ref QMenu, @ref QMenuBar, @ref QActionGroup or @ref QToolBar.
+
+      @code
+action = qt.ui.menu.add_action( menu|menubar|... , "text", [ "object_name" ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.new_action_group}
+      @index {qt.ui.menu.new_action_group} {qtlib}
+
+      The @tt qt.ui.menu.new_action_group function creates a new @ref
+      QActionGroup and adds passed actions to it.
+
+      @code
+ag = qt.ui.menu.new_action_group( action, [ action, ... ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.new_action}
+      @index {qt.ui.menu.new_action} {qtlib}
+
+      The @tt qt.ui.menu.new_action function creates a new @ref QAction
+      object with specifed parent.
+
+      @code
+action = qt.ui.menu.new_action( parent )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.new_menu}
+      @index {qt.ui.menu.new_menu} {qtlib}
+
+      The @tt qt.ui.menu.new_menu function creates a new @ref QMenu
+      object with specifed parent.
+
+      @code
+menu = qt.ui.menu.new_menu( parent )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.ui.menu.remove}
+      @index {qt.ui.menu.remove} {qtlib}
+
+      The @tt qt.ui.menu.remove function remove a @ref QAction or @ref
+      QMenu from a @ref QWidget or @ref QActionGroup. The default is
+      to remove from the parent @ref QObject.
+
+      @code
+qt.ui.menu.remove( qaction|qmenu [, qwidget|qactiongroup ] )
+      @end code
+    @end section
+
+  @end section
+
+  @c---------------------------------------------
+
+  @section {Dialog functions}
+
+    @section {qt.dialog.get_* family of functions}
+      @index {qt.dialog.get_existing_directory} {qtlib}
+      @index {qt.dialog.get_open_filename} {qtlib}
+      @index {qt.dialog.get_open_filenames} {qtlib}   
+      @index {qt.dialog.get_save_filename} {qtlib}   
+      @index {qt.dialog.get_color} {qtlib}            
+      @index {qt.dialog.get_double} {qtlib}           
+      @index {qt.dialog.get_integer} {qtlib}          
+      @index {qt.dialog.get_text} {qtlib}             
+      @index {qt.dialog.get_item} {qtlib}
+
+      These functions wrap various C++ static functions provided by Qt
+      classes inheriting from the @ref QDialog class. They are
+      designed to request input from the user.
+
+      @code
+dirname =  qt.dialog.get_existing_directory( [ "caption", "directory", QFileDialog::Option ] )
+filename = qt.dialog.get_open_filename( [ "caption", "directory", "filter", QFileDialog::Option ] )
+filename = qt.dialog.get_open_filenames( [ "caption", "directory", "filter", QFileDialog::Option ] )
+filename = qt.dialog.get_save_filename( [ "caption", "directory", "filter", QFileDialog::Option ] )
+color =    qt.dialog.get_color( [ init_red, init_green, init_blue ] )
+number =   qt.dialog.get_double( [ "title", "label", value, min, max, decimals ] )
+number =   qt.dialog.get_integer( [ "title", "label", value, min, max, step ] )
+text =     qt.dialog.get_text( [ "title", "label", "init_text" ] )
+string =   qt.dialog.get_item( { "item", "item", ... }, [ "default_item", editable, "title", "label" ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.dialog.msg_* family of functions}
+      @index {qt.dialog.msg_about} {qtlib}
+      @index {qt.dialog.msg_critical} {qtlib}
+      @index {qt.dialog.msg_information} {qtlib}
+      @index {qt.dialog.msg_question} {qtlib}
+      @index {qt.dialog.msg_warning} {qtlib}
+
+      These functions wrap various C++ static functions provided by
+      the @ref QMessageBox class which open a pop-up message box.
+
+      @code
+qt.dialog.msg_about( "text" [ , "title" ] )
+button = qt.dialog.msg_critical( "text" [ , "title", QMessageBox::StandardButtons,
+                                                     QMessageBox::StandardButton ] )
+button = qt.dialog.msg_information( "text" [ , "title", QMessageBox::StandardButtons,
+                                                        QMessageBox::StandardButton ] )
+button = qt.dialog.msg_question( "text" [ , "title", QMessageBox::StandardButtons,
+                                                     QMessageBox::StandardButton ] )
+button = qt.dialog.msg_warning( "text" [ , "title", QMessageBox::StandardButtons,
+                                                    QMessageBox::StandardButton ] )
+      @end code
+    @end section
+
+    @c---------------------------------------------
+
+    @section {qt.dialog.*_view family of functions}
+      @index {qt.dialog.tree_view} {qtlib}
+      @index {qt.dialog.table_view} {qtlib}
+      @index {qt.dialog.grid_view} {qtlib}
+
+      These functions open an @ref ItemViewDialog dialog which expose
+      lua tables to the user using either @ref TableTreeModel or @ref
+      TableGridModel.
+
+      @code
+qt.dialog.tree_view( table [ , TableTreeModel::Attribute, "title" ] )
+qt.dialog.table_view( table [ , TableTreeModel::Attribute, "title" ] )
+qt.dialog.grid_view( table [ , TableGridModel::Attribute, "title", {column keys}, {row keys} ] )
+      @end code
+    @end section
+
+  @end section
+
+  @c---------------------------------------------
+
+  @section {Model/View functions}
+
+    @section {qt.mvc.new_table_tree_model}
+      @index {qt.mvc.new_table_tree_model} {qtlib}
+
+      This function returns a new @ref TableTreeModel object which
+      expose the specified lua table object.  The new model can optionally be associated to
+      some qt views.
+
+      @code
+model = qt.mvc.new_table_tree_model( table, TableTreeModel::Attributes, [ view_widget, ... ] )
+      @end code
+    @end section
+
+    @section {qt.mvc.new_table_grid_model}
+      @index {qt.mvc.new_table_grid_model} {qtlib}
+
+      This function returns a new @ref TableGridModel object which
+      expose the specified lua table object. The new model can
+      optionally be associated to some qt views.
+
+      @code
+model = qt.mvc.new_table_grid_model( table, TableGridModel::Attributes, [ view_widget, ... ] )
+      @end code
+    @end section
+
+    @section {qt.mvc.new_lua_model}
+      @index {qt.mvc.new_lua_model} {qtlib}
+
+      This function returns a new @ref LuaModel object. At least one
+      lua function is expected as argument in order to implement a
+      read only model. The new model can optionally be associated to
+      some qt views.
+
+      @code
+model = qt.mvc.new_lua_model( get_fcn, [ set_fcn, ins_row_fcn, del_row_fnc,
+                                         ins_col_fcn, del_col_fcn, view_widget, ... ] )
+      @end code
+    @end section
+
+    @section {qt.mvc.set_model}
+      @index {qt.mvc.set_model} {qtlib}
+
+      This function associates a model to one or more views.
+      @code
+qt.mvc.set_model( model, view_widget [, view_widget, ... ] )
+      @end code
+    @end section
+
+    @section {qt.mvc.new_itemview_dialog}
+      @index {qt.mvc.new_itemview_dialog} {qtlib}
+
+      This function returns a new @ref ItemViewDialog object. The
+      model and view objects to use must be passed to this function.
+
+      @code
+dialog = qt.mvc.new_itemview_dialog( ItemViewDialog::EditActions, model, view )
+      @end code
+      @xsee {qt.dialog.tree_view, qt.dialog.table_view, qt.dialog.grid_view}
+    @end section
+
+  @end section
+
+@c    @item The @tt qt.translator and @tt qt.tr functions can be used
+@c      to load translation files and translate strings.
+@c  @end list
+@c
+
+@end section

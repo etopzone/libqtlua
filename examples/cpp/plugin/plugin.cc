@@ -12,7 +12,7 @@ Q_EXPORT_PLUGIN2(example, ExamplePlugin);
 QTLUA_FUNCTION(foo, "The foo function", "No help available")
 {
   Q_UNUSED(args);
-  return QtLua::Value(ls, "foo");
+  return QtLua::Value(ls, "result");
 }
 
 void ExamplePlugin::register_members(QtLua::Plugin &plugin)

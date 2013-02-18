@@ -30,47 +30,108 @@
 namespace QtLua {
 
   /**
-@code
-    get(nil,
-	item_id)     -- numerical id of queried item
-	child_row,   -- row of child_id under item specified by item_id
-	child_col)   -- column of child_id under item specified by item_id
+     @short Qt Model/View lua model wrapper
+     @header QtLua/UserItemModel
+     @module {Model/View}
 
-item_rows,        -- number of rows under the parent specified by item_id
-item_cols,        -- number of columns under the parent specified by item_id
-child_id,         -- numerical id of children item at [child_row, child_col] in item_id
-parent_id,        -- numerical id of parent of item specified by item_id
-item_row,         -- row position of item specified by item_id in its parent starting at 1
-item_col,         -- column position of item specified by item_id in its parent starting at 1
-flags,            -- flags of item specified by item_id, default flags are used if not present
+     This class allows defining a Qt model using lua code. Lua
+     functions must be provided to the C++ model wrapper in order to
+     implement the model.
 
-    get(data_role,     -- data role of requested child (LuaModel::ItemDataRole enum)
-	item_id)       -- numerical id of queried item
+     @section {read-only lua model}
 
-item_data,     -- data of item specified by item_id, data is QVariant() if not present
-data_type,     -- Qt type numeric handle of data, use simple Value::to_qvariant function if not present.
+     At least one lua function must be provided to implement a
+     read-only model. This mandatory function is responsible for
+     exposing the item layout and data:
 
+     @code
+function get(role, item_id, child_row, child_col)
+     @end code
 
-    set(role, item_id, value)
-return true if ok.
+     The get function may be first called multiple times with a @tt
+     nil value in the role parameter in order to retrieve layout
+     information:
 
-    edit(check, parent_id, pos, count)
-when check is true this function must return a boolean to indicate if an action is possible.
+     @list
+       @item @tt role is a @tt nil value.
+       @item @tt item_id is the numerical id of the queried item. 0 is
+         reserved for root.
+       @item @tt child_row and @tt child_col are the row and column of
+         a child item under the queried item, starting at 1.
+     @end list
 
-@end code
+     In this case, the lua code must return at least 3 values. This is
+     enough if the queried item has no parent:
 
-     The @tt item_id, @tt child_id and @tt parent_id values are
-     integer numbers provided by the lua code used to identify items
-     in the model. A value of @tt 0 is equivalent to an invalid @ref
-     QModelIndex object.
+     @code
+return (item_rows, item_cols, child_id, parent_id, item_row, item_col, flags)
+     @end code
 
-     Valid column and row number start at 1 on lua side.
+     @list
+       @item @tt item_rows and @tt item_cols are the number of rows
+         and columns under the item specified by item_id.
+       @item @tt child_id is a numerical id for the child item at
+         position specified by @tt child_row and @tt child_col
+         under the queried item. A positive id must provided by
+         the lua code and will be used to refer to this item
+         later.
+       @item @tt parent_id is the numerical id of the parent of the
+         item specified by item_id. @tt nil or 0 can be returned for
+         root.
+       @item @tt item_row and @tt item_col give the position of the
+         item specified by @tt item_id in its parent, starting at
+         1. This is not used if @tt parent_id is @tt nil or 0.
+       @item @tt flags is the @ref Qt::ItemFlag value for queried
+         item. A default value is used if @tt nil.
+     @end list
 
-     When the @tt data_role value is @tt nil, the lua code may not
-     return a valid @tt child_data value.
+     If the @tt role parameter is not a @tt nil value, the @tt get
+     function must instead return the data associated with the
+     specified the display role:
+     
+     @code
+return (item_data, data_type)
+     @end code
 
-     For non-tree models, the lua code may only return 4 values.
+     If the lua code returns two values,
+     the second value is a numeric Qt type handle which is used to
+     perform the type conversion from the lua the value (see @xref
+     {qt.meta_type}). The simple @ref Value::to_qvariant function is
+     used to perform conversion when this hint is not present.
+
+     @end section
+     @section {editable lua model}
+
+       Five other functions may be provided to implement an editable model.
+
+       The @tt set function is responsible for updating the data of an
+       item; it must return @tt true if the update was successful:
+
+       @code
+function set(role, item_id, value)
+       @end code
+
+       Four more function can be provided to support insertion and
+       removal of items in the model:
+
+       @code
+function insert_rows(check, parent_id, pos, count)
+function insert_cols(check, parent_id, pos, count)
+function remove_rows(check, parent_id, pos, count)
+function remove_cols(check, parent_id, pos, count)
+       @end code
+
+       When the @tt check parameter value is @tt true, the model must
+       return a boolean value to indicate if the insert action is
+       allowed. The insertion will takes place on the next call if
+       the first call returns @tt {true}.
+
+       Some lua @sourcelink examples/lua/mvc/lua_model_list.lua {list
+       model} and @sourcelink examples/lua/mvc/lua_model_tree.lua
+       {tree model} examples are available.
+     @end section
   */
+
   class LuaModel : public QAbstractItemModel
   {
     Q_OBJECT;

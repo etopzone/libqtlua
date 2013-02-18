@@ -82,7 +82,7 @@ namespace QtLua {
 
       if (r.size() < 3)
 	{
-	  error("index: lua code must return at least 4 values");
+	  error("index: lua code must return at least 3 values");
 	  return QModelIndex();
 	}
 

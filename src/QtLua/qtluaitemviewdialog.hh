@@ -33,16 +33,15 @@
 namespace QtLua {
 
   /**
-   * @short Qt Model/View lua table view dialog
+   * @short Qt Model/View dialog
    * @header QtLua/ItemViewDialog
    * @module {Model/View}
    *
-   * This dialog class use the @ref TableTreeModel or @ref
-   * TableGridModel classes to enable display and edition of lua tables
-   * in @ref QTreeView or @ref QTableView widgets.
+   * This class provides a generic dialog to view and edit data in a
+   * model.
    *
-   * The dialog has some edition buttons depending on model edition
-   * attributes.
+   * Some edit buttons can be made available depending on the value of
+   * the @ref edit_action attribute.
    *
    * The @ref QtLib lua library provides functions to invoke these
    * dialogs from lua code.

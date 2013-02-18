@@ -37,7 +37,7 @@ class UserListItem;
 class Value;
 
   /**
-   * @short Qt Model/View item model class
+   * @short Qt Model/View userdata items based model
    * @header QtLua/UserItemModel
    * @module {Model/View}
    *
