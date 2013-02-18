@@ -26,6 +26,7 @@ int main()
 {
   QtLua::State state;
   state.openlib(QtLua::QtLuaLib);
+  state.enable_qdebug_print(true);
 
   QAction object(0);
 

@@ -231,6 +231,12 @@ public:
    */
   int lua_version() const;
 
+  /**
+   * @This function may be used to enable forwarding of lua print
+   * function output to Qt debug output. @xsee {Predefined lua functions}
+   */
+  inline void enable_qdebug_print(bool enabled = true);
+
 public slots:
 
   /**
@@ -255,8 +261,8 @@ public slots:
 signals:
 
   /**
-   * Text output signal. This signal is used to report errors and
-   * on lua @tt{print()} function call (see @xref{Predefined lua functions}).
+   * Text output signal. This signal is used to report errors and display output of the
+   * lua @tt{print()} function. @xsee {Predefined lua functions}
    */
   void output(const QString &str);
 
@@ -318,6 +324,7 @@ private:
   lua_State	*_mst;      //< main thread state
   lua_State	*_lst;      //< current thread state
   bool          _yield_on_return;
+  bool          _debug_output;
 };
 
 }

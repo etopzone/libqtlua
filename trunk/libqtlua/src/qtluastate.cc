@@ -23,6 +23,7 @@
 #include <cstdlib>
 
 #include <QStringList>
+#include <QDebug>
 
 #include <QtLua/State>
 #include <QtLua/UserData>
@@ -131,9 +132,9 @@ int State::lua_cmd_print(lua_State *st)
     for (int i = 1; i <= lua_gettop(st); i++)
       {
 	String s = Value::to_string_p(st, i, true);
-	this_->output_str(s);
-	this_->output_str("\n");
-	//	qDebug("QtLua print:%s", s.constData());
+	if (this_->_debug_output)
+	  qDebug() << s; //"QtLua print:%s", s.constData());
+	this_->output_str(s + "\n");
       }
 
   } catch (String &e) {
@@ -803,6 +804,9 @@ State::State()
 
   lua_rawset(_mst, LUA_REGISTRYINDEX);
 #endif
+
+  _debug_output = false;
+  _yield_on_return = false;
 }
 
 State::~State()

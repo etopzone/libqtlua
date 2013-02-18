@@ -42,6 +42,8 @@ int main()
 	       << i.value().to_string_p();
 							/* anchor end */
 
+    state.enable_qdebug_print(true);
+
 							/* anchor 3 */
     state.openlib(QtLua::QtLuaLib);
 

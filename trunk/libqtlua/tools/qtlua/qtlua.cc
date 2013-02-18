@@ -52,7 +52,7 @@ extern "C" {
 #endif
 
 #define QTLUA_COPYRIGHT "QtLua " PACKAGE_VERSION " " QTLUA_USING "\n" \
-                        "Copyright (C) 2008-2012, Alexandre Becoulet"
+                        "Copyright (C) 2008-2013, Alexandre Becoulet"
 
 int main(int argc, char *argv[])
 {
@@ -66,6 +66,7 @@ int main(int argc, char *argv[])
     bool execute = interactive;
 
     QtLua::State state;
+    state.enable_qdebug_print();
     state.openlib(QtLua::AllLibs);
 
     state["app"] = QtLua::Value(&state, &app, false, false);
@@ -119,7 +120,7 @@ int main(int argc, char *argv[])
 		&state, SLOT(fill_completion_list(const QString &, QStringList &, int &)));
 
 	QObject::connect(&state, SIGNAL(output(const QString&)),
-		console, SLOT(print(const QString&)));
+			 console, SLOT(print(const QString&)));
 
 	console->print(QTLUA_COPYRIGHT "\n");
 	console->print("You may type: help(), list() and use TAB completion.\n");

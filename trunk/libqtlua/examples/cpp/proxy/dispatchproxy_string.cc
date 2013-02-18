@@ -73,6 +73,9 @@ int main()
 
     QtLua::State state;
     state.openlib(QtLua::QtLuaLib);
+							/* anchor end */
+    state.enable_qdebug_print(true);
+							/* anchor 2 */
 
     // Declare a lua global variable using our composite proxy
     state["composite"] = proxy;

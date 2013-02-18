@@ -42,6 +42,7 @@ int main()
 
     QtLua::State state;
     state.openlib(QtLua::QtLuaLib);
+    state.enable_qdebug_print(true);
 
     // Declare a lua global variable using our hash proxy
     state["hash"] = proxy;

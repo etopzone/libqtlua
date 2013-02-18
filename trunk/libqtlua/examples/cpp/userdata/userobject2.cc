@@ -87,6 +87,7 @@ int main()
 
     QtLua::State state;
     state.openlib(QtLua::QtLuaLib);
+    state.enable_qdebug_print(true);
 
     state["foo"] = QTLUA_REFNEW(Test, 21);
     state["bar"] = QTLUA_REFNEW(Test, 42);
