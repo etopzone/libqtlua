@@ -47,7 +47,10 @@
 #include <QtLua/Function>
 #include <internal/QObjectWrapper>
 #include <QtLua/QHashProxy>
-#include <QtLua/TableDialog>
+#include <QtLua/ItemViewDialog>
+#include <QtLua/TableGridModel>
+#include <QtLua/TableTreeModel>
+#include <QtLua/LuaModel>
 
 #include <internal/Method>
 #include <internal/MetaCache>
@@ -808,47 +811,46 @@ namespace QtLua {
   }
 
 
-  QTLUA_FUNCTION(new_table_dialog, "Dynamically create a new QtLua::TableDialog.",
-		 "usage: qt.dialog.new_table_dialog( table , viewtype, [ attributes ] )\n")
+  QTLUA_FUNCTION(new_itemview_dialog, "Dynamically create a new QtLua::ItemViewDialog.",
+		 "usage: qt.dialog.new_itemview_dialog( ItemViewDialog::EditActions, model, view )\n")
   {
-    meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TNumber);
-
-    return Value(ls, new TableDialog(args[0],
-				     (TableDialog::ViewType)get_arg<int>(args, 1), 0,
-				     get_arg<int>(args, 2, 0), 0), true, true);
+    return Value(ls, new ItemViewDialog((ItemViewDialog::EditActions)get_arg<int>(args, 0),
+					get_arg_qobject<QAbstractItemModel>(args, 1),
+					get_arg_qobject<QAbstractItemView>(args, 2)
+					));
   }
 
 
-  QTLUA_FUNCTION(tree_treeview, "Expose a lua table in a QTreeView.",
-		 "usage: qt.dialog.tree_treeview( table [ , attributes, \"title\" ] )\n")
+  QTLUA_FUNCTION(tree_view, "Expose a lua table in a QTreeView.",
+		 "usage: qt.dialog.tree_view( table [ , TableTreeModel::Attribute, \"title\" ] )\n")
   {
     meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
-    TableDialog::tree_tree_dialog(QApplication::activeWindow(),
-				  get_arg<QString>(args, 2, ""), args[0],
-				  (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
-				  );
+    TableTreeModel::tree_dialog(QApplication::activeWindow(),
+				get_arg<QString>(args, 2, ""), args[0],
+				(TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
+				);
 
     return Value::List();
   }
 
 
-  QTLUA_FUNCTION(tree_tableview, "Expose a lua table in a QTreeView.",
-		 "usage: qt.dialog.tree_tableview( table [ , attributes, \"title\" ] )\n")
+  QTLUA_FUNCTION(table_view, "Expose a lua table in a QTableView with key, value and type columns.",
+		 "usage: qt.dialog.table_view( table [ , TableTreeModel::Attribute, \"title\" ] )\n")
   {
     meta_call_check_args(args, 1, 3, Value::TNone, Value::TNumber, Value::TString);
 
-    TableDialog::tree_table_dialog(QApplication::activeWindow(),
-				   get_arg<QString>(args, 2, ""), args[0],
-				   (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
-				   );
+    TableTreeModel::table_dialog(QApplication::activeWindow(),
+				 get_arg<QString>(args, 2, ""), args[0],
+				 (TableTreeModel::Attributes)get_arg<int>(args, 1, 0)
+				 );
 
     return Value::List();
   }
 
 
-  QTLUA_FUNCTION(grid_tableview, "Expose 2 dimensions nested lua tables in a QTableView.",
-		 "usage: qt.dialog.grid_tableview( table [ , attributes, \"title\", {column keys}, {row keys} ] )\n")
+  QTLUA_FUNCTION(grid_view, "Expose 2 dimensions nested lua tables in a QTableView.",
+		 "usage: qt.dialog.grid_view( table [ , TableGridModel::Attribute, \"title\", {column keys}, {row keys} ] )\n")
   {
     meta_call_check_args(args, 1, 5, Value::TNone, Value::TNumber,
 			 Value::TString, Value::TTable, Value::TTable);
@@ -869,7 +871,7 @@ namespace QtLua {
 	  ckptr = &ck;
       }
 
-    TableDialog::grid_table_dialog(QApplication::activeWindow(),
+    TableGridModel::table_dialog(QApplication::activeWindow(),
 				   get_arg<QString>(args, 2, ""), args[0],
 				   (TableGridModel::Attributes)get_arg<int>(args, 1, 0),
 				   ckptr, rkptr
@@ -898,6 +900,8 @@ namespace QtLua {
   QTLUA_FUNCTION(new_table_tree_model, "Return a new QtLua::TableTreeModel object and set it has MVC model of some Qt views.",
 		 "usage: qt.new_table_tree_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
   {
+    meta_call_check_args(args, 2, -3, Value::TNone, Value::TNumber, Value::TUserData);
+
     TableTreeModel::Attributes a = (TableTreeModel::Attributes)get_arg<int>(args, 1);
     TableTreeModel *m = new TableTreeModel(args[0], a);
 
@@ -910,6 +914,8 @@ namespace QtLua {
   QTLUA_FUNCTION(new_table_grid_model, "Return a new QtLua::TableGridModel object and set it has MVC model of some Qt views.",
 		 "usage: qt.new_table_grid_model( table, model_attributes, [ view_widget, view_widget, ... ] )\n")
   {
+    meta_call_check_args(args, 2, -3, Value::TNone, Value::TNumber, Value::TUserData);
+
     TableGridModel::Attributes a = (TableGridModel::Attributes)get_arg<int>(args, 1);
     TableGridModel *m = new TableGridModel(args[0], a, true);
 
@@ -919,9 +925,28 @@ namespace QtLua {
     return Value(ls, m, true, true);
   }
 
+  QTLUA_FUNCTION(new_lua_model, "Return a new QtLua::LuaModel object and set it has MVC model of some Qt views.",
+		 "usage: qt.new_lua_model( get_function, [ view_widget, view_widget, ... ] )\n")
+  {
+    LuaModel *m = new LuaModel(get_arg<Value>(args, 0),
+				 get_arg<Value>(args, 1, Value()),
+				 get_arg<Value>(args, 2, Value()),
+				 get_arg<Value>(args, 3, Value()),
+				 get_arg<Value>(args, 4, Value()),
+				 get_arg<Value>(args, 5, Value())
+				 );
+
+    for (int i = 6; i < args.count(); i++)
+      set_model(get_arg_qobject<QWidget>(args, i), m);
+
+    return Value(ls, m, true, true);
+  }
+
   QTLUA_FUNCTION(set_model, "Set a MVC model of one or more Qt views.",
 		 "usage: qt.set_model( model, view_widget [, view_widget, ... ] )\n")
   {
+    meta_call_check_args(args, 2, 0, Value::TUserData, Value::TUserData);
+
     QAbstractItemModel *m = get_arg_qobject<QAbstractItemModel>(args, 0);
 
     for (int i = 1; i < args.count(); i++)
@@ -950,6 +975,7 @@ namespace QtLua {
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_tree_model  );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", new_table_grid_model  );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.", new_lua_model  );
     QTLUA_FUNCTION_REGISTER(ls, "qt.", set_model             );
 
     QTLUA_FUNCTION_REGISTER(ls, "qt.menu.", add_toolbar      );
@@ -973,10 +999,10 @@ namespace QtLua {
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_information       );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_question          );
     QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", msg_warning           );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", new_table_dialog      );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", tree_treeview         );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", tree_tableview        );
-    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", grid_tableview        );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", new_itemview_dialog   );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", tree_view             );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", table_view            );
+    QTLUA_FUNCTION_REGISTER(ls, "qt.dialog.", grid_view             );
   }
 
 }

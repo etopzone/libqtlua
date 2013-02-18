@@ -25,5 +25,19 @@
 #include "qtluavalue.hxx"
 #include "qtluavalueref.hxx"
 
+namespace QtLua {
+
+  const QList<Value> & TableGridModel::row_keys() const
+  {
+    return _row_keys;
+  }
+
+  const QList<Value> & TableGridModel::column_keys() const
+  {
+    return _col_keys;
+  }
+
+}
+
 #endif
 

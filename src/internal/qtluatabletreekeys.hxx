@@ -27,11 +27,13 @@ namespace QtLua {
 
   const Value & TableTreeKeys::get_key(int n) const
   {
+    assert(n < _entries.size());
     return _entries[n]._key;
   }
 
   void TableTreeKeys::set_key(int n, const Value &key)
   {
+    assert(n < _entries.size());
     _entries[n]._key = key;
   }
 
@@ -45,10 +47,12 @@ namespace QtLua {
   {
     assert(n < _entries.size());
     _value[_entries[n]._key] = value;
+    _entries[n]._table_chk = false;
   }
 
   bool TableTreeKeys::is_table(int n) const
   {
+    assert(n < _entries.size());
     return _entries[n]._table != 0;
   }
 

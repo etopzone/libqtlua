@@ -26,37 +26,37 @@
 #include "qtluastring.hxx"
 #include "qtluauserdata.hxx"
 #include "qtluavalue.hxx"
-#include "qtluaitemmodel.hxx"
+#include "qtluauseritemmodel.hxx"
 
 namespace QtLua {
 
-QModelIndex Item::get_model_index(int column) const
+QModelIndex UserItem::get_model_index(int column) const
 {
   assert(_model);
   return _model->createIndex(_row, column, (void*)this);
 }
 
-void Item::set_row(int row)
+void UserItem::set_row(int row)
 {
   _row = row;
 }
 
-int Item::get_row() const
+int UserItem::get_row() const
 {
   return _row;
 }
 
-ListItem * Item::get_parent() const
+UserListItem * UserItem::get_parent() const
 {
   return _parent;
 }
 
-const String & Item::get_name() const
+const String & UserItem::get_name() const
 {
   return _name;
 }
 
-ItemModel * Item::get_model() const
+UserItemModel * UserItem::get_model() const
 {
   return _model;
 }

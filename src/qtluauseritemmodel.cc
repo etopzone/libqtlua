@@ -21,13 +21,13 @@
 #include <QIcon>
 #include <QSet>
 
-#include <QtLua/Item>
-#include <QtLua/ListItem>
-#include <QtLua/ItemModel>
+#include <QtLua/UserItem>
+#include <QtLua/UserListItem>
+#include <QtLua/UserItemModel>
 
 namespace QtLua {
 
-ItemModel::ItemModel(ListItem::ptr root, QObject *parent)
+UserItemModel::UserItemModel(UserListItem::ptr root, QObject *parent)
   : QAbstractItemModel(parent),
     _root(root)
 {
@@ -35,22 +35,22 @@ ItemModel::ItemModel(ListItem::ptr root, QObject *parent)
   _root->set_model(this);
 }
 
-ItemModel::~ItemModel()
+UserItemModel::~UserItemModel()
 {
   _root->set_model(0);
 }
 
-Item::ptr ItemModel::get_item(const QModelIndex &index)
+UserItem::ptr UserItemModel::get_item(const QModelIndex &index)
 {
-  return *static_cast<Item*>(index.internalPointer());
+  return *static_cast<UserItem*>(index.internalPointer());
 }
 
-QVariant ItemModel::data(const QModelIndex &index, int role) const
+QVariant UserItemModel::data(const QModelIndex &index, int role) const
 {
   if (!index.isValid())
     return QVariant();
 
-  Item *item = static_cast<Item*>(index.internalPointer());
+  UserItem *item = static_cast<UserItem*>(index.internalPointer());
 
   if (index.column())
     return item->get_data(index.column(), role);
@@ -68,12 +68,12 @@ QVariant ItemModel::data(const QModelIndex &index, int role) const
     }
 }
 
-Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const
+Qt::ItemFlags UserItemModel::flags(const QModelIndex &index) const
 {
   if (!index.isValid())
     return Qt::ItemIsDropEnabled;
 
-  Item *item = static_cast<Item*>(index.internalPointer());
+  UserItem *item = static_cast<UserItem*>(index.internalPointer());
 
   if (index.column())
     return item->get_flags(index.column());
@@ -86,25 +86,25 @@ Qt::ItemFlags ItemModel::flags(const QModelIndex &index) const
   if (item->is_move_allowed())
     res |= Qt::ItemIsDragEnabled;
 
-  if (dynamic_cast<ListItem*>(item))
+  if (dynamic_cast<UserListItem*>(item))
     res |= Qt::ItemIsDropEnabled;
 
   return res;
 }
 
-Item::ptr ItemModel::from_mimedata(const QMimeData *data)
+UserItem::ptr UserItemModel::from_mimedata(const QMimeData *data)
 {
-  return Item::ptr();
+  return UserItem::ptr();
 }
 
-bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+bool UserItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 			     int row, int column, const QModelIndex &parent)
 {
-  ListItem *pi = parent.isValid()
-    ? static_cast<ListItem*>(parent.internalPointer())
+  UserListItem *pi = parent.isValid()
+    ? static_cast<UserListItem*>(parent.internalPointer())
     : _root.ptr();
 
-  if (!pi)		// parent is not a ListItem ?
+  if (!pi)		// parent is not a UserListItem ?
     return false;
 
   if (row < 0)
@@ -115,7 +115,7 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
   if (!d)
     // external mime object drop
     {
-      Item::ptr i = from_mimedata(data);
+      UserItem::ptr i = from_mimedata(data);
 
       if (i.valid())
 	{
@@ -134,16 +134,16 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 	case Qt::MoveAction: {
 
-	  QSet<ListItem*> changed;
+	  QSet<UserListItem*> changed;
 
 	  emit layoutAboutToBeChanged();
 
-	  foreach(Item::ptr i, d->_itemlist)
+	  foreach(UserItem::ptr i, d->_itemlist)
 	    {
 	      if (!i->is_move_allowed() || !pi->accept_child(i))
 		continue;
 
-	      ListItem *p = i->_parent;
+	      UserListItem *p = i->_parent;
 
 	      // handle case where deleted item shifts row offset
 	      if (pi == p && row > i->_row)
@@ -163,7 +163,7 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
 
 	  emit layoutChanged();
 
-	  foreach(ListItem *li, changed)
+	  foreach(UserListItem *li, changed)
 	    li->child_changed();
 
 	  return true;
@@ -177,43 +177,43 @@ bool ItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
   return false;
 }
 
-QStringList ItemModel::mimeTypes() const
+QStringList UserItemModel::mimeTypes() const
 {
   QStringList types;
   types << QString("application/qtlua.item");
   return types;
 }
 
-QMimeData * ItemModel::mimeData(const QModelIndexList &indexes) const
+QMimeData * UserItemModel::mimeData(const QModelIndexList &indexes) const
 {
   ItemQMimeData *r = new ItemQMimeData();
 
   foreach(const QModelIndex &index, indexes)
-    r->_itemlist.push_back(*static_cast<Item*>(index.internalPointer()));
+    r->_itemlist.push_back(*static_cast<UserItem*>(index.internalPointer()));
 
   r->setData("application/qtlua.item", "");
 
   return r;
 }
 
-Qt::DropActions ItemModel::supportedDropActions() const
+Qt::DropActions UserItemModel::supportedDropActions() const
 {
   return Qt::MoveAction /* | Qt::CopyAction*/;
 }
 
-QVariant ItemModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant UserItemModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   return QVariant();
 }
 
-QModelIndex ItemModel::index(int row, int column, const QModelIndex &parent) const
+QModelIndex UserItemModel::index(int row, int column, const QModelIndex &parent) const
 {
-  ListItem *p;
+  UserListItem *p;
 
   if (!parent.isValid())
     p = _root.ptr();
   else
-    p = static_cast<ListItem*>(parent.internalPointer());
+    p = static_cast<UserListItem*>(parent.internalPointer());
 
   int c = p->get_column_count();
   assert(c > 0);
@@ -224,13 +224,13 @@ QModelIndex ItemModel::index(int row, int column, const QModelIndex &parent) con
     return QModelIndex();
 }
 
-QModelIndex ItemModel::parent(const QModelIndex &index) const
+QModelIndex UserItemModel::parent(const QModelIndex &index) const
 {
   if (!index.isValid())
     return QModelIndex();
 
-  Item *c = static_cast<Item*>(index.internalPointer());
-  ListItem *p = c->get_parent();
+  UserItem *c = static_cast<UserItem*>(index.internalPointer());
+  UserListItem *p = c->get_parent();
 
   if (!p || p == _root.ptr())
     return QModelIndex();
@@ -238,36 +238,36 @@ QModelIndex ItemModel::parent(const QModelIndex &index) const
   return createIndex(p->get_row(), 0, p);
 }
 
-int ItemModel::rowCount(const QModelIndex &parent) const
+int UserItemModel::rowCount(const QModelIndex &parent) const
 {
-  Item *p;
+  UserItem *p;
 
   if (!parent.isValid())
     p = _root.ptr();
   else
-    p = static_cast<Item*>(parent.internalPointer());
+    p = static_cast<UserItem*>(parent.internalPointer());
 
   return p->get_child_count();
 }
 
-int ItemModel::columnCount(const QModelIndex &parent) const
+int UserItemModel::columnCount(const QModelIndex &parent) const
 {
-  ListItem *p;
+  UserListItem *p;
 
   if (!parent.isValid())
     p = _root.ptr();
   else
-    p = static_cast<ListItem*>(parent.internalPointer());
+    p = static_cast<UserListItem*>(parent.internalPointer());
 
   return p->get_column_count();
 }
 
-bool ItemModel::setData(const QModelIndex & index, const QVariant & value, int role)
+bool UserItemModel::setData(const QModelIndex & index, const QVariant & value, int role)
 {
   if (!index.isValid())
     return false;
 
-  Item *item = static_cast<Item*>(index.internalPointer());
+  UserItem *item = static_cast<UserItem*>(index.internalPointer());
 
   if (index.column())
     return item->set_data(index.column(), role);
@@ -283,9 +283,9 @@ bool ItemModel::setData(const QModelIndex & index, const QVariant & value, int r
     }
 }
 
-Value ItemModel::get_selection(State *ls, const QAbstractItemView &view)
+Value UserItemModel::get_selection(State *ls, const QAbstractItemView &view)
 {
-  assert(dynamic_cast<ItemModel*>(view.model()));
+  assert(dynamic_cast<UserItemModel*>(view.model()));
   QItemSelectionModel *sm = view.selectionModel();
 
   if (!sm || !sm->hasSelection())
@@ -296,7 +296,7 @@ Value ItemModel::get_selection(State *ls, const QAbstractItemView &view)
   int i = 1;
   foreach(const QModelIndex &index, sm->selectedIndexes())
     {
-      Value entry(ls, *static_cast<Item*>(index.internalPointer()));
+      Value entry(ls, *static_cast<UserItem*>(index.internalPointer()));
 
       table[i++] = entry;
     }

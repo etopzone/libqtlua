@@ -62,7 +62,7 @@ namespace QtLua {
 
     try {
       Value value = get_value(n);
-      TableTreeModel::Attributes attr_mask;
+      TableTreeModel::Attributes attr_mask = 0;
 
       switch (value.type())
 	{

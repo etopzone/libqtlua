@@ -18,11 +18,24 @@
 
 */
 
-#include <QMessageBox>
+#include <QDebug>
+#include <QTreeView>
+#include <QTableView>
+#include <QHeaderView>
+
 #include <QtLua/TableTreeModel>
+#include <QtLua/ItemViewDialog>
+
 #include <internal/TableTreeKeys>
 
 namespace QtLua {
+
+#define QTLUA_PROTECT(...)					\
+  try {								\
+    __VA_ARGS__;						\
+  } catch (const String &e) {					\
+    qDebug() << "TableTreeModel::" << __func__ << ": " << e;	\
+  }
 
   void TableTreeModel::check_state() const
   {
@@ -41,6 +54,17 @@ namespace QtLua {
   TableTreeModel::~TableTreeModel()
   {
     delete _table;
+  }
+
+  enum TableTreeModel::ColumnId TableTreeModel::get_column_id(int col, Attributes attr) const
+  {
+    if (attr & HideKey)
+      col++;
+    if (col >= 1 && (attr & HideValue))
+      col++;
+    if (col >= 2 && (attr & HideType))
+      col++;
+    return col >= 3 ? ColNone : (ColumnId)col;
   }
 
   void TableTreeModel::update()
@@ -69,7 +93,9 @@ namespace QtLua {
       return QModelIndex();
 
     TableTreeKeys *t = table_from_index(parent);
-    assert(t);
+
+    if (!t)
+      return QModelIndex();
 
     t->update();
 
@@ -122,7 +148,7 @@ namespace QtLua {
     if (!_st)
       return 0;
 
-    return _table->_attr & HideType ? 2 : 3;
+    return !(_table->_attr & HideKey) + !(_table->_attr & HideValue) + !(_table->_attr & HideType);
   }
 
   QVariant TableTreeModel::data(const QModelIndex &index, int role) const
@@ -137,20 +163,17 @@ namespace QtLua {
       switch (role)
 	{
 	case Qt::DisplayRole: {
-	  int i = -1, ki = -1, vi = -1, ti = -1;
-	  if (!(t->_attr & HideKey))
-	    ki = ++i;
-	  if (!(t->_attr & HideValue))
-	    vi = ++i;
-	  if (!(t->_attr & HideType))
-	    ti = ++i;
-
-	  if (index.column() == ki)
-	    return QVariant(t->get_key(index.row()).to_string_p(!(t->_attr & UnquoteKeys)));
-	  if (index.column() == vi)
-	    return QVariant(t->get_value(index.row()).to_string_p(!(t->_attr & UnquoteValues)));
-	  if (index.column() == ti)
-	    return QVariant(t->get_value(index.row()).type_name_u());
+	  switch (get_column_id(index.column(), t->_attr))
+	    {
+	    case ColKey:
+	      return QVariant(t->get_key(index.row()).to_string_p(!(t->_attr & UnquoteKeys)));
+	    case ColValue:
+	      return QVariant(t->get_value(index.row()).to_string_p(!(t->_attr & UnquoteValues)));
+	    case ColType:
+	      return QVariant(t->get_value(index.row()).type_name_u());
+	    default:
+	      return QVariant();
+	    }
 	}
 
 	default:
@@ -171,7 +194,7 @@ namespace QtLua {
 
     TableTreeKeys *t = static_cast<TableTreeKeys*>(index.internalPointer());
 
-    switch (index.column())
+    switch (get_column_id(index.column(), t->_attr))
       {
       case ColKey:
 	return t->get_key(index.row());
@@ -204,7 +227,7 @@ namespace QtLua {
 
     if (t->_attr & Editable)
       {
-	switch (index.column())
+	switch (get_column_id(index.column(), t->_attr))
 	  {
 	  case ColValue:
 	    if (!t->is_table(index.row()))		// prevent edit if already explored table
@@ -214,6 +237,9 @@ namespace QtLua {
 	  case ColKey:
 	    if (t->_attr & EditKey || t->get_key(index.row()).is_nil())
 	      res = res | Qt::ItemIsEditable;
+	    break;
+
+	  default:
 	    break;
 	  }
       }
@@ -246,21 +272,12 @@ namespace QtLua {
       Value newvalue(_st->eval_expr(t->_attr & EditLuaEval, input));
       Value::ValueType newtype = newvalue.type();
 
-      switch (index.column())
+      switch (get_column_id(index.column(), t->_attr))
 	{
-	case ColValue:
+	case ColValue: {
 
 	  if (!(t->_attr & EditRemove) && newvalue.is_nil())
 	    throw String("Entry can not have a nil value.");
-
-	  // auto convert to string type when enforced
-	  if ((t->_attr & EditFixedType) &&
-	      oldtype == Value::TString &&
-	      newtype != Value::TString)
-	    {
-	      newvalue = newvalue.to_string_p(false);
-	      newtype = Value::TString;
-	    }
 
 	  // check type change
 	  if ((t->_attr & EditFixedType) &&
@@ -268,7 +285,11 @@ namespace QtLua {
 	    throw String("% value type must be preserved.").arg(Value::type_name(oldtype));
 
 	  t->set_value(index.row(), newvalue);
+	  emit dataChanged(index, index);
+	  emit layoutAboutToBeChanged();
+	  emit layoutChanged();
 	  return true;
+	}
 
 	case ColKey: {
 
@@ -282,6 +303,7 @@ namespace QtLua {
 	  t->set_value(index.row(), Value(_st));
 	  t->set_key(index.row(), newvalue);
 	  t->set_value(index.row(), old);
+	  emit dataChanged(index, index);
 	  return true;
 	}
 
@@ -290,7 +312,7 @@ namespace QtLua {
 	}
 
     } catch (const String &s) {
-      QMessageBox::critical(0, "Error", QString("Value update error: ") + s.to_qstring());
+      emit edit_error(QString("Value update error: ") + s.to_qstring());
     }
 
     return false;
@@ -301,11 +323,9 @@ namespace QtLua {
     if (!_st)
       return false;
 
-    assert(count);
-
     TableTreeKeys *t = table_from_index(parent);
 
-    if (!(t->_attr & EditRemove))
+    if (!t || !(t->_attr & EditRemove))
       return false;
 
     beginRemoveRows(parent, row, row + count - 1);
@@ -337,11 +357,9 @@ namespace QtLua {
     if (!_st)
       return false;
 
-    assert(count);
-
     TableTreeKeys *t = table_from_index(parent);
 
-    if (!(t->_attr & EditInsert))
+    if (!t || !(t->_attr & EditInsert))
       return false;
 
     beginInsertRows(parent, row, row + count - 1);
@@ -366,22 +384,17 @@ namespace QtLua {
     if (orientation == Qt::Vertical)
       return QVariant(section + 1);
 
-    int i = -1, ki = -1, vi = -1, ti = -1;
-    if (!(_table->_attr & HideKey))
-      ki = ++i;
-    if (!(_table->_attr & HideValue))
-      vi = ++i;
-    if (!(_table->_attr & HideType))
-      ti = ++i;
-
-    if (section == ki)
-      return QVariant("key");
-    if (section == vi)
-      return QVariant("Value");
-    if (section == ti)
-      return QVariant("Type");
-
-    return QVariant();
+    switch (get_column_id(section, _table->_attr))
+      {
+      case ColKey:
+	return QVariant("key");
+      case ColValue:
+	return QVariant("Value");
+      case ColType:
+	return QVariant("Type");
+      default:
+	return QVariant();
+      }
   }
 
   QModelIndex TableTreeModel::buddy(const QModelIndex &index) const
@@ -391,7 +404,7 @@ namespace QtLua {
 
     TableTreeKeys *t = static_cast<TableTreeKeys*>(index.internalPointer());
 
-    switch (index.column())
+    switch (get_column_id(index.column(), t->_attr))
       {
       default:
       case ColValue:
@@ -402,9 +415,60 @@ namespace QtLua {
 	  return index;
 
       case ColType:
-	return createIndex(index.row(), ColValue, t);
+	return createIndex(index.row(), t->_attr & HideKey ? 0 : 1, t);
       }
   }
+
+  void TableTreeModel::tree_dialog(QWidget *parent, const QString &title, const Value &table, 
+				   TableTreeModel::Attributes attr)
+  {
+    TableTreeModel *model = new TableTreeModel(table, attr, 0);
+    QTreeView *view = new QTreeView();
+
+    ItemViewDialog::EditActions a = 0;
+
+    if (attr & Editable)
+      a |= ItemViewDialog::EditData | ItemViewDialog::EditDataOnNewRow;
+    if (attr & EditInsert)
+      a |= ItemViewDialog::EditInsertRow | ItemViewDialog::EditInsertRowAfter;
+    if (attr & EditRemove)
+      a |= ItemViewDialog::EditRemoveRow;
+
+    ItemViewDialog d(a, model, view, parent);
+    d.setWindowTitle(title);
+
+    view->setRootIsDecorated(attr & Recursive);
+
+    connect(view, SIGNAL(expanded(const QModelIndex&)),
+	    &d, SLOT(tree_expanded()));
+
+    d.exec();
+  }
+
+  void TableTreeModel::table_dialog(QWidget *parent, const QString &title, const Value &table, 
+				    TableTreeModel::Attributes attr)
+  {
+    TableTreeModel *model = new TableTreeModel(table, attr, 0);
+    QTableView *view = new QTableView();
+
+    ItemViewDialog::EditActions a = 0;
+
+    if (attr & Editable)
+      a |= ItemViewDialog::EditData | ItemViewDialog::EditDataOnNewRow;
+    if (attr & EditInsert)
+      a |= ItemViewDialog::EditInsertRow | ItemViewDialog::EditInsertRowAfter;
+    if (attr & EditRemove)
+      a |= ItemViewDialog::EditRemoveRow;
+
+    ItemViewDialog d(a, model, view, parent);
+    d.setWindowTitle(title);
+
+    view->verticalHeader()->hide();
+
+    d.exec();
+  }
+
+
 
 }
 

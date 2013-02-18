@@ -19,15 +19,15 @@
 */
 
 #include <QtLua/Value>
-#include <QtLua/Item>
+#include <QtLua/UserItem>
 #include <QtLua/Iterator>
-#include <QtLua/ListItem>
+#include <QtLua/UserListItem>
 
 #include <internal/ListIterator>
 
 namespace QtLua {
 
-  ListIterator::ListIterator(State *ls, const ListItem::ptr &list)
+  ListIterator::ListIterator(State *ls, const UserListItem::ptr &list)
     : _ls(ls),
       _list(list),
       _it(_list->get_list().begin())

@@ -14,30 +14,29 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2010, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2009, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
+#ifndef QTLUA_ITEMSELECTIONMODEL_HXX_
+#define QTLUA_ITEMSELECTIONMODEL_HXX_
 
-#ifndef QTLUA_TABLEDIALOG_HXX_
-#define QTLUA_TABLEDIALOG_HXX_
-
-#include "qtluatabletreemodel.hxx"
-#include "qtluatablegridmodel.hxx"
+#include "qtluauseritemmodel.hxx"
 
 namespace QtLua {
 
-  QAbstractItemModel * TableDialog::get_model() const
+  UserItemSelectionModel::UserItemSelectionModel(UserItemModel *model)
+    : QItemSelectionModel(model)
   {
-    return _model;
   }
 
-  QAbstractItemView * TableDialog::get_view() const
+  UserItemSelectionModel::UserItemSelectionModel(UserItemModel *model, QObject *parent)
+    : QItemSelectionModel(model, parent)
   {
-    return _view;
   }
 
 }
 
 #endif
+
 

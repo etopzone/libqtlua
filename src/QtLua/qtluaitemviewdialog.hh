@@ -18,13 +18,14 @@
 
 */
 
-// __moc_flags__ -fQtLua/TableDialog
+// __moc_flags__ -fQtLua/ItemViewDialog
 
 #ifndef QTLUA_TABLEDIALOG_HH_
 #define QTLUA_TABLEDIALOG_HH_
 
 #include <QAbstractItemView>
 #include <QDialog>
+#include <QDialogButtonBox>
 
 #include "qtluatabletreemodel.hh"
 #include "qtluatablegridmodel.hh"
@@ -33,7 +34,7 @@ namespace QtLua {
 
   /**
    * @short Qt Model/View lua table view dialog
-   * @header QtLua/TableDialog
+   * @header QtLua/ItemViewDialog
    * @module {Model/View}
    *
    * This dialog class use the @ref TableTreeModel or @ref
@@ -49,22 +50,36 @@ namespace QtLua {
    * @see TableTreeModel @see TableGridModel
    */
 
-  class TableDialog : public QDialog
+  class ItemViewDialog : public QDialog
   {
     Q_OBJECT;
-    Q_ENUMS(ViewType);
     Q_PROPERTY(bool resize_on_expand READ get_resize_on_expand WRITE set_resize_on_expand);
     Q_PROPERTY(float column_margin_factor READ get_column_margin_factor WRITE set_column_margin_factor);
+    Q_PROPERTY(int edit_actions READ get_edit_actions WRITE set_edit_actions_);
+    Q_ENUMS(EditAction);
 
   public:
 
-    /** Specify model and view to use for the @ref TableDialog dialog */
-    enum ViewType
+    enum EditAction
       {
-	TreeTreeView,		//< Use @ref TableTreeModel with a @ref QTreeView
-	TreeTableView,		//< Use @ref TableTreeModel with a @ref QTableView
-	GridTableView,		//< Use @ref TableGridModel with a @ref QTableView
+	EditData              = 0x00001,
+	EditDataOnNewRow      = 0x00002,
+	EditAddChild          = 0x00004,
+
+	EditInsertRow         = 0x00010,
+	EditInsertRowAfter    = 0x00020,
+	EditAddRow            = 0x00040,
+	EditRemoveRow         = 0x00080,
+        EditRowAll            = 0x000f0,
+
+	EditInsertColumn      = 0x00100,
+	EditInsertColumnAfter = 0x00200,
+	EditAddColumn         = 0x00400,
+	EditRemoveColumn      = 0x00800,
+        EditColumnAll         = 0x00f00,
       };
+
+    Q_DECLARE_FLAGS(EditActions, EditAction);
 
     /**
      * Create a table dialog.
@@ -76,9 +91,13 @@ namespace QtLua {
      *
      * @see tree_tree_dialog @see tree_table_dialog @see grid_table_dialog
      */
-    TableDialog(const Value &table, enum ViewType type,
-		QAbstractItemModel *model = 0,
-		int attr = 0, QWidget *parent = 0);
+    ItemViewDialog(EditActions edit,
+		   QAbstractItemModel *model,
+		   QAbstractItemView *view = 0,
+		   QWidget *parent = 0);
+
+    void set_edit_actions(EditActions edit);
+    inline EditActions get_edit_actions() const;
 
     /** Return pointer to model */
     inline QAbstractItemModel *get_model() const;
@@ -95,60 +114,43 @@ namespace QtLua {
     /** Get additionnal column width factor */
     float get_column_margin_factor() const;
 
-    /**
-     * @multiple {2}
-     * Shortcut function to display a modal lua table dialog. A @ref TableTreeModel model is used.
-     *
-     * @param parent parent widget
-     * @param title dialog window title
-     * @param table lua table to expose
-     * @param attr model attributes, control display and edit options
-     */
-    static void tree_tree_dialog(QWidget *parent, const QString &title, const Value &table, 
-				 TableTreeModel::Attributes attr = TableTreeModel::Recursive);
-
-    static void tree_table_dialog(QWidget *parent, const QString &title, const Value &table, 
-				  TableTreeModel::Attributes attr = TableTreeModel::Recursive);
-
-    /**
-     * Shortcut function to display a modal lua table dialog. A @ref TableGridModel model is used.
-     *
-     * @param parent parent widget
-     * @param title dialog window title
-     * @param table lua table to expose
-     * @param attr model attributes, control display and edit options
-     * @param colkeys list of lua value to use as column keys,
-     *  use @ref TableGridModel::fetch_all_column_keys if @tt NULL.
-     * @param rowkeys list of lua value to use as row keys,
-     *  use @ref TableGridModel::fetch_all_row_keys if @tt NULL.
-     */
-    static void grid_table_dialog(QWidget *parent, const QString &title, const Value &table,
-				  TableGridModel::Attributes attr = TableGridModel::Attributes(),
-				  const Value::List *colkeys = 0, const Value::List *rowkeys = 0);
-
   private slots:
     void edit() const;
-    void tree_insert() const;
-    void tree_remove() const;
-    void tree_current_changed(const QModelIndex & index) const;
+    void edit_error(const QString &message);
+    void current_item_changed(const QModelIndex & index) const;
     void tree_expanded() const;
+    void add_child() const;
 
-    void grid_insert_row() const;
-    void grid_remove_row() const;
-    void grid_insert_column() const;
-    void grid_remove_column() const;
-    void grid_current_changed(const QModelIndex & index) const;
+    void insert_row() const;
+    void insert_row_after() const;
+    void add_row() const;
+    void remove_row() const;
+
+    void insert_column_after() const;
+    void insert_column() const;
+    void add_column() const;
+    void remove_column() const;
 
   protected:
     virtual QSize sizeHint() const;
 
   private:
+
+    inline void set_edit_actions_(int edit);
+    void new_row(const QModelIndex &parent, int row) const;
+
+    EditActions _edit;
     QAbstractItemModel *_model;
     QAbstractItemView *_view;
-    QPushButton *_eb, *_rb, *_ib, *_rc, *_ic;
+    QDialogButtonBox *_buttonBox;
+    QPushButton *_eb, *_ach;
+    QPushButton *_rb, *_ab, *_ib, *_iba;
+    QPushButton *_rc, *_ac, *_ic, *_ica;
     bool _resize_on_expand;
     float _column_margin_factor;
   };
+
+  Q_DECLARE_OPERATORS_FOR_FLAGS(ItemViewDialog::EditActions);
 
 }
 
