@@ -133,6 +133,11 @@ namespace QtLua {
 #define QTLUA_FUNCTION_REGISTER(state, prefix, name)	\
   static QtLua_Function_##name name(state, prefix #name)
 
+    /** @This declares and registers a @ref Function object on a QtLua
+	@ref State object as a global variable.  @showcontent */
+#define QTLUA_FUNCTION_REGISTER2(state, path, name)	\
+  static QtLua_Function_##name name(state, path)
+
   protected:
 
     virtual Value::List meta_call(State *ls, const Value::List &args) = 0;
