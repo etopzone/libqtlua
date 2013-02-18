@@ -18,7 +18,7 @@
 
 */
 
-// __moc_flags__ -fQtLua/ItemModel
+// __moc_flags__ -fQtLua/UserItemModel
 
 #ifndef QTLUA_ITEMMODEL_HH_
 #define QTLUA_ITEMMODEL_HH_
@@ -32,16 +32,16 @@
 namespace QtLua {
 
 class State;
-class Item;
-class ListItem;
+class UserItem;
+class UserListItem;
 class Value;
 
   /**
    * @short Qt Model/View item model class
-   * @header QtLua/ItemModel
+   * @header QtLua/UserItemModel
    * @module {Model/View}
    *
-   * This class together with the @ref ListItem and @ref Item classes
+   * This class together with the @ref UserListItem and @ref UserItem classes
    * enable easy use of list or hierarchical data structures that can be
    * viewed and modified from lua script, Qt view widgets and C++
    * code.
@@ -56,21 +56,21 @@ class Value;
    * @image qtlua_itemmodel.png
    */
 
-class ItemModel : public QAbstractItemModel
+class UserItemModel : public QAbstractItemModel
 {
-  friend class Item;
-  friend class ListItem;
+  friend class UserItem;
+  friend class UserListItem;
 
   Q_OBJECT;
 
 public:
   /** Create a new item model with pointer to root item */
-  ItemModel(Ref<ListItem> root, QObject *parent = 0);
+  UserItemModel(Ref<UserListItem> root, QObject *parent = 0);
 
-  ~ItemModel();
+  ~UserItemModel();
 
-  /** Get pointer to Item from QT model index. */
-  static Ref<Item> get_item(const QModelIndex &index);
+  /** Get pointer to UserItem from QT model index. */
+  static Ref<UserItem> get_item(const QModelIndex &index);
 
   /** Get a lua table value with selected items on given view */
   static Value get_selection(State *ls, const QAbstractItemView &view);
@@ -78,7 +78,7 @@ public:
 protected:
   /** May be reimplemented to return a new item created from mime
       data. Used when dropping external objects. */
-  virtual Ref<Item> from_mimedata(const QMimeData *data);
+  virtual Ref<UserItem> from_mimedata(const QMimeData *data);
 
   /** Return supported mime type. May be reimplemented to add more types. */
   virtual QStringList mimeTypes() const;
@@ -103,10 +103,10 @@ private:
 
   struct ItemQMimeData : public QMimeData
   {
-    QList<Ref<Item> > _itemlist;
+    QList<Ref<UserItem> > _itemlist;
   };
 
-  Ref<ListItem> _root;
+  Ref<UserListItem> _root;
 };
 
 }

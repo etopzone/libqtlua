@@ -20,15 +20,15 @@
 
 
 #include <QtLua/Value>
-#include <QtLua/ListItem>
-#include <QtLua/ItemModel>
+#include <QtLua/UserListItem>
+#include <QtLua/UserItemModel>
 #include <QtLua/String>
 
 #include <internal/ListIterator>
 
 namespace QtLua {
 
-Value ListItem::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
+Value UserListItem::meta_operation(State *ls, Value::Operation op, const Value &a, const Value &b)
 {
   switch (op)
     {
@@ -39,10 +39,10 @@ Value ListItem::meta_operation(State *ls, Value::Operation op, const Value &a, c
     }
 }
 
-void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
+void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value)
   
 {
-  Item::ptr old;
+  UserItem::ptr old;
   Value::ValueType t = key.type();
   unsigned int c = 0;
 
@@ -53,7 +53,7 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
       break;
 
     case Value::TNumber: {
-      const QList<Ref<Item> > &l = get_list();
+      const QList<Ref<UserItem> > &l = get_list();
       c = key.to_integer();
       if (c > 0 && c <= (unsigned int)l.size())
 	old = l[c - 1];
@@ -76,10 +76,10 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
       break;
 
     case Value::TUserData: {
-      Item::ptr kbml = value.to_userdata_cast<Item>();
+      UserItem::ptr kbml = value.to_userdata_cast<UserItem>();
 
       if (in_parent_path(kbml.ptr()))
-	throw String("Item '%' can not have one of its parent as child.").arg(kbml->get_name());
+	throw String("UserItem '%' can not have one of its parent as child.").arg(kbml->get_name());
 
       // remove item with same key if it already exists
       if (old.valid())
@@ -105,7 +105,7 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
 	    throw String("Moving '%' item is not allowed.").arg(kbml->get_name());
 
 	  if (!accept_child(kbml))
-	    throw String("Item '%' doesn't accept '%' as child.")
+	    throw String("UserItem '%' doesn't accept '%' as child.")
 	      .arg(get_name()).arg(kbml->get_name());
 	}
 
@@ -131,24 +131,24 @@ void ListItem::meta_newindex(State *ls, const Value &key, const Value &value)
     } break;
 
     default:
-      throw String("Item list can not store a % value.").arg(value.type_name_u());
+      throw String("UserItem list can not store a % value.").arg(value.type_name_u());
     }
 };
 
-Value ListItem::meta_index(State *ls, const Value &key)
+Value UserListItem::meta_index(State *ls, const Value &key)
   
 {
   switch (key.type())
     {
     case Value::TString: {
-      Item::ptr item = get_child(key.to_string());
+      UserItem::ptr item = get_child(key.to_string());
       if (item.valid())
 	return Value(ls, item);
       break;
     }
 
     case Value::TNumber: {
-      const QList<Ref<Item> > &l = get_list();
+      const QList<Ref<UserItem> > &l = get_list();
       unsigned int c = key.to_integer();
       if (c > 0 && c <= (unsigned int)l.size())
 	return Value(ls, l[c - 1]);
@@ -162,7 +162,7 @@ Value ListItem::meta_index(State *ls, const Value &key)
   return Value(ls);
 }
 
-bool ListItem::meta_contains(State *ls, const Value &key)
+bool UserListItem::meta_contains(State *ls, const Value &key)
 {
   switch (key.type())
     {
@@ -170,7 +170,7 @@ bool ListItem::meta_contains(State *ls, const Value &key)
       return get_child(key.to_string()).valid();
 
     case Value::TNumber: {
-      const QList<Ref<Item> > &l = get_list();
+      const QList<Ref<UserItem> > &l = get_list();
       unsigned int c = key.to_integer();
       return c > 0 && c <= (unsigned int)l.size();
     }
@@ -180,12 +180,12 @@ bool ListItem::meta_contains(State *ls, const Value &key)
     }
 }
 
-Iterator::ptr ListItem::new_iterator(State *ls)
+Iterator::ptr UserListItem::new_iterator(State *ls)
 {
-  return QTLUA_REFNEW(ListIterator, ls, ListItem::ptr(*this));
+  return QTLUA_REFNEW(ListIterator, ls, UserListItem::ptr(*this));
 }
 
-bool ListItem::support(Value::Operation c) const
+bool UserListItem::support(Value::Operation c) const
 {
   switch (c)
     {
@@ -199,11 +199,11 @@ bool ListItem::support(Value::Operation c) const
     }
 }
 
-void ListItem::change_indexes(int first)
+void UserListItem::change_indexes(int first)
 {
   for (int i = first; i < get_child_count(); i++)
     {
-      const Item::ptr &item = _child_list[i];
+      const UserItem::ptr &item = _child_list[i];
 
       if (_model)
 	{
@@ -218,7 +218,7 @@ void ListItem::change_indexes(int first)
     }
 }
 
-void ListItem::remove_child(Item *item)
+void UserListItem::remove_child(UserItem *item)
 {
   assert(item->_parent == this);
 
@@ -229,7 +229,7 @@ void ListItem::remove_child(Item *item)
   item->_row = -1;
 }
 
-void ListItem::insert_child(Item *item, int row)
+void UserListItem::insert_child(UserItem *item, int row)
 {
   _child_list.insert(row, *item);
   item->_parent = this;
@@ -237,7 +237,7 @@ void ListItem::insert_child(Item *item, int row)
   change_indexes(row + 1);
 }
 
-void ListItem::insert_name(Item *item, int row)
+void UserListItem::insert_name(UserItem *item, int row)
 {
   QString name = item->_name;
 
@@ -259,24 +259,24 @@ void ListItem::insert_name(Item *item, int row)
   _child_hash.insert(name, item);
 }
 
-bool ListItem::accept_child(const Item::ptr &item) const
+bool UserListItem::accept_child(const UserItem::ptr &item) const
 {
   return true;
 }
 
-int ListItem::get_column_count() const
+int UserListItem::get_column_count() const
 {
   return 1;
 }
 
-ListItem::ListItem()
+UserListItem::UserListItem()
   : _id_counter(1)
 {
 }
 
-ListItem::~ListItem()
+UserListItem::~UserListItem()
 {
-  foreach(const Item::ptr &tmp, _child_list)
+  foreach(const UserItem::ptr &tmp, _child_list)
     {
       assert(!tmp->_model);
       tmp->_parent = 0;
@@ -284,27 +284,27 @@ ListItem::~ListItem()
     }
 }
 
-void ListItem::set_model(ItemModel* model)
+void UserListItem::set_model(UserItemModel* model)
 {
   if (_model == model)
     return;
 
-  foreach(const Item::ptr &tmp, _child_list)
+  foreach(const UserItem::ptr &tmp, _child_list)
     tmp->set_model(model);
 
-  Item::set_model(model);
+  UserItem::set_model(model);
 }
 
-void ListItem::completion_patch(String &path, String &entry, int &offset)
+void UserListItem::completion_patch(String &path, String &entry, int &offset)
 {
   entry += ".";
 }
 
-void ListItem::child_changed()
+void UserListItem::child_changed()
 {
 }
 
-String ListItem::default_child_name(int row) const
+String UserListItem::default_child_name(int row) const
 {
   return "noname";
 }

@@ -25,46 +25,46 @@
 #include <QHash>
 #include <QList>
 
-#include "qtluaitem.hh"
+#include "qtluauseritem.hh"
 #include "qtluaiterator.hh"
 
 namespace QtLua {
 
-class ItemModel;
+class UserItemModel;
 
   /**
    * @short Qt Model/View list item class
-   * @header QtLua/ListItem
+   * @header QtLua/UserListItem
    * @module {Model/View}
    *
-   * This class together with the @ref Item and @ref ItemModel classes
+   * This class together with the @ref UserItem and @ref UserItemModel classes
    * enable easy use of list or hierarchical data structures that can be
    * viewed and modified from lua script, Qt view widgets and C++
    * code.
    *
-   * @ref ListItem objects are @ref Item objects with pointer list to
+   * @ref UserListItem objects are @ref UserItem objects with pointer list to
    * children objects. It can be accessed as tables from lua script.
    *
-   * See @ref ItemModel for example.
+   * See @ref UserItemModel for example.
    */
 
-class ListItem : public Item
+class UserListItem : public UserItem
 {
-  friend class Item;
-  friend class ItemModel;
+  friend class UserItem;
+  friend class UserItemModel;
 
 public:
 
-  QTLUA_REFTYPE(ListItem);
+  QTLUA_REFTYPE(UserListItem);
 
-  ListItem();
-  ~ListItem();
+  UserListItem();
+  ~UserListItem();
 
   /** Find a child item from name. */
-  inline Ref<Item> get_child(const String &name) const;
+  inline Ref<UserItem> get_child(const String &name) const;
 
   /** Get child items list */
-  inline const QList<Ref<Item> > & get_list() const;
+  inline const QList<Ref<UserItem> > & get_list() const;
 
   /** Get number of childs */
   inline int get_child_count() const;
@@ -84,7 +84,7 @@ protected:
    *
    * @return true if item is allowed to be a child member.
    */
-  virtual bool accept_child(const Ref<Item> &item) const;
+  virtual bool accept_child(const Ref<UserItem> &item) const;
 
   /** Must return columns count for children of this node, default implementation returns 1. */
   virtual int get_column_count() const;
@@ -101,16 +101,16 @@ private:
 
   void completion_patch(String &path, String &entry, int &offset);
 
-  void set_model(ItemModel* model);
+  void set_model(UserItemModel* model);
 
   void change_indexes(int first);
-  void insert_child(Item *item, int row);
-  void insert_name(Item *item, int row);
-  void remove_child(Item *item);
-  inline void remove_name(Item *item);
+  void insert_child(UserItem *item, int row);
+  void insert_name(UserItem *item, int row);
+  void remove_child(UserItem *item);
+  inline void remove_name(UserItem *item);
 
-  QHash<String,Item*> _child_hash;
-  QList<Ref<Item> > _child_list;
+  QHash<String,UserItem*> _child_hash;
+  QList<Ref<UserItem> > _child_list;
   int _id_counter;
 };
 

@@ -18,16 +18,16 @@
 
 */
 
-#include <QtLua/ListItem>
+#include <QtLua/UserListItem>
 #include <QtLua/String>
-#include <QtLua/Item>
-#include <QtLua/ItemModel>
+#include <QtLua/UserItem>
+#include <QtLua/UserItemModel>
 
 namespace QtLua {
 
-bool Item::in_parent_path(Item *item)
+bool UserItem::in_parent_path(UserItem *item)
 {
-  Item *	my_path = this;
+  UserItem *	my_path = this;
 
   while (my_path)
     {
@@ -39,28 +39,28 @@ bool Item::in_parent_path(Item *item)
   return false;
 }
 
-Item::Item(const String &name)
+UserItem::UserItem(const String &name)
   : UserData(), _name(name), _parent(0), _model(0), _row(-1)
 {
 }
 
-Item::Item(const Item &item)
+UserItem::UserItem(const UserItem &item)
   : UserData(item), _name(item._name), _parent(0), _model(0), _row(-1)
 {
 }
 
-Item::~Item()
+UserItem::~UserItem()
 {
   assert(!_parent);
   assert(!_model);
 }
 
-void Item::move(const Ref<ListItem> &parent)
+void UserItem::move(const Ref<UserListItem> &parent)
 {
   insert(parent);
 }
 
-void Item::insert(const Ref<ListItem> &parent, int pos)
+void UserItem::insert(const Ref<UserListItem> &parent, int pos)
 {
   if (_parent)
     remove();
@@ -82,13 +82,13 @@ void Item::insert(const Ref<ListItem> &parent, int pos)
   parent->child_changed();
 }
 
-void Item::remove()
+void UserItem::remove()
 {
   assert(_parent);
-  Item::ptr this_ = *this;
+  UserItem::ptr this_ = *this;
 
-  ItemModel *model = _model;
-  ListItem *parent = _parent;
+  UserItemModel *model = _model;
+  UserListItem *parent = _parent;
 
   if (model)
     emit model->layoutAboutToBeChanged();
@@ -102,7 +102,7 @@ void Item::remove()
   parent->child_changed();
 }
 
-void Item::set_model(ItemModel* model)
+void UserItem::set_model(UserItemModel* model)
 {
   if (_model && _model != model)
     _model->changePersistentIndex(get_model_index(), QModelIndex());
@@ -110,7 +110,7 @@ void Item::set_model(ItemModel* model)
   _model = model;
 }
 
-void Item::set_name(const String &name)
+void UserItem::set_name(const String &name)
 {
   if (_parent)
     _parent->remove_name(this);
@@ -127,60 +127,60 @@ void Item::set_name(const String &name)
     emit _model->dataChanged(get_model_index(), get_model_index());
 }
 
-void Item::data_changed(int column) const
+void UserItem::data_changed(int column) const
 {
   if (_model)
     emit _model->dataChanged(get_model_index(column), get_model_index(column));  
 }
 
-Item * Item::get_child_row(int row) const
+UserItem * UserItem::get_child_row(int row) const
 {
   return 0;
 }
 
-inline int Item::get_child_count() const
+inline int UserItem::get_child_count() const
 {
   return 0;
 }
 
-bool Item::is_move_allowed() const
+bool UserItem::is_move_allowed() const
 {
   return is_rename_allowed();
 }
 
-bool Item::is_rename_allowed() const
+bool UserItem::is_rename_allowed() const
 {
   return true;
 }
 
-bool Item::is_remove_allowed() const
+bool UserItem::is_remove_allowed() const
 {
   return true;
 }
 
-bool Item::is_replace_allowed() const
+bool UserItem::is_replace_allowed() const
 {
   return is_remove_allowed();
 }
 
-QIcon &	Item::get_icon() const
+QIcon &	UserItem::get_icon() const
 {
   static QIcon i = QIcon();
 
   return i;
 }
 
-bool Item::set_data(int column, int role)
+bool UserItem::set_data(int column, int role)
 {
   return false;
 }
 
-QVariant Item::get_data(int column, int role) const
+QVariant UserItem::get_data(int column, int role) const
 {
   return QVariant();
 }
 
-Qt::ItemFlags Item::get_flags(int column) const
+Qt::ItemFlags UserItem::get_flags(int column) const
 {
   return Qt::ItemIsEnabled;
 }

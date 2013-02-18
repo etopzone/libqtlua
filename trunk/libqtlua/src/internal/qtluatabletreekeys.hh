@@ -33,10 +33,10 @@ namespace QtLua {
    * @module {Model/View}
    * @internal
    *
-   * This class is used internally by the @ref TableTreeModel class. It is
-   * used to keep lua tables display attributes and index list as
-   * native lua tables can not be accessed randomly using an integer
-   * index.
+   * This class is used internally by the @ref TableTreeModel
+   * class. It keeps lua tables display attributes and index list
+   * because native lua tables can not be accessed randomly using an
+   * integer index.
    */
 
   class TableTreeKeys

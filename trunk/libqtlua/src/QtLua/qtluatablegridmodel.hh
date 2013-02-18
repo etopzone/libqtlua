@@ -72,7 +72,7 @@ namespace QtLua {
    *
    * @image qtlua_tablegridmodel.png
    *
-   * @see TableDialog
+   * @see ItemViewDialog
    */
 
   class TableGridModel : public QAbstractItemModel
@@ -144,17 +144,56 @@ namespace QtLua {
 	called with at least one available row */
     void fetch_all_column_keys();
 
+    /** Return current non-numeric row keys */
+    inline const QList<Value> & row_keys() const;
+
+    /** Return current non-numeric column keys */
+    inline const QList<Value> & column_keys() const;
+
     /** Get @ref ValueRef reference object to lua value at given @ref QModelIndex */
     ValueRef get_value_ref(const QModelIndex &index) const;
 
+    /**
+     * Convenience function to display a modal lua table dialog.
+     *
+     * @param parent parent widget
+     * @param title dialog window title
+     * @param table lua table to expose
+     * @param attr model attributes, control display and edit options
+     * @param colkeys list of lua value to use as column keys,
+     *  use @ref TableGridModel::fetch_all_column_keys if @tt NULL.
+     * @param rowkeys list of lua value to use as row keys,
+     *  use @ref TableGridModel::fetch_all_row_keys if @tt NULL.
+     */
+    static void table_dialog(QWidget *parent, const QString &title, const Value &table,
+                             TableGridModel::Attributes attr = TableGridModel::Attributes(),
+                             const Value::List *colkeys = 0, const Value::List *rowkeys = 0);
+
+  signals:
+
+    void edit_error(const QString &message);
+
   protected:
 
-    /** Return the empty table object to use for new row
-	insertion. The default implementation returns a lua
-	Value::TTable value. */
-    virtual Value new_row_table(State *st) const;
+    /** Return the initial value used when inserting new columns for
+        cell at given position. The default implementation returns a @tt nil value. */
+    virtual Value new_cell_value(State *st, int row, int col) const;
 
-  public:
+    /** Return the a new table for new row insertion. The default
+	implementation returns a lua Value::TTable value filled with
+	values provided by the @ref new_cell_value function. */
+    virtual Value new_row_table(State *st, int row) const;
+
+    /** Return a row key suitable for given row. This function is
+        called when inserting a new row in non-numeric row key
+        mode. The new key must no appear in the current list of row keys. */
+    virtual Value new_row_key(State *st, int row) const; 
+
+    /** Return a column key suitable for given column. This function is
+        called when inserting a new column in non-numeric column key
+        mode. The new key must no appear in the current list of column keys. */
+    virtual Value new_column_key(State *st, int col) const; 
+
     /** @multiple @internal */
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &index) const;

@@ -30,17 +30,17 @@ MainWindow::MainWindow()
   state = new QtLua::State();
 
   // Create tree root node
-  QtLua::ListItem::ptr root = QTLUA_REFNEW(QtLua::ListItem, );
+  QtLua::UserListItem::ptr root = QTLUA_REFNEW(QtLua::UserListItem, );
 
   // Set as lua global
   (*state)["root"] = root;
 
   // Insert 2 new nodes
-  QTLUA_REFNEW(QtLua::Item, "foo")->insert(root);
-  QTLUA_REFNEW(QtLua::Item, "foo2")->insert(root);
+  QTLUA_REFNEW(QtLua::UserItem, "foo")->insert(root);
+  QTLUA_REFNEW(QtLua::UserItem, "foo2")->insert(root);
 
   // Create Qt view widget and set model
-  model = new QtLua::ItemModel(root);
+  model = new QtLua::UserItemModel(root);
 
   treeview = new QTreeView(0);
   treeview->setModel(model);

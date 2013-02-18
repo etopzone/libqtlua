@@ -58,7 +58,7 @@ namespace QtLua {
    *
    * @image qtlua_tabletreemodel.png
    *
-   * @see TableDialog
+   * @see ItemViewDialog
    */
 
   class TableTreeModel : public QAbstractItemModel
@@ -86,7 +86,7 @@ namespace QtLua {
 	EditInsert	= 0x00008000,	//< Allow insertion of new entries.
 	EditRemove	= 0x00010000,	//< Allow deletion of existing entries.
 	EditKey		= 0x00020000,	//< Allow entry key update.
-	EditAll		= 0x00040000,	//< Editable, EditInsert, EditRemove and EditKey allowed
+	EditAll		= 0x00039000,	//< Editable, EditInsert, EditRemove and EditKey allowed
       };
 
     Q_DECLARE_FLAGS(Attributes, Attribute);
@@ -105,13 +105,35 @@ namespace QtLua {
     /** Get supported operations for entry at given @ref QModelIndex */
     Attributes get_attr(const QModelIndex &index) const;
 
-  public:
+    /**
+     * @multiple {2}
+     * Shortcut function to display a modal lua table dialog.
+     *
+     * @param parent parent widget
+     * @param title dialog window title
+     * @param table lua table to expose
+     * @param attr model attributes, control display and edit options
+     */
+    static void tree_dialog(QWidget *parent, const QString &title, const Value &table, 
+			    Attributes attr = Recursive);
+
+    static void table_dialog(QWidget *parent, const QString &title, const Value &table, 
+			     Attributes attr = Recursive);
+
     /** @internal Columns ids */
     enum ColumnId
       {
-	ColKey = 0, ColValue = 1, ColType = 2,
+	ColKey,
+	ColValue,
+	ColType,
+	ColNone,
       };
 
+  signals:
+
+    void edit_error(const QString &message);
+
+  protected:
     /** @multiple @internal */
     QModelIndex index(int row, int column, const QModelIndex &parent) const;
     QModelIndex parent(const QModelIndex &index) const;
@@ -128,6 +150,8 @@ namespace QtLua {
     /** */
 
   private:
+
+    enum ColumnId get_column_id(int col, Attributes attr) const;
 
     void check_state() const;
     TableTreeKeys * table_from_index(const QModelIndex &index) const;

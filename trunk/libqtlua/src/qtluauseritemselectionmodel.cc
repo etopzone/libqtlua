@@ -18,42 +18,42 @@
 
 */
 
-#include <QtLua/ItemSelectionModel>
-#include <QtLua/ItemModel>
-#include <QtLua/Item>
-#include <QtLua/ListItem>
+#include <QtLua/UserItemSelectionModel>
+#include <QtLua/UserItemModel>
+#include <QtLua/UserItem>
+#include <QtLua/UserListItem>
 
 namespace QtLua {
 
-  void ItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
+  void UserItemSelectionModel::select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command)
   {
     select(QItemSelection(index, index), command);
   }
 
-  void ItemSelectionModel::select_childs(const QModelIndex &index, QItemSelection &selection)
+  void UserItemSelectionModel::select_childs(const QModelIndex &index, QItemSelection &selection)
   { 
-    Item *i = static_cast<Item*>(index.internalPointer());
+    UserItem *i = static_cast<UserItem*>(index.internalPointer());
 
-    if (ListItem *l = dynamic_cast<ListItem*>(i))
-      foreach(const Item::ptr &c, l->get_list())
+    if (UserListItem *l = dynamic_cast<UserListItem*>(i))
+      foreach(const UserItem::ptr &c, l->get_list())
 	{
 	  selection.select(c->get_model_index(), c->get_model_index());
 	  select_childs(c->get_model_index(), selection);
 	}
   }
 
-  void ItemSelectionModel::select_parents(const QModelIndex &index, QItemSelection &selection)
+  void UserItemSelectionModel::select_parents(const QModelIndex &index, QItemSelection &selection)
   {
-    Item *i = static_cast<Item*>(index.internalPointer());
+    UserItem *i = static_cast<UserItem*>(index.internalPointer());
 
-    while (Item *p = i->get_parent())
+    while (UserItem *p = i->get_parent())
       {
 	selection.select(p->get_model_index(), p->get_model_index());
 	i = p;
       }
   }
 
-  void ItemSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
+  void UserItemSelectionModel::select(const QItemSelection &selection, QItemSelectionModel::SelectionFlags command)
   {
     if (command & QItemSelectionModel::Clear)
       {

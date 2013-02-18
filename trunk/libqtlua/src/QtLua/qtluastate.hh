@@ -31,12 +31,6 @@
 #include "qtluavalue.hh"
 #include "qtluavalueref.hh"
 
-#define QTLUA_PROTECT(...)			\
-  try {						\
-    __VA_ARGS__;				\
-  } catch (const String &e) {			\
-  }
-
 struct lua_State;
 
 namespace QtLua {

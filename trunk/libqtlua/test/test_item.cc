@@ -22,8 +22,8 @@
 
 #include <QtLua/State>
 #include <QtLua/Value>
-#include <QtLua/Item>
-#include <QtLua/ListItem>
+#include <QtLua/UserItem>
+#include <QtLua/UserListItem>
 
 using namespace QtLua;
 
@@ -36,11 +36,11 @@ int main()
 
     ls.openlib(QtLuaLib);
 
-    ListItem::ptr li = QTLUA_REFNEW(ListItem, );
+    UserListItem::ptr li = QTLUA_REFNEW(UserListItem, );
 
-    QTLUA_REFNEW(Item, "A")->insert(li);
-    QTLUA_REFNEW(Item, "B")->insert(li);
-    QTLUA_REFNEW(Item, "C")->insert(li);
+    QTLUA_REFNEW(UserItem, "A")->insert(li);
+    QTLUA_REFNEW(UserItem, "B")->insert(li);
+    QTLUA_REFNEW(UserItem, "C")->insert(li);
 
     //ls.set_global("l", Value(ls, li));
     ls["l"] = li;
@@ -48,7 +48,7 @@ int main()
     ASSERT(ls.exec_statements("i=0; r={}; for key, value in each(l) do r[key]=value; i=i+1 end; return i").at(0).to_integer() == 3);
 
     for (const char *s = "A\0B\0C\0\0"; *s; s += 2)
-      ASSERT(ls.at("r").at(s).to_userdata_cast<Item>()->get_name() == s);
+      ASSERT(ls.at("r").at(s).to_userdata_cast<UserItem>()->get_name() == s);
   }
 
   } catch (String &e) {

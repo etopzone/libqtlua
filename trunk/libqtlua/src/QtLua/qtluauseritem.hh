@@ -28,32 +28,32 @@
 #include "qtluastring.hh"
 #include "qtluauserdata.hh"
 #include "qtluavalue.hh"
-#include "qtluaitemmodel.hh"
+#include "qtluauseritemmodel.hh"
 
 namespace QtLua {
 
-class ItemModel;
-class ListItem;
+class UserItemModel;
+class UserListItem;
 
   /**
    * @short Qt Model/View item class
-   * @header QtLua/Item
+   * @header QtLua/UserItem
    * @module {Model/View}
    *
-   * This class together with the @ref ListItem and @ref ItemModel
+   * This class together with the @ref UserListItem and @ref UserItemModel
    * classes enable easy use of list or hierarchical data structures
    * that can be viewed and modified from lua script, Qt view widgets
    * and C++ code.
    *
    * This class implement the generic hierarchical data structure leaf
    * node. It must be used as a base class for objects which may be
-   * exposed to Qt views via the @ref ItemModel class.
+   * exposed to Qt views via the @ref UserItemModel class.
    *
-   * @ref Item objects can be inserted in and removed from @ref
-   * ListItem objects from the C++ code with the @ref insert and @ref
+   * @ref UserItem objects can be inserted in and removed from @ref
+   * UserListItem objects from the C++ code with the @ref insert and @ref
    * remove functions. 
    *
-   * Each @ref Item object have a node name used for display in Qt
+   * Each @ref UserItem object have a node name used for display in Qt
    * views and access from lua script. This name can be accessed from
    * C++ code with the @ref get_name and @ref set_name functions.
    *
@@ -62,31 +62,31 @@ class ListItem;
    * @ref is_move_allowed, @ref is_rename_allowed, @ref
    * is_remove_allowed, and @ref is_replace_allowed functions.
    *
-   * See @ref ItemModel for example.
+   * See @ref UserItemModel for example.
    */
 
-class Item : public UserData
+class UserItem : public UserData
 {
-  friend class ItemModel;
-  friend class ListItem;
-  friend class ItemSelectionModel;
+  friend class UserItemModel;
+  friend class UserListItem;
+  friend class UserItemSelectionModel;
 
 public:
 
-  QTLUA_REFTYPE(Item);
+  QTLUA_REFTYPE(UserItem);
 
-  /** Create a new Item with given name */
-  Item(const String &name = "");
+  /** Create a new UserItem with given name */
+  UserItem(const String &name = "");
 
-  Item(const Item &item);
-  ~Item();
+  UserItem(const UserItem &item);
+  ~UserItem();
 
   /** The as @ref insert. */
   __attribute__((deprecated))
-  void move(const Ref<ListItem> &parent);
+  void move(const Ref<UserListItem> &parent);
 
   /** Insert this item in parent container, remove from existing parent if any. */
-  void insert(const Ref<ListItem> &parent, int pos = -1);
+  void insert(const Ref<UserListItem> &parent, int pos = -1);
 
   /** Remove this item from its container */
   void remove();
@@ -98,10 +98,10 @@ public:
   inline const String & get_name() const;
 
   /** Get pointer to parent container */
-  inline ListItem * get_parent() const;
+  inline UserListItem * get_parent() const;
 
-  /** Get associated @ref ItemModel */
-  inline ItemModel * get_model() const;
+  /** Get associated @ref UserItemModel */
+  inline UserItemModel * get_model() const;
 
   /** Get @ref QModelIndex */
   inline QModelIndex get_model_index(int column = 0) const;
@@ -143,18 +143,18 @@ protected:
   inline int get_row() const;
 
 private:
-  const Item &operator=(const Item &);
+  const UserItem &operator=(const UserItem &);
 
-  virtual void set_model(ItemModel* model);
-  bool in_parent_path(Item *item);
+  virtual void set_model(UserItemModel* model);
+  bool in_parent_path(UserItem *item);
   void insert_name();
   inline void set_row(int row);
-  virtual Item * get_child_row(int row) const;
+  virtual UserItem * get_child_row(int row) const;
   virtual int get_child_count() const;
 
   String _name;
-  ListItem *_parent;
-  ItemModel *_model;
+  UserListItem *_parent;
+  UserItemModel *_model;
   int _row;
 };
 

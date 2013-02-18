@@ -14,29 +14,44 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2009, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#ifndef QTLUA_ITEMSELECTIONMODEL_HXX_
-#define QTLUA_ITEMSELECTIONMODEL_HXX_
 
-#include "qtluaitemmodel.hxx"
+#ifndef QTLUALISTITEM_HXX_
+#define QTLUALISTITEM_HXX_
+
+#include <cassert>
+
+#include "qtluauseritem.hxx"
+#include "qtluaiterator.hxx"
 
 namespace QtLua {
 
-  ItemSelectionModel::ItemSelectionModel(ItemModel *model)
-    : QItemSelectionModel(model)
-  {
-  }
+Ref<UserItem> UserListItem::get_child(const String &name) const
+{
+  UserItem *i = _child_hash.value(name, 0);
+  return i ? *i : Ref<UserItem>();
+}
 
-  ItemSelectionModel::ItemSelectionModel(ItemModel *model, QObject *parent)
-    : QItemSelectionModel(model, parent)
-  {
-  }
+const QList<Ref<UserItem> > & UserListItem::get_list() const
+{
+  return _child_list;
+}
+
+int UserListItem::get_child_count() const
+{
+  return _child_list.count();
+}
+
+void UserListItem::remove_name(UserItem *item)
+{
+  assert(item->get_parent() == this);
+  _child_hash.remove(item->get_name());
+}
 
 }
 
 #endif
-
 

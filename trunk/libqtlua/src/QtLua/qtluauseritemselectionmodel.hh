@@ -18,34 +18,34 @@
 
 */
 
-// __moc_flags__ -fQtLua/ItemSelectionModel
+// __moc_flags__ -fQtLua/UserItemSelectionModel
 
 #ifndef QTLUA_ITEMSELECTIONMODEL_HH_
 #define QTLUA_ITEMSELECTIONMODEL_HH_
 
 #include <QItemSelectionModel>
 
-#include "qtluaitemmodel.hh"
+#include "qtluauseritemmodel.hh"
 
 namespace QtLua {
 
   /**
    * @short Qt Model/View exclusive selection model class
-   * @header QtLua/ItemSelectionModel
+   * @header QtLua/UserItemSelectionModel
    * @module {Model/View}
    *
-   * This class can be used with @ref ItemModel if you want to
+   * This class can be used with @ref UserItemModel if you want to
    * prevent multiple selection which contains childs and associated
    * parents at the same time.
    */
 
-  class ItemSelectionModel : public QItemSelectionModel
+  class UserItemSelectionModel : public QItemSelectionModel
   {
     Q_OBJECT;
 
   public:
-    inline ItemSelectionModel(ItemModel *model);
-    inline ItemSelectionModel(ItemModel *model, QObject *parent);
+    inline UserItemSelectionModel(UserItemModel *model);
+    inline UserItemSelectionModel(UserItemModel *model, QObject *parent);
 
   public slots:
     virtual void select(const QModelIndex &index, QItemSelectionModel::SelectionFlags command);

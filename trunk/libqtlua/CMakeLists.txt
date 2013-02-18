@@ -79,16 +79,16 @@
 
 	SET(QTLUA_LIB_SRCS src/qtluaconsole.cc src/qtluaenum.cc
 		src/qtluaenumiterator.cc src/qtluafunction.cc
-		src/qtluaitem.cc src/qtluaitemmodel.cc
-		src/qtluaitemselectionmodel.cc src/qtlualistitem.cc
+		src/qtluauseritem.cc src/qtluauseritemmodel.cc
+		src/qtluauseritemselectionmodel.cc src/qtluauserlistitem.cc
 		src/qtlualistiterator.cc src/qtluamember.cc
 		src/qtluametacache.cc src/qtluamethod.cc
 		src/qtluaplugin.cc src/qtluaproperty.cc
-		src/qtluaqmetaobjecttable.cc
-		src/qtluaqmetaobjectwrapper.cc
+		src/qtluaqmetaobjecttable.cc src/qtluaqmetavalue.cc
+		src/qtluaqmetaobjectwrapper.cc src/qtlualuamodel.cc
 		src/qtluaqobjectiterator.cc src/qtluaqobjectwrapper.cc
 		src/qtluaqtlib.cc src/qtluastate.cc
-		src/qtluatabledialog.cc src/qtluatablegridmodel.cc
+		src/qtluaitemviewdialog.cc src/qtluatablegridmodel.cc
 		src/qtluatableiterator.cc src/qtluatabletreekeys.cc
 		src/qtluatabletreemodel.cc src/qtluauserdata.cc
 		src/qtluavaluebase.cc src/qtluavalue.cc src/qtluavalueref.cc
@@ -97,10 +97,11 @@
 	# Generate moc files
  
 	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaconsole.hh        OPTIONS -fQtLua/Console)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemselectionmodel.hh OPTIONS -fQtLua/ItemSelectionModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemmodel.hh      OPTIONS -fQtLua/ItemModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemselectionmodel.hh OPTIONS -fQtLua/UserItemSelectionModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemmodel.hh  OPTIONS -fQtLua/UserItemModel)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtlualuamodel.hh      OPTIONS  -fQtLua/LuaModel)
 	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabletreemodel.hh OPTIONS -fQtLua/TableTreeModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabledialog.hh	   OPTIONS -fQtLua/TableDialog)
+	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemviewdialog.hh	   OPTIONS -fQtLua/ItemViewDialog)
 	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatablegridmodel.hh OPTIONS -fQtLua/TableGridModel)
 	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluastate.hh          OPTIONS -fQtLua/State)
 	QT4_WRAP_CPP(MOC_OUTFILES src/qtluaqtlib.hh)
@@ -124,32 +125,33 @@
 			ARCHIVE DESTINATION ${INSTALL_LIB})
 
         INSTALL(FILES
-                src/QtLua/Function src/QtLua/function.hh src/QtLua/function.hxx 
-                src/QtLua/Console src/QtLua/console.hh src/QtLua/console.hxx 
-                src/QtLua/Item src/QtLua/item.hh src/QtLua/item.hxx	
-                src/QtLua/TableTreeModel src/QtLua/tabletreemodel.hh 
-                src/QtLua/TableDialog src/QtLua/tabledialog.hh src/QtLua/tabledialog.hxx 
-                src/QtLua/TableGridModel src/QtLua/tablegridmodel.hh 
-                src/QtLua/ItemModel src/QtLua/itemmodel.hh 
-                src/QtLua/ItemSelectionModel src/QtLua/itemselectionmodel.hh src/QtLua/itemselectionmodel.hxx 
-                src/QtLua/Iterator src/QtLua/iterator.hh src/QtLua/iterator.hxx 
-                src/QtLua/ListItem src/QtLua/listitem.hh src/QtLua/listitem.hxx 
-                src/QtLua/Plugin src/QtLua/plugin.hh src/QtLua/plugin.hxx 
-                src/QtLua/PluginInterface src/QtLua/plugininterface.hh 
-                src/QtLua/State src/QtLua/state.hh src/QtLua/state.hxx 
-                src/QtLua/UserData src/QtLua/userdata.hh src/QtLua/userdata.hxx 
-                src/QtLua/UserObject src/QtLua/userobject.hh src/QtLua/userobject.hxx 
-                src/QtLua/Value src/QtLua/value.hh src/QtLua/value.hxx 
-                src/QtLua/ValueRef src/QtLua/valueref.hh src/QtLua/valueref.hxx 
-                src/QtLua/Ref src/QtLua/ref.hh 
-                src/QtLua/String src/QtLua/string.hh src/QtLua/string.hxx 
-                src/QtLua/QHashProxy src/QtLua/qhashproxy.hh src/QtLua/qhashproxy.hxx 
-                src/QtLua/QVectorProxy src/QtLua/qvectorproxy.hh src/QtLua/qvectorproxy.hxx 
-                src/QtLua/QListProxy src/QtLua/qlistproxy.hh src/QtLua/qlistproxy.hxx 
-                src/QtLua/QLinkedListProxy src/QtLua/qlinkedlistproxy.hh src/QtLua/qlinkedlistproxy.hxx 
-                src/QtLua/ArrayProxy src/QtLua/arrayproxy.hh src/QtLua/arrayproxy.hxx 
-                src/QtLua/MetaType src/QtLua/metatype.hh src/QtLua/metatype.hxx 
-                src/QtLua/DispatchProxy src/QtLua/dispatchproxy.hh src/QtLua/dispatchproxy.hxx
+                src/QtLua/Function           src/QtLua/qtluafunction.hh        src/QtLua/qtluafunction.hxx 
+                src/QtLua/Console            src/QtLua/qtluaconsole.hh         src/QtLua/qtluaconsole.hxx 
+                src/QtLua/TableTreeModel     src/QtLua/qtluatabletreemodel.hh  src/QtLua/qtluatabletreemodel.hxx
+                src/QtLua/ItemViewDialog     src/QtLua/qtluaitemviewdialog.hh  src/QtLua/qtluaitemviewdialog.hxx
+                src/QtLua/TableGridModel     src/QtLua/qtluatablegridmodel.hh  src/QtLua/qtluatablegridmodel.hxx
+                src/QtLua/LuaModel           src/QtLua/qtlualuamodel.hh        src/QtLua/qtlualuamodel.hxx
+                src/QtLua/UserItem           src/QtLua/qtluauseritem.hh        src/QtLua/qtluauseritem.hxx
+                src/QtLua/UserListItem       src/QtLua/qtluauserlistitem.hh    src/QtLua/qtluauserlistitem.hxx 
+                src/QtLua/UserItemModel      src/QtLua/qtluauseritemmodel.hh   src/QtLua/qtluauseritemmodel.hxx
+                src/QtLua/UserItemSelectionModel src/QtLua/qtluauseritemselectionmodel.hh src/QtLua/qtluauseritemselectionmodel.hxx 
+                src/QtLua/Iterator           src/QtLua/qtluaiterator.hh        src/QtLua/qtluaiterator.hxx 
+                src/QtLua/Plugin             src/QtLua/qtluaplugin.hh          src/QtLua/qtluaplugin.hxx 
+                src/QtLua/State              src/QtLua/qtluastate.hh           src/QtLua/qtluastate.hxx 
+                src/QtLua/UserData           src/QtLua/qtluauserdata.hh        src/QtLua/qtluauserdata.hxx 
+                src/QtLua/UserObject         src/QtLua/qtluauserobject.hh      src/QtLua/qtluauserobject.hxx 
+                src/QtLua/ValueBase          src/QtLua/qtluavaluebase.hh       src/QtLua/qtluavaluebase.hxx
+                src/QtLua/Value              src/QtLua/qtluavalue.hh           src/QtLua/qtluavalue.hxx 
+                src/QtLua/ValueRef           src/QtLua/qtluavalueref.hh        src/QtLua/qtluavalueref.hxx 
+                src/QtLua/Ref                src/QtLua/qtluaref.hh 
+                src/QtLua/String             src/QtLua/qtluastring.hh          src/QtLua/qtluastring.hxx 
+                src/QtLua/QHashProxy         src/QtLua/qtluaqhashproxy.hh      src/QtLua/qtluaqhashproxy.hxx 
+                src/QtLua/QVectorProxy       src/QtLua/qtluaqvectorproxy.hh    src/QtLua/qtluaqvectorproxy.hxx 
+                src/QtLua/QListProxy         src/QtLua/qtluaqlistproxy.hh      src/QtLua/qtluaqlistproxy.hxx 
+                src/QtLua/QLinkedListProxy   src/QtLua/qtluaqlinkedlistproxy.hh src/QtLua/qtluaqlinkedlistproxy.hxx 
+                src/QtLua/ArrayProxy         src/QtLua/qtluaarrayproxy.hh      src/QtLua/qtluaarrayproxy.hxx 
+                src/QtLua/MetaType           src/QtLua/qtluametatype.hh        src/QtLua/qtluametatype.hxx 
+                src/QtLua/DispatchProxy      src/QtLua/qtluadispatchproxy.hh   src/QtLua/qtluadispatchproxy.hxx
         DESTINATION ${INSTALL_INC}/QtLua)
 	
 # tests

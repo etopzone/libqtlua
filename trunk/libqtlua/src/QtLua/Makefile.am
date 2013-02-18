@@ -3,14 +3,15 @@ pkgincludedir = $(includedir)/QtLua
 pkginclude_HEADERS = \
 	Function qtluafunction.hh qtluafunction.hxx \
 	Console qtluaconsole.hh qtluaconsole.hxx \
-	Item qtluaitem.hh qtluaitem.hxx	\
+	UserItem qtluauseritem.hh qtluauseritem.hxx	\
 	TableTreeModel qtluatabletreemodel.hh qtluatabletreemodel.hxx \
-	TableDialog qtluatabledialog.hh qtluatabledialog.hxx \
+	ItemViewDialog qtluaitemviewdialog.hh qtluaitemviewdialog.hxx \
 	TableGridModel qtluatablegridmodel.hh qtluatablegridmodel.hxx \
-	ItemModel qtluaitemmodel.hh qtluaitemmodel.hxx \
-	ItemSelectionModel qtluaitemselectionmodel.hh qtluaitemselectionmodel.hxx \
+	LuaModel qtlualuamodel.hh qtlualuamodel.hxx \
+	UserItemModel qtluauseritemmodel.hh qtluauseritemmodel.hxx \
+	UserItemSelectionModel qtluauseritemselectionmodel.hh qtluauseritemselectionmodel.hxx \
 	Iterator qtluaiterator.hh qtluaiterator.hxx \
-	ListItem qtlualistitem.hh qtlualistitem.hxx \
+	UserListItem qtluauserlistitem.hh qtluauserlistitem.hxx \
 	Plugin qtluaplugin.hh qtluaplugin.hxx \
 	State qtluastate.hh qtluastate.hxx \
 	UserData qtluauserdata.hh qtluauserdata.hxx \

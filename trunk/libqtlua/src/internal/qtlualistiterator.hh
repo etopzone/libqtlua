@@ -24,7 +24,7 @@
 #include <QPointer>
 
 #include <QtLua/qtluaiterator.hh>
-#include <QtLua/qtlualistitem.hh>
+#include <QtLua/qtluauserlistitem.hh>
 
 namespace QtLua {
 
@@ -35,7 +35,7 @@ namespace QtLua {
  * @internal
  *
  * This internal class implements the iterator used to
- * iterate over @ref ListItem objects.
+ * iterate over @ref UserListItem objects.
  *
  * @see Iterator
  */
@@ -45,7 +45,7 @@ class ListIterator : public Iterator
 public:
   QTLUA_REFTYPE(ListIterator);
 
-  ListIterator(State *ls, const ListItem::ptr &list);
+  ListIterator(State *ls, const UserListItem::ptr &list);
 
 private:
   bool more() const;
@@ -55,8 +55,8 @@ private:
   ValueRef get_value_ref();
 
   QPointer<State> _ls;
-  ListItem::ptr _list;
-  QList<Item::ptr>::const_iterator _it;
+  UserListItem::ptr _list;
+  QList<UserItem::ptr>::const_iterator _it;
 };
 
 }

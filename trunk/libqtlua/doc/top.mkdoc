@@ -5,24 +5,48 @@
 @parse qt_4.5.mkdoclib
 
 @parse {
-  QtLua/qtluafunction.hh QtLua/qtluaconsole.hh QtLua/qtluaitem.hh
-  QtLua/qtluatabletreemodel.hh QtLua/qtluatabledialog.hh
-  QtLua/qtluatablegridmodel.hh QtLua/qtluaitemmodel.hh
-  QtLua/qtluaitemselectionmodel.hh QtLua/qtluaiterator.hh
-  QtLua/qtlualistitem.hh QtLua/qtluaplugin.hh QtLua/qtluastate.hh
-  QtLua/qtluauserdata.hh QtLua/qtluauserobject.hh QtLua/qtluavaluebase.hh QtLua/qtluavalue.hh
-  QtLua/qtluavalueref.hh QtLua/qtluaref.hh QtLua/qtluastring.hh
-  QtLua/qtluaqhashproxy.hh QtLua/qtluaqvectorproxy.hh
-  QtLua/qtluaqlistproxy.hh QtLua/qtluaqlinkedlistproxy.hh
-  QtLua/qtluaarrayproxy.hh QtLua/qtluametatype.hh
+  QtLua/qtluafunction.hh
+  QtLua/qtluaconsole.hh
+  QtLua/qtluauseritem.hh
+  QtLua/qtluatabletreemodel.hh
+  QtLua/qtluaitemviewdialog.hh
+  QtLua/qtluatablegridmodel.hh
+  QtLua/qtlualuamodel.hh
+  QtLua/qtluauseritemmodel.hh
+  QtLua/qtluauseritemselectionmodel.hh
+  QtLua/qtluaiterator.hh
+  QtLua/qtluauserlistitem.hh
+  QtLua/qtluaplugin.hh
+  QtLua/qtluastate.hh
+  QtLua/qtluauserdata.hh
+  QtLua/qtluauserobject.hh
+  QtLua/qtluavaluebase.hh
+  QtLua/qtluavalue.hh
+  QtLua/qtluavalueref.hh
+  QtLua/qtluaref.hh
+  QtLua/qtluastring.hh
+  QtLua/qtluaqhashproxy.hh
+  QtLua/qtluaqvectorproxy.hh
+  QtLua/qtluaqlistproxy.hh
+  QtLua/qtluaqlinkedlistproxy.hh
+  QtLua/qtluaarrayproxy.hh
+  QtLua/qtluametatype.hh
   QtLua/qtluadispatchproxy.hh
+  internal/qtluaqmetavalue.hh
   internal/qtluaenum.hh
-  internal/qtlualistiterator.hh internal/qtluamember.hh
-  internal/qtluametacache.hh internal/qtluamethod.hh
-  internal/qtluatableiterator.hh internal/qtluaqobjectiterator.hh
-  internal/qtluaenumiterator.hh internal/qtluaproperty.hh
-  internal/qtluaqmetaobjectwrapper.hh internal/qtluaqobjectwrapper.hh
+  internal/qtlualistiterator.hh
+  internal/qtluamember.hh
+  internal/qtluametacache.hh
+  internal/qtluamethod.hh
+  internal/qtluatableiterator.hh
+  internal/qtluaqobjectiterator.hh
+  internal/qtluaenumiterator.hh
+  internal/qtluaproperty.hh
+  internal/qtluaqmetaobjectwrapper.hh
+  internal/qtluaqobjectwrapper.hh
   internal/qtluatabletreekeys.hh
+  internal/qtluapoolarray.hh
+  internal/qtluaenum.hh
 }
 
 @scope {QtLua}

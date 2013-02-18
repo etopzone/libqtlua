@@ -14,33 +14,40 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2010, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
-#ifndef MAINWINDOW_HH_
-#define MAINWINDOW_HH_
 
-#include <QMainWindow>
-#include <QTreeView>
+#ifndef QTLUA_TABLEDIALOG_HXX_
+#define QTLUA_TABLEDIALOG_HXX_
 
-#include <QtLua/State>
-#include <QtLua/UserItem>
-#include <QtLua/UserListItem>
+#include "qtluatabletreemodel.hxx"
+#include "qtluatablegridmodel.hxx"
 
-class MainWindow : public QMainWindow
-{
-  Q_OBJECT
+namespace QtLua {
 
-public:
-  MainWindow();
-  ~MainWindow();
+  QAbstractItemModel * ItemViewDialog::get_model() const
+  {
+    return _model;
+  }
 
-private:
-  QtLua::State *state;
-  QTreeView *treeview;
-  QtLua::UserItemModel *model;
-};
+  QAbstractItemView * ItemViewDialog::get_view() const
+  {
+    return _view;
+  }
+
+  ItemViewDialog::EditActions ItemViewDialog::get_edit_actions() const
+  {
+    return _edit;
+  }
+
+  void ItemViewDialog::set_edit_actions_(int edit)
+  {
+    set_edit_actions((EditAction)edit);
+  }
+
+}
 
 #endif
 

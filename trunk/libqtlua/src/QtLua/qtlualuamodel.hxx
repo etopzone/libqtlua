@@ -14,44 +14,13 @@
     You should have received a copy of the GNU Lesser General Public License
     along with LibQtLua.  If not, see <http://www.gnu.org/licenses/>.
 
-    Copyright (C) 2008, Alexandre Becoulet <alexandre.becoulet@free.fr>
+    Copyright (C) 2010, Alexandre Becoulet <alexandre.becoulet@free.fr>
 
 */
 
+#ifndef QTLUA_CALLMODEL_HXX_
+#define QTLUA_CALLMODEL_HXX_
 
-#ifndef QTLUALISTITEM_HXX_
-#define QTLUALISTITEM_HXX_
-
-#include <cassert>
-
-#include "qtluaitem.hxx"
-#include "qtluaiterator.hxx"
-
-namespace QtLua {
-
-Ref<Item> ListItem::get_child(const String &name) const
-{
-  Item *i = _child_hash.value(name, 0);
-  return i ? *i : Ref<Item>();
-}
-
-const QList<Ref<Item> > & ListItem::get_list() const
-{
-  return _child_list;
-}
-
-int ListItem::get_child_count() const
-{
-  return _child_list.count();
-}
-
-void ListItem::remove_name(Item *item)
-{
-  assert(item->get_parent() == this);
-  _child_hash.remove(item->get_name());
-}
-
-}
+#include "qtluavalue.hxx"
 
 #endif
-
