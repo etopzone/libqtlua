@@ -146,12 +146,12 @@ namespace QtLua {
   void ArrayProxy<T>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_array)
-      throw String("Can not write to null array.");
+      QTLUA_THROW(QtLua::ArrayProxy, "Can not index a null array.");
 
     unsigned int index = (unsigned int)key.to_number() - 1;
 
     if (index >= _size)
-      throw String("Array index is out of bounds.");
+      QTLUA_THROW(QtLua::ArrayProxy, "Array index `%' is out of bounds.", .arg(index));
 
     const_cast<T*>(_array)[index] = value;
   }
@@ -160,7 +160,7 @@ namespace QtLua {
   Ref<Iterator> ArrayProxyRo<T>::new_iterator(State *ls)
   {
     if (!_array)
-      throw String("Can not iterate on null array.");
+      QTLUA_THROW(QtLua::ArrayProxy, "Can not iterate on a null array.");
 
     return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }

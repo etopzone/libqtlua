@@ -52,7 +52,7 @@ double ValueBase::_id_counter = LUA_RIDX_LAST + 1;
 void ValueBase::check_state() const
 {
   if (!_st)
-    throw String("Can't perform operations on QtLua::Value which has no associated QtLua::State object");
+    QTLUA_THROW(QtLua::ValueBase, "The associated State object has been destroyed.");
 }
 
 bool ValueBase::connect(QObject *obj, const char *signal)
@@ -104,7 +104,8 @@ Value::List ValueBase::call(const List &args) const
 
       try {
 	if (!lua_checkstack(lst, args.size()))
-	  throw String("Unable to extend lua stack to handle % arguments").arg(args.size());
+	  QTLUA_THROW(QtLua::ValueBase, "Unable to extend the lua stack to handle % arguments.",
+		      .arg(args.size()));
 
 	foreach(const Value &v, args)
 	  v.push_value(lst);
@@ -133,7 +134,7 @@ Value::List ValueBase::call(const List &args) const
       UserData::ptr ud = UserData::pop_ud(lst);
 
       if (!ud.valid())
-	throw String("Can not call null lua::userdata value.");
+	QTLUA_THROW(QtLua::ValueBase, "Can not call a null `QtLua::UserData' value.");
 
       return ud->meta_call(_st, args);
     }
@@ -143,11 +144,11 @@ Value::List ValueBase::call(const List &args) const
       lua_pop(lst, 1);
 
       if (!lua_checkstack(th, args.size()))
-	throw String("Unable to extend coroutine stack to handle % arguments").arg(args.size());
+	QTLUA_THROW(QtLua::ValueBase, "Unable to extend the coroutine stack to handle % arguments", .arg(args.size()));
 
 #if LUA_VERSION_NUM >= 501
       if ((lua_status(th) != 0 || lua_gettop(th) == 0) && (lua_status(th) != LUA_YIELD))
-	throw String("Can not resume a dead coroutine");
+	QTLUA_THROW(QtLua::ValueBase, "Can not resume a dead coroutine.");
 #endif
 
       int oldtop_th = lua_gettop(th);
@@ -194,7 +195,7 @@ Value::List ValueBase::call(const List &args) const
 
     default:
       lua_pop(lst, 1);
-      throw String("Can not call lua::% value.").arg(lua_typename(lst, t));
+      QTLUA_THROW(QtLua::ValueBase, "Can not call a `lua::%' value.", .arg(lua_typename(lst, t)));
     }
 }
 
@@ -234,7 +235,7 @@ Value ValueBase::at(const Value &key) const
       UserData::ptr ud = UserData::pop_ud(lst);
 
       if (!ud.valid())
-	throw String("Can not index null lua::userdata value.");
+	QTLUA_THROW(QtLua::ValueBase, "Can not index a null `QtLua::UserData' value.");
 
       return ud->meta_index(_st, key);
     }
@@ -261,7 +262,7 @@ Value ValueBase::at(const Value &key) const
 
     default:
       lua_pop(lst, 1);
-      throw String("Can not index lua::% value.").arg(lua_typename(lst, t));
+      QTLUA_THROW(QtLua::ValueBase, "Can not index a `lua::%' value.", .arg(lua_typename(lst, t)));
     }
 }
 
@@ -298,7 +299,7 @@ bool ValueBase::is_empty() const
 
     default:
       lua_pop(lst, 1);
-      throw String("Can not test emptiness of a lua::% value.").arg(lua_typename(lst, t));
+      QTLUA_THROW(QtLua::ValueBase, "Can not test emptiness of a `lua::%' value.", .arg(lua_typename(lst, t)));
     }
 }
 
@@ -311,7 +312,7 @@ void ValueBase::table_shift(int pos, int count, const Value &init, int len)
   if (lua_type(lst, -1) != LUA_TTABLE)
     {
       lua_pop(lst, 1);
-      throw String("Can only shift values in a lua::table value.");
+      QTLUA_THROW(QtLua::ValueBase, "Can only shift values inside a `lua::table' value.");
     }
 
   int i;
@@ -379,7 +380,7 @@ Ref<Iterator> ValueBase::new_iterator() const
       UserData::ptr ud = UserData::pop_ud(lst);
 
       if (!ud.valid())
-	throw String("Can not iterate through null lua::userdata value.");
+	QTLUA_THROW(QtLua::ValueBase, "Can not iterate on a null `QtLua::UserData' value.");
 
       return ud->new_iterator(_st);
     }
@@ -397,7 +398,7 @@ Ref<Iterator> ValueBase::new_iterator() const
 
     default:
       lua_pop(lst, 1);
-      throw String("Can not iterate through lua::% value.").arg(lua_typename(lst, t));
+      QTLUA_THROW(QtLua::ValueBase, "Can not iterate on a `lua::%' value.", .arg(lua_typename(lst, t)));
     }
 }
 
@@ -468,8 +469,8 @@ void ValueBase::convert_error(ValueType type) const
 
   lua_pop(lst, 1);
 
-  throw String("Can not convert lua::% value to lua::%.")
-    .arg(lua_typename(lst, type_b)).arg(lua_typename(lst, (int)type));
+  QTLUA_THROW(QtLua::ValueBase, "Can not convert a `lua::%' value to a `lua::%' value.",
+	      .arg(lua_typename(lst, type_b)).arg(lua_typename(lst, (int)type)));
 }
 
 lua_Number ValueBase::to_number() const
@@ -611,7 +612,7 @@ QObject *ValueBase::to_qobject() const
   QObjectWrapper::ptr ow = to_userdata_cast<QObjectWrapper>();
 
   if (!ow.valid())
-    throw String("Can not convert % type to QObject.").arg(type_name());
+    QTLUA_THROW(QtLua::ValueBase, "Can not convert a `%' lua value to a QObject.", .arg(type_name()));
 
   return &ow->get_object();
 }
@@ -631,7 +632,7 @@ QVariant ValueBase::to_qvariant() const
       return QVariant(to_string());
 
     default:
-      throw String("Can not convert % type to QVariant.").arg(type_name());
+      QTLUA_THROW(QtLua::ValueBase, "Can not convert a `%' lua value to a QVariant.", .arg(type_name()));
     }
 }
 
@@ -659,7 +660,7 @@ QByteArray ValueBase::to_bytecode() const
       int status = lua_dump(lst, &lua_writer, &bytecode);	
       lua_pop(lst, 1);
       if (status)
-	throw QtLua::String("Unable to dump function bytecode");
+	QTLUA_THROW(QtLua::ValueBase, "Unable to dump function bytecode (status=%)", .arg(status));
       return bytecode;
     }
 
@@ -707,7 +708,7 @@ int ValueBase::len() const
 
     default:
       lua_pop(lst, 1);
-      throw String("Can evaluate length of a lua::% value.").arg(lua_typename(lst, t));
+      QTLUA_THROW(QtLua::ValueBase, "Can not evaluate length of a `lua::%' value.", .arg(lua_typename(lst, t)));
     }
 
 }

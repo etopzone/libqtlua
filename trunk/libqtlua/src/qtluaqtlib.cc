@@ -123,14 +123,14 @@ namespace QtLua {
 
     int sigindex = sigobj.metaObject()->indexOfSignal(signame.constData());
     if (sigindex < 0)
-      throw String("No such signal `%'.").arg(signame);
+      QTLUA_THROW(qt.connect, "No such signal `%'.", .arg(signame));
 
     switch (args.size())
       {
       case 3: {
 	// connect qt signal to lua function
 	sigqow->_lua_connect(sigindex, args[2]);
-	return Value::List();
+	break;
       }
 
       case 4: {
@@ -140,16 +140,18 @@ namespace QtLua {
 
 	int slotindex = sloobj.metaObject()->indexOfSlot(slotname.constData());
 	if (slotindex < 0)
-	  throw String("No such slot `%'.").arg(slotname);
+	  QTLUA_THROW(qt.connect, "No such slot `%'.", .arg(slotname));
 
 	if (!QMetaObject::checkConnectArgs(signame.constData(), slotname.constData()))
-	  throw String("Unable to connect signal/slot, incompatible argument types.");
+	  QTLUA_THROW(qt.connect, "Incompatible argument types between signal `%' and slot `%'.",
+		      .arg(signame.constData()).arg(slotname.constData()));
 
-	if (QMetaObject::connect(&sigobj, sigindex, &sloobj, slotindex))
-	  return Value::List();
+	if (!QMetaObject::connect(&sigobj, sigindex, &sloobj, slotindex))
+	  QTLUA_THROW(qt.connect, "Unable to connect signal to slot.");
       }
       }
-    throw String("Unable to connect signal/slot.");
+
+    return Value::List();
   }
 
 
@@ -167,7 +169,7 @@ namespace QtLua {
 
     int sigindex = sigobj.metaObject()->indexOfSignal(signame.constData());
     if (sigindex < 0)
-      throw String("No such signal `%'.").arg(signame);
+      QTLUA_THROW(qt.disconnect, "No such signal `%'.", .arg(signame));
 
     switch (args.size())
       {
@@ -187,7 +189,7 @@ namespace QtLua {
 
 	int slotindex = sloobj.metaObject()->indexOfSlot(slotname.constData());
 	if (slotindex < 0)
-	  throw String("No such slot `%'.").arg(slotname);
+	  QTLUA_THROW(qt.disconnect, "No such slot `%'.", .arg(slotname));
 
 	return Value(ls, (Value::Bool)QMetaObject::disconnect(&sigobj, sigindex, &sloobj, slotindex));
       }
@@ -214,19 +216,24 @@ namespace QtLua {
 
     switch (args[0].type())
       {
-      case Value::TString:
-	if (int t = QMetaType::type(args[0].to_string().constData()))
+      case Value::TString: {
+	String n(args[0].to_string());
+	if (int t = QMetaType::type(n.constData()))
 	  return Value(ls, t);
-	break;
-      case Value::TNumber:
-	if (const char *n = QMetaType::typeName(args[0].to_integer()))
-	  return Value(ls, n);
-	break;
-      default:
-	break;
+	QTLUA_THROW(qt.meta_type, "Unable to resolve Qt meta type `%'.", .arg(n));
       }
 
-    throw String("Unable to resolve Qt meta type");
+      case Value::TNumber: {
+	int t = args[0].to_integer();
+	if (const char *n = QMetaType::typeName(t))
+	  return Value(ls, n);
+	QTLUA_THROW(qt.meta_type, "Unable to resolve Qt meta type handle `%'.", .arg(t));
+      }
+
+      default:
+	QTLUA_THROW(qt.meta_type, "Bad argument type, string or number expected.");
+	break;
+      }
   }
 
 
@@ -259,7 +266,7 @@ namespace QtLua {
     QObject *w = uil.load(&f, p);
 
     if (!w)
-      throw String("Unable to load '%' ui file.").arg(f.fileName());
+      QTLUA_THROW(qt.ui.load_ui, "Unable to load the `%' ui file.", .arg(f.fileName()));
 
     return Value(ls, w, true, true);
   }
@@ -284,7 +291,7 @@ namespace QtLua {
     QObject *w = uil.createWidget(classname.to_qstring(), p, name.to_qstring());
 
     if (!w)
-      throw String("Unable to create % type widget.").arg(classname);
+      QTLUA_THROW(qt.ui.new_widget, "Unable to create a widget of type `%'.", .arg(classname));
 
     return Value(ls, w, true, true);
   }
@@ -335,7 +342,7 @@ namespace QtLua {
 	    int col = get_arg<int>(args, 3);
 	    int col_span = get_arg<int>(args, 4, 1);
 	    if (col + col_span > 2)
-	      throw QtLua::String("Bad QFormLayout spanning");
+	      QTLUA_THROW(qt.ui.layout_add, "Bad QFormLayout spanning.");
 
 	    QFormLayout::ItemRole role = (col_span > 1 ? QFormLayout::SpanningRole :
 					  col ? QFormLayout::FieldRole : QFormLayout::LabelRole);
@@ -425,7 +432,7 @@ namespace QtLua {
       }
 
   err:
-    throw String("Bad layout object type");
+    QTLUA_THROW(qt.ui.layout_add, "Bad object type.");
   }
 
 
@@ -470,7 +477,7 @@ namespace QtLua {
     if (!qtr->load(filename))
       {
 	delete qtr;
-	throw String("Unable to load translation file `%'").arg(filename);
+	QTLUA_THROW(qt.translator, "Unable to load the translation file `%'", .arg(filename));
       }
 
     QCoreApplication::installTranslator(qtr);
@@ -495,7 +502,7 @@ namespace QtLua {
     else if (QMenuBar *menubar = dynamic_cast<QMenuBar*>(obj))
       result = menubar->addMenu(text);
     else
-      throw String("Bad menu owner object type");
+      QTLUA_THROW(qt.ui.menu.add_menu, "Bad object type.");
 
     if (args.size() > 2)
       result->setObjectName(args[2]);
@@ -517,7 +524,7 @@ namespace QtLua {
     else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
       result = tb->addSeparator();
     else
-      throw String("Bad QMenu object type");
+      QTLUA_THROW(qt.ui.menu.add_separator, "Bad object type.");
 
     if (args.size() > 1)
       result->setObjectName(args[1]);
@@ -544,7 +551,7 @@ namespace QtLua {
     else if (QToolBar *tb = dynamic_cast<QToolBar*>(obj))
       result = tb->addAction(text);
     else
-      throw String("Bad QAction container object type");
+      QTLUA_THROW(qt.ui.menu.add_action, "Bad object type.");
 
     if (args.size() > 2)
       result->setObjectName(args[2].to_string());
@@ -585,9 +592,9 @@ namespace QtLua {
 
     return QtLua::Value(ls);
   err:
-    throw String("Can not attach a % to a % object")
-      .arg(obj2->metaObject()->className())
-      .arg(obj->metaObject()->className());
+    QTLUA_THROW(qt.ui.menu.attach, "Can not attach a `%' object to a `%' object.",
+		.arg(obj2->metaObject()->className())
+		.arg(obj->metaObject()->className()));
   }
 
 
@@ -638,14 +645,14 @@ namespace QtLua {
     else if ((menu = dynamic_cast<QMenu*>(obj)))
       action = menu->menuAction();
     else
-      throw String("Bad QAction object");
+      QTLUA_THROW(qt.ui.menu.remove, "Bad object type.");
 
     if (QWidget *w = dynamic_cast<QWidget*>(pobj))
       w->removeAction(action);
     else if (QActionGroup *group = dynamic_cast<QActionGroup*>(pobj))
       group->removeAction(action);
     else
-      throw String("Bad QWidget object to remove action from");
+      QTLUA_THROW(qt.ui.menu.remove, "Bad QWidget object type.");
 
     return QtLua::Value(ls);
   }
@@ -699,9 +706,9 @@ namespace QtLua {
 
     return QtLua::Value(ls);
   err:
-    throw String("Can not attach a % to a % object")
-      .arg(obj2->metaObject()->className())
-      .arg(obj->metaObject()->className());
+    QTLUA_THROW(qt.ui.attach, "Can not attach a `%' to a `%' object.",
+		.arg(obj2->metaObject()->className())
+		.arg(obj->metaObject()->className()));
   }
 
   ////////////////////////////////////////////////// dialogs
@@ -963,7 +970,7 @@ namespace QtLua {
     else
       {
 	delete m;
-	throw QtLua::String("Don't know how to set MVC model of such object");
+	QTLUA_THROW(qt.mvc.new_*_model, "Unable to set the MVC model for this object type.");
       }
   }
 

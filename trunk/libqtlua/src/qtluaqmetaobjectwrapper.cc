@@ -76,7 +76,7 @@ namespace QtLua {
       }
 #endif
 
-    throw QtLua::String("No suitable constructor found for `%' class").arg(_mo->className());
+    QTLUA_THROW(QtLua::QMetaObjectWrapper, "No invokable constructor found to create an object of the `%' class.", .arg(_mo->className()));
   }
 
   Value QMetaObjectWrapper::meta_index(State *ls, const Value &key)

@@ -29,7 +29,7 @@ namespace QtLua {
   QObject & QObjectWrapper::get_object()
   {
     if (!_obj)
-      throw String("QObjectWrapper is empty, QObject does not exist.");
+      QTLUA_THROW(QtLua::QObjectWrapper, "The wrapper has no associated QObject.");
 
     return *_obj;
   }

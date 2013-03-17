@@ -332,7 +332,7 @@ int State::lua_meta_item_index(lua_State *st)
     UserData::ptr ud = UserData::get_ud(st, 1);
 
     if (!ud.valid())
-      throw String("Can not index null lua::userdata value.");
+      QTLUA_THROW(QtLua::UserData, "Can not index a null `QtLua::UserData' value.");
 
     Value	op(2, this_);
 
@@ -358,7 +358,7 @@ int State::lua_meta_item_newindex(lua_State *st)
     UserData::ptr ud = UserData::get_ud(st, 1);
 
     if (!ud.valid())
-      throw String("Can not index null lua::userdata value.");
+      QTLUA_THROW(QtLua::UserData, "Can not index a null `QtLua::UserData' value.");
 
     Value	op1(2, this_);
     Value	op2(3, this_);
@@ -385,7 +385,7 @@ int State::lua_meta_item_call(lua_State *st)
     UserData::ptr ud = UserData::get_ud(st, 1);
 
     if (!ud.valid())
-      throw String("Can not call null lua::userdata value.");
+      QTLUA_THROW(QtLua::UserData, "Can not call a null `QtLua::UserData' value.");
 
     Value::List	args;
 
@@ -399,7 +399,8 @@ int State::lua_meta_item_call(lua_State *st)
     this_->_yield_on_return = oy;
 
     if (!lua_checkstack(st, args.size()))
-      throw String("Unable to extend lua stack to handle % return values").arg(args.size());
+      QTLUA_THROW(QtLua::State, "Unable to extend the lua stack to handle % return values",
+		  .arg(args.size()));
 
     foreach(const Value &v, args)
       v.push_value(st);
@@ -597,7 +598,7 @@ void State::set_global_r(const String &name, const Value &value, int tblidx)
 	{
 	  // bad existing intermediate value
 	  lua_pop(_lst, 1);
-	  throw String("Can not set global value, the `%' exists and is not a table.").arg(prefix);
+	  QTLUA_THROW(QtLua::State, "Can not set the global, the `%' key already exists.", .arg(name));
 	}
     }
 }
@@ -654,7 +655,7 @@ void State::get_global_r(const String &name, Value &value, int tblidx) const
       if (!lua_istable(_lst, -1))
 	{
 	  lua_pop(_lst, 1);
-	  throw String("Can not get global value, `%' is not a table.").arg(prefix);
+	  QTLUA_THROW(QtLua::State, "Can not get the global, `%' is not a table.", .arg(prefix));
 	}
 
       try {
@@ -833,7 +834,7 @@ Value State::eval_expr(bool use_lua, const String &expr)
       Value::List res = exec_statements(String("return ") + expr);
 
       if (res.empty())
-	throw String("lua expression `%' returned no value").arg(expr);
+	QTLUA_THROW(QtLua::State, "The lua expression `%' returned no value.", .arg(expr));
 
       return res[0];
     }

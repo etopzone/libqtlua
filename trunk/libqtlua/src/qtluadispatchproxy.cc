@@ -76,7 +76,8 @@ namespace QtLua {
 	    if (t->_new_keys || c)
 	      {
 		if (!c && shadow)
-		  throw String("Table write access to read only entry");
+		  QTLUA_THROW(QtLua::DispatchProxy, "Can not write to the `%' read-only index.",
+			      .arg(key.to_string_p(false)));
 
 		return t->_meta_newindex(ls, key, value);
 	      }

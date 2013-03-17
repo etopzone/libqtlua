@@ -37,7 +37,8 @@ template <class X>
 X Function::get_arg(const Value::List &args, int n)
 {
   if (n >= args.size())
-    throw String("Missing argument %, expected % type argument.").arg(n).arg(UserData::type_name<X>());
+    QTLUA_THROW(QtLua::Function, "The argument % is missing, an argument of type `%' is expected.",
+		.arg(n).arg(UserData::type_name<X>()));
 
   return args[n];
 }
