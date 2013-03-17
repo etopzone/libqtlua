@@ -40,7 +40,7 @@ namespace QtLua {
   void TableTreeModel::check_state() const
   {
     if (!_st)
-      throw String("Can't use QtLua::TableTreeModel without associated QtLua::State object");
+      QTLUA_THROW(QtLua::TableTreeModel, "The associated State object has been destroyed.");
   }
 
   TableTreeModel::TableTreeModel(const Value &root, Attributes attr, QObject *parent)
@@ -277,12 +277,13 @@ namespace QtLua {
 	case ColValue: {
 
 	  if (!(t->_attr & EditRemove) && newvalue.is_nil())
-	    throw String("Entry can not have a nil value.");
+	    QTLUA_THROW(QtLua::TableTreeModel, "Can not change the entry value to nil.");
 
 	  // check type change
 	  if ((t->_attr & EditFixedType) &&
 	      (oldtype != Value::TNil) && (oldtype != newtype))
-	    throw String("% value type must be preserved.").arg(Value::type_name(oldtype));
+	    QTLUA_THROW(QtLua::TableGridModel, "The entry value type is `%' and can not be changed.",
+			.arg(Value::type_name(oldtype)));
 
 	  t->set_value(index.row(), newvalue);
 	  emit dataChanged(index, index);
@@ -294,10 +295,10 @@ namespace QtLua {
 	case ColKey: {
 
 	  if (newvalue.is_nil())
-	    throw String("Entry key can not be a nil value.");
+	    QTLUA_THROW(QtLua::TableTreeModel, "The entry key can not be a nil value.");
 
 	  if (!t->_value.at(newvalue).is_nil())
-	    throw String("An entry with the same key already exists.");
+	    QTLUA_THROW(QtLua::TableTreeModel, "An entry with the same key already exists.");
 
 	  Value old = t->get_value(index.row());
 	  t->set_value(index.row(), Value(_st));

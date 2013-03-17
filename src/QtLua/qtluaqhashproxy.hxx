@@ -125,7 +125,7 @@ namespace QtLua {
   void QHashProxy<Container>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_hash)
-      throw String("Can not write to null container.");
+      QTLUA_THROW(QtLua::QHashProxy, "Can not index a null container.");
 
     else if (value.type() == Value::TNil)
       _hash->remove(key);
@@ -137,7 +137,7 @@ namespace QtLua {
   Ref<Iterator> QHashProxyRo<Container>::new_iterator(State *ls)
   {
     if (!_hash)
-      throw String("Can not iterate on null container.");
+      QTLUA_THROW(QtLua::QHashProxyRo, "Can not iterate on a null container.");
 
     return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }

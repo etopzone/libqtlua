@@ -53,7 +53,7 @@ void Function::register_(State *ls, const String &path)
 void Function::register_(Plugin &plugin, const String &name)
 {
   if (ref_is_delegate())
-    throw QtLua::String("QtLua::Function already bound to a plugin. Plugin already loaded?");
+    QTLUA_THROW(QtLua::Function, "The `%' function is already registered on a plugin. Plugin already loaded?", .arg(name));
 
   ref_delegate(&plugin);
   plugin._map.insert(name, this);

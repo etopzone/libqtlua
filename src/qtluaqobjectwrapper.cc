@@ -196,11 +196,12 @@ namespace QtLua {
 	    return;
 	  }
 
-	throw String("Unable to connect Qt signal.");
+	QTLUA_THROW(QtLua::QObjectWrapper, "Failed to connect the Qt signal to a lua function.");
       }
 
       default:
-	throw String("Can not connect lua::% type value to Qt signal.").arg(value.type_name());
+	QTLUA_THROW(QtLua::QObjectWrapper, "Can not connect a `lua::%' lua value to a Qt signal.",
+		    .arg(value.type_name()));
       }
   }
 
@@ -294,7 +295,8 @@ namespace QtLua {
     assert(_obj);
 
     if (!_reparent)
-      throw String("Parent change not allowed for '%' QObject.").arg(QObjectWrapper::qobject_name(*_obj));
+      QTLUA_THROW(QtLua::QObjectWrapper, "Parent change disallowed for the `%' QObject.",
+		  .arg(QObjectWrapper::qobject_name(*_obj)));
 
     if (!_obj->isWidgetType() || (parent && !parent->isWidgetType()))
       _obj->setParent(parent);

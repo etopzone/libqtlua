@@ -41,15 +41,15 @@ namespace QtLua {
     if (value.type() == Value::TNil && mp.isResettable())
       {
 	if (!mp.reset(&obj))
- 	  throw String("Unable to reset QObject property '%'.").arg(mp.name());
+ 	  QTLUA_THROW(QtLua::Property, "Can't reset QObject property `%'.", .arg(mp.name()));
 	return;
       }
 
     if (!mp.isWritable())
-      throw String("QObject property '%' is read only.").arg(mp.name());
+      QTLUA_THROW(QtLua::Property, "QObject property `%' is read only.", .arg(mp.name()));
 
     if (!mp.write(&obj, QMetaValue(mp.userType(), value).to_qvariant()))
-      throw String("Unable to set QObject property.");
+      QTLUA_THROW(QtLua::Property, "Unable to set value of the `%' QObject property.", .arg(mp.name()));
   }
 
   Value Property::access(QObjectWrapper &qow)
@@ -58,12 +58,12 @@ namespace QtLua {
     QObject &obj = qow.get_object();
 
     if (!mp.isReadable())
-      throw String("QObject property '%' is not readable.").arg(mp.name());
+      QTLUA_THROW(QtLua::Property, "QObject property `%' is not readable.", .arg(mp.name()));
 
     QVariant variant = mp.read(&obj);
 
     if (!variant.isValid())
-      throw String("Unable to get QObject property.");
+      QTLUA_THROW(QtLua::Property, "Unable to read a valid value from the `%' QObject property.", .arg(mp.name()));
 
     return Value(qow.get_state(), variant);
   }

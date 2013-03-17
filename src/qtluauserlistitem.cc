@@ -61,7 +61,7 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
     }
 
     default:
-      throw String("Bad item key type");
+      QTLUA_THROW(QtLua::UserListItem, "Bad item key type, a `lua::string' or a `lua::number' value is expected.");
     }
 
   switch (value.type())
@@ -70,7 +70,7 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
       if (old.valid())
 	{
 	  if (!old->is_remove_allowed())
-	    throw String("Not allowed to remove '%' item from list.").arg(old->get_name());
+	    QTLUA_THROW(QtLua::UserListItem, "Removing the `%' item is not permitted.", .arg(old->get_name()));
 	  old->remove();
 	}
       break;
@@ -79,14 +79,14 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
       UserItem::ptr kbml = value.to_userdata_cast<UserItem>();
 
       if (in_parent_path(kbml.ptr()))
-	throw String("UserItem '%' can not have one of its parent as child.").arg(kbml->get_name());
+	QTLUA_THROW(QtLua::UserListItem, "The `%' item can not have one of its parent as a child.", .arg(kbml->get_name()));
 
       // remove item with same key if it already exists
       if (old.valid())
 	{
 	  if (!old->is_replace_allowed())
-	    throw String("Overwriting '%' item with '%' is not allowed.")
-	      .arg(old->get_name()).arg(kbml->get_name());
+	    QTLUA_THROW(QtLua::UserListItem, "Replacing the `%' item with the `%' item  is not permitted.",
+			.arg(old->get_name()).arg(kbml->get_name()));
 	  old->remove();
 	}
 
@@ -94,7 +94,7 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
 	{
 	  // rename
 	  if (!kbml->is_rename_allowed())
-	    throw String("Renaming '%' item is not allowed.").arg(kbml->get_name());
+	    QTLUA_THROW(QtLua::UserListItem, "Renaming the `%' item is not permitted.", .arg(kbml->get_name()));
 	  kbml->set_name(key.to_string());
 	  break;
 	}
@@ -102,11 +102,11 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
       if (kbml->_parent != this)
 	{
 	  if (!kbml->is_move_allowed())
-	    throw String("Moving '%' item is not allowed.").arg(kbml->get_name());
+	    QTLUA_THROW(QtLua::UserListItem, "Moving the `%' item to an other parent is not permitted.", .arg(kbml->get_name()));
 
 	  if (!accept_child(kbml))
-	    throw String("UserItem '%' doesn't accept '%' as child.")
-	      .arg(get_name()).arg(kbml->get_name());
+	    QTLUA_THROW(QtLua::UserListItem, "The parent item `%' doesn't accept the `%' item as child.",
+			.arg(get_name()).arg(kbml->get_name()));
 	}
 
       // remove item from parent if needed
@@ -131,9 +131,10 @@ void UserListItem::meta_newindex(State *ls, const Value &key, const Value &value
     } break;
 
     default:
-      throw String("UserItem list can not store a % value.").arg(value.type_name_u());
+      QTLUA_THROW(QtLua::UserListItem, "A value of type `%' can not be stored in model.",
+		  .arg(value.type_name_u()));
     }
-};
+}
 
 Value UserListItem::meta_index(State *ls, const Value &key)
   

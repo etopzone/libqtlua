@@ -144,7 +144,7 @@ namespace QtLua {
   void QVectorProxy<Container, max_resize, min_resize>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_vector)
-      throw String("Can not write to null vector.");
+      QTLUA_THROW(QtLua::QVectorProxy, "Can not write to a null vector.");
 
     bool has_resize = max_resize > min_resize;
     int index = (unsigned int)key.to_number() - 1;
@@ -155,7 +155,7 @@ namespace QtLua {
     if (has_resize && value.type() == Value::TNil)
       {
 	if (index < min_resize)
-	  throw String("Can not reduce vector size below %.").arg((int)min_resize);
+	  QTLUA_THROW(QtLua::QVectorProxy, "Can not reduce vector size below %.", .arg((int)min_resize));
 	if (index < _vector->size())
 	  _vector->resize(index);
       }
@@ -166,7 +166,7 @@ namespace QtLua {
 	    if (has_resize)
 	      {
 		if ((unsigned int)index >= max_resize)
-		  throw String("Can not increase vector size above %.").arg((int)max_resize);
+		  QTLUA_THROW(QtLua::QVectorProxy, "Can not increase vector size above %.", .arg((int)max_resize));
 		_vector->resize(index + 1);
 	      }
 	    else
@@ -177,14 +177,14 @@ namespace QtLua {
 
     return;
   oob:
-    throw String("Vector index is out of bounds.");
+    QTLUA_THROW(QtLua::QVectorProxy, "Index `%' is out of bounds.", .arg(index));
   }
 
   template <class Container, unsigned max_resize, unsigned min_resize>
   Ref<Iterator> QVectorProxyRo<Container, max_resize, min_resize>::new_iterator(State *ls)
   {
     if (!_vector)
-      throw String("Can not iterate on null vector.");
+      QTLUA_THROW(QtLua::QVectorProxy, "Can not iterate on a null vector.");
 
     return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }

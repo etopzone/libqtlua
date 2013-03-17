@@ -48,7 +48,7 @@ namespace QtLua {
   Ref<Iterator> QLinkedListProxy<Container>::new_iterator(State *ls)
   {
     if (!_linkedlist)
-      throw String("Can not iterate on null container.");
+      QTLUA_THROW(QtLua::QLinkedListProxy, "Can not iterate on a null container.");
 
     return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }

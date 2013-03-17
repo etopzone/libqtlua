@@ -144,12 +144,12 @@ namespace QtLua {
   void QListProxy<Container>::meta_newindex(State *ls, const Value &key, const Value &value)
   {
     if (!_list)
-      throw String("Can not write to null container.");
+      QTLUA_THROW(QtLua::QListProxy, "Can not index a null container.");
 
     unsigned int index = (unsigned int)key.to_number() - 1;
 
     if (index > (unsigned int)_list->size())
-      throw String("QList index is out of bounds.");
+      QTLUA_THROW(QtLua::QListProxy, "Index % is out of bounds.", .arg(index));
 
     if (value.type() == Value::TNil)
       {
@@ -169,7 +169,7 @@ namespace QtLua {
   Ref<Iterator> QListProxyRo<Container>::new_iterator(State *ls)
   {
     if (!_list)
-      throw String("Can not iterate on null container.");
+      QTLUA_THROW(QtLua::QListProxyRo, "Can not iterate on a null container.");
 
     return QTLUA_REFNEW(ProxyIterator, ls, *this);
   }

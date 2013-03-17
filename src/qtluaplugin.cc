@@ -46,8 +46,8 @@ Plugin::Loader::Loader(const String &filename)
   : QPluginLoader(filename.to_qstring())
 {
   if (!load())
-    throw String("Unable to load plugin '%': %")
-      .arg(filename).arg(errorString());
+    QTLUA_THROW(Plugin::Loader, "Error loading plugin `%': %",
+		.arg(filename).arg(errorString()));
 }
 
 Plugin::Loader::~Loader()

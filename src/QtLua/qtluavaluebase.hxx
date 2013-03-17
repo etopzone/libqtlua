@@ -379,7 +379,8 @@ namespace QtLua {
   {
     X *p = dynamic_cast<X*>(to_qobject());
     if(!p)
-      throw String("Can not cast QObject to %.").arg(X::staticMetaObject.className());
+      QTLUA_THROW(QtLua::ValueBase, "Can not cast this QObject to the `%' class.",
+		  .arg(X::staticMetaObject.className()));
     return p;
   }
 
@@ -389,12 +390,13 @@ namespace QtLua {
     Ref<UserData> ud = to_userdata();
 
     if (!ud.valid())
-      throw String("Value contains a null UserData reference.");
+      QTLUA_THROW(QtLua::ValueBase, "The value contains a null `QtLua::UserData' reference.");
 
     Ref<X> ref = ud.dynamiccast<X>();
 
     if (!ref.valid())
-      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+      QTLUA_THROW(QtLua::ValueBase, "Can not convert from `%' type to `%'.",
+		  .arg(ud->get_type_name()).arg(UserData::type_name<X>()));
 
     return ref;
   }
@@ -407,7 +409,8 @@ namespace QtLua {
     Ref<X> ref = ud.dynamiccast<X>();
 
     if (ud.valid() && !ref.valid())
-      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+      QTLUA_THROW(QtLua::ValueBase, "Can not convert from `%' type to `%'.",
+		  .arg(ud->get_type_name()).arg(UserData::type_name<X>()));
 
     return ref;
   }
@@ -418,12 +421,13 @@ namespace QtLua {
     Ref<UserData> ud = to_userdata();
 
     if (!ud.valid())
-      throw String("Value contains a null UserData reference.");
+      QTLUA_THROW(QtLua::ValueBase, "The value contains a null `QtLua::UserData' reference.");
 
     X* ref = dynamic_cast<X*>(ud.ptr());
 
     if (!ref)
-      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+      QTLUA_THROW(QtLua::ValueBase, "Can not convert from `%' type to `%'.",
+		  .arg(ud->get_type_name()).arg(UserData::type_name<X>()));
 
     return ref;
   }
@@ -436,7 +440,8 @@ namespace QtLua {
     X* ref = dynamic_cast<X*>(ud.ptr());
 
     if (ud.valid() && !ref)
-      throw String("Can not convert % type to %.").arg(ud->get_type_name()).arg(UserData::type_name<X>());
+      QTLUA_THROW(QtLua::ValueBase, "Can not convert from `%' type to `%'.",
+		  .arg(ud->get_type_name()).arg(UserData::type_name<X>()));
 
     return ref;
   }

@@ -36,7 +36,7 @@ namespace QtLua {
   void TableGridModel::check_state() const
   {
     if (!_st)
-      throw String("Can't use QtLua::TableGridModel without associated QtLua::State object");
+      QTLUA_THROW(TableGridModel, "The associated State object has been destroyed.");
   }
 
   TableGridModel::TableGridModel(const Value &table, Attributes attr,
@@ -271,7 +271,7 @@ namespace QtLua {
       }
 
   bound_err:
-    throw String("invalid table index for QtLua::TableGridModel access");
+    QTLUA_THROW(QtLua::TableGridModel, "Index out of bounds (row %, column %).", .arg(row).arg(col));
   }
 
   QVariant TableGridModel::data(const QModelIndex &index, int role) const
@@ -304,7 +304,8 @@ namespace QtLua {
       // check type change
       if ((_attr & EditFixedType) &&
 	  (oldtype != Value::TNil) && (oldtype != newtype))
-	throw String("% value type must be preserved.").arg(Value::type_name(oldtype));
+	QTLUA_THROW(TableGridModel, "The entry value type is `%' and can not be changed.",
+		    .arg(Value::type_name(oldtype)));
 
       ref = newvalue;
 

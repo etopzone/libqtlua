@@ -243,7 +243,7 @@ namespace QtLua {
 	QObject *obj = &v.to_userdata_cast<QObjectWrapper>()->get_object();
 	QWidget *w = dynamic_cast<QWidget*>(obj);
 	if (obj && !w)
-	  throw String("QObject from lua value is not a QWidget");
+	  QTLUA_THROW(QtLua::MetaType, "Can not convert a non-QObject lua value to a QWidget.");
 	else
 	  *reinterpret_cast<QWidget**>(data) = w;
 	break;
@@ -310,8 +310,8 @@ namespace QtLua {
       default: {
 
 	if (!QMetaType::isRegistered(type))
-	  throw String("Can not convert from % lua type to non-registered Qt type %.")
-	    .arg(v.type_name_u()).arg(type);
+	  QTLUA_THROW(QtLua::MetaType, "Unable to convert from lua type `%' to the non-registered Qt type handle `%'.",
+		      .arg(v.type_name_u()).arg(type));
 
 	if (type == ud_ref_type)
 	  {
@@ -326,8 +326,8 @@ namespace QtLua {
       }
 
       case 0:
-	throw String("Unsupported conversion from % lua type to % Qt type.")
-	  .arg(v.type_name_u()).arg(QMetaType::typeName(type));
+	QTLUA_THROW(QtLua::MetaType, "Unsupported conversion from lua type `%' to Qt type `%'.",
+		    .arg(v.type_name_u()).arg(QMetaType::typeName(type)));
       }
 
   }
