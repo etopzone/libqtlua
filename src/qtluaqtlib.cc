@@ -18,8 +18,13 @@
 
 */
 
+#include "config.hh"
+
+#ifdef HAVE_QT_UITOOLS
+# include <QUiLoader>
+#endif
+
 #include <QFile>
-#include <QUiLoader>
 #include <QWidget>
 
 #include <QLayout>
@@ -238,8 +243,6 @@ namespace QtLua {
   QTLUA_FUNCTION(new_qobject, "Dynamically create a new QObject.",
 		 "usage: qt.new_qobject( qt.meta.QClassName, [ Constructor arguments ] )\n")
   {
-    static QUiLoader uil;
-
     QMetaObjectWrapper::ptr mow = get_arg_ud<QMetaObjectWrapper>(args, 0);
 
     return Value(ls, mow->create(args), true, true);
@@ -252,6 +255,7 @@ namespace QtLua {
   QTLUA_FUNCTION(load_ui, "Load a Qt ui file.",
 		 "usage: qt.ui.load_ui(\"file.ui\", [ parent ])\n")
   {
+#ifdef HAVE_QT_UITOOLS
     static QUiLoader uil;
 
     meta_call_check_args(args, 1, 2, Value::TString, Value::TUserData);
@@ -267,12 +271,16 @@ namespace QtLua {
       QTLUA_THROW(qt.ui.load_ui, "Unable to load the `%' ui file.", .arg(f.fileName()));
 
     return Value(ls, w, true, true);
+#else
+    QTLUA_THROW(new_qobject, "QtLua has been compiled without support for Qt uitools module.");
+#endif
   }
 
 
   QTLUA_FUNCTION(new_widget, "Dynamically create a new Qt Widget using QUiLoader.",
 		 "usage: qt.ui.new_widget(\"QtClassName\", [ \"name\", parent ] )\n")
   {
+#ifdef HAVE_QT_UITOOLS
     static QUiLoader uil;
 
     meta_call_check_args(args, 1, 3, Value::TString, Value::TString, Value::TUserData);
@@ -292,6 +300,9 @@ namespace QtLua {
       QTLUA_THROW(qt.ui.new_widget, "Unable to create a widget of type `%'.", .arg(classname));
 
     return Value(ls, w, true, true);
+#else
+    QTLUA_THROW(new_qobject, "QtLua has been compiled without support for Qt uitools module.");
+#endif
   }
 
   QTLUA_FUNCTION(layout_add, "Add an item to a QLayout or set QLayout of a QWidget.",
