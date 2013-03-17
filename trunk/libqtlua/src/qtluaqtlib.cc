@@ -42,7 +42,10 @@
 #include <QScrollArea>
 #include <QSplitter>
 #include <QMdiArea>
-#include <QWorkspace>
+
+#if QT_VERSION < 0x050000
+# include <QWorkspace>
+#endif
 
 #include <QAbstractItemView>
 #include <QComboBox>
@@ -684,8 +687,10 @@ namespace QtLua {
 	  x->addWidget(w);
 	else if (QMdiArea *x = dynamic_cast<QMdiArea*>(obj))
 	  x->addSubWindow(w);
+#if QT_VERSION < 0x050000
 	else if (QWorkspace *x = dynamic_cast<QWorkspace*>(obj))
 	  x->addWindow(w);
+#endif
 	else
 	  goto err;
       }
