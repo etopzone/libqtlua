@@ -13,10 +13,17 @@
 	SET(INSTALL_INC include CACHE PATH "Where to install headers to.")
 
 # Find Qt4
-	SET(QT_USE_QTUITOOLS 1)
-	SET(QT_USE_QTXML 1)
-	FIND_PACKAGE(Qt4 REQUIRED)
-	INCLUDE(${QT_USE_FILE})
+#	SET(QT_USE_QTUITOOLS 1)
+#	SET(QT_USE_QTXML 1)
+#	FIND_PACKAGE(Qt4 REQUIRED)
+#	INCLUDE(${QT_USE_FILE})
+
+# Find Qt5
+	SET(CMAKE_INCLUDE_CURRENT_DIR ON)
+	FIND_PACKAGE(Qt5Widgets)
+	FIND_PACKAGE(Qt5Core)
+	FIND_PACKAGE(Qt5Xml)
+	SET(CMAKE_AUTOMOC ON)
 
 # Find Lua 
 	FIND_PACKAGE (Lua51 REQUIRED)
@@ -59,8 +66,8 @@
 
 		SET(PACKAGE_NAME "\"libqtlua\"")
 		SET(PACKAGE_TARNAME "\"libqtlua\"")
-		SET(PACKAGE_VERSION "\"1.4\"")
-		SET(PACKAGE_STRING "\"libqtlua 1.4\"")
+		SET(PACKAGE_VERSION "\"2.0\"")
+		SET(PACKAGE_STRING "\"libqtlua 2.0\"")
 		SET(PACKAGE_BUGREPORT "\"\"")
 		SET(PACKAGE_URL "\"http://www.nongnu.org/libqtlua/\"")
 
@@ -96,26 +103,32 @@
 
 	# Generate moc files
  
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaconsole.hh        OPTIONS -fQtLua/Console)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemselectionmodel.hh OPTIONS -fQtLua/UserItemSelectionModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemmodel.hh  OPTIONS -fQtLua/UserItemModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtlualuamodel.hh      OPTIONS  -fQtLua/LuaModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabletreemodel.hh OPTIONS -fQtLua/TableTreeModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemviewdialog.hh	   OPTIONS -fQtLua/ItemViewDialog)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatablegridmodel.hh OPTIONS -fQtLua/TableGridModel)
-	QT4_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluastate.hh          OPTIONS -fQtLua/State)
-	QT4_WRAP_CPP(MOC_OUTFILES src/qtluaqtlib.hh)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaconsole.hh        OPTIONS -fQtLua/Console)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemselectionmodel.hh OPTIONS -fQtLua/UserItemSelectionModel)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluauseritemmodel.hh  OPTIONS -fQtLua/UserItemModel)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtlualuamodel.hh      OPTIONS  -fQtLua/LuaModel)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatabletreemodel.hh OPTIONS -fQtLua/TableTreeModel)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluaitemviewdialog.hh	   OPTIONS -fQtLua/ItemViewDialog)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluatablegridmodel.hh OPTIONS -fQtLua/TableGridModel)
+	QT5_WRAP_CPP(MOC_OUTFILES src/QtLua/qtluastate.hh          OPTIONS -fQtLua/State)
+	QT5_WRAP_CPP(MOC_OUTFILES src/qtluaqtlib.hh)
 	
 	ADD_LIBRARY(qtlua SHARED ${QTLUA_LIB_SRCS} ${MOC_OUTFILES})
+	QT5_USE_MODULES(qtlua Widgets Core)
+
 	TARGET_LINK_LIBRARIES(qtlua ${QT_LIBRARIES} ${LUA_LIBRARIES})
 
 # qtlua app
 	ADD_EXECUTABLE(qtlua_app tools/qtlua/qtlua.cc )
+	QT5_USE_MODULES(qtlua_app Widgets Core)
+
 	TARGET_LINK_LIBRARIES(qtlua_app qtlua)
 	SET_TARGET_PROPERTIES(qtlua_app  PROPERTIES OUTPUT_NAME qtlua CLEAN_DIRECT_OUTPUT 1)
 
 # qtlua_uic app
 	ADD_EXECUTABLE(qtlua_uic_app tools/uic/qtlua_uic.cc )
+	QT5_USE_MODULES(qtlua_uic_app Widgets Core Xml)
+
 	TARGET_LINK_LIBRARIES(qtlua_uic_app qtlua)
 	SET_TARGET_PROPERTIES(qtlua_uic_app  PROPERTIES OUTPUT_NAME qtlua_uic CLEAN_DIRECT_OUTPUT 1)
 
@@ -153,87 +166,4 @@
                 src/QtLua/MetaType           src/QtLua/qtluametatype.hh        src/QtLua/qtluametatype.hxx 
                 src/QtLua/DispatchProxy      src/QtLua/qtluadispatchproxy.hh   src/QtLua/qtluadispatchproxy.hxx
         DESTINATION ${INSTALL_INC}/QtLua)
-	
-# tests
-#	INCLUDE_DIRECTORIES( test )
-#
-#	ADD_EXECUTABLE(test_value test/test_value.cc)
-#	TARGET_LINK_LIBRARIES(test_value qtlua)
-#
-#	ADD_EXECUTABLE(test_table   test/test_table.cc)
-#	TARGET_LINK_LIBRARIES(test_table qtlua)
-#
-#	# Generate moc files
-#	QT4_WRAP_CPP(MOC_OUTFILES_TEST  test/test_qobject_arg.hh)
-#	ADD_EXECUTABLE(test_qobject_arg   test/test_qobject_arg.cc ${MOC_OUTFILES_TEST})
-#	TARGET_LINK_LIBRARIES(test_qobject_arg qtlua)
-#
-#	ADD_EXECUTABLE(test_item test/test_item.cc)
-#	TARGET_LINK_LIBRARIES(test_item qtlua)
-
-
-# examples
-#	# console
-#	QT4_WRAP_CPP(MOC_OUTFILES_CONSOLE  examples/cpp/console/console.hh)
-#	ADD_EXECUTABLE(console examples/cpp/console/console_fcn.cc ${MOC_OUTFILES_CONSOLE})
-#	TARGET_LINK_LIBRARIES(console qtlua)
-#
-#	# mvc
-#	QT4_WRAP_CPP(MOC_OUTFILES_TREEVIEW  examples/cpp/mvc/itemtreeview.hh)
-#	ADD_EXECUTABLE(itemtreeview examples/cpp/mvc/itemtreeview.cc ${MOC_OUTFILES_TREEVIEW})
-#	TARGET_LINK_LIBRARIES(itemtreeview qtlua)
-#
-#	QT4_WRAP_CPP(MOC_OUTFILES_TABLEGRIDVIEW  examples/cpp/mvc/tablegridview.hh)
-#	ADD_EXECUTABLE(tablegridview examples/cpp/mvc/tablegridview.cc ${MOC_OUTFILES_TABLEGRIDVIEW})
-#	TARGET_LINK_LIBRARIES(tablegridview qtlua)
-#	
-#	QT4_WRAP_CPP(MOC_OUTFILES_TABLETREEVIEW  examples/cpp/mvc/tabletreeview.hh)
-#	ADD_EXECUTABLE(tabletreeview examples/cpp/mvc/tabletreeview.cc ${MOC_OUTFILES_TABLETREEVIEW})
-#	TARGET_LINK_LIBRARIES(tabletreeview qtlua)
-#
-#	QT4_WRAP_CPP(MOC_OUTFILES_PLUGIN  examples/cpp/plugin/plugin.hh)
-#	ADD_LIBRARY(plugin MODULE examples/cpp/plugin/plugin.cc ${MOC_OUTFILES_PLUGIN})
-#	SET_TARGET_PROPERTIES ( plugin PROPERTIES PREFIX "" )
-#	
-#	# plugin
-#	ADD_EXECUTABLE(plugin_app examples/cpp/plugin/plugin_load.cc  )
-#	TARGET_LINK_LIBRARIES(plugin_app qtlua)
-#	SET_TARGET_PROPERTIES ( plugin_app PROPERTIES OUTPUT_NAME plugin CLEAN_DIRECT_OUTPUT 1 )
-#
-#	# proxy
-#	ADD_EXECUTABLE(qhashproxy_value examples/cpp/proxy/qhashproxy_value.cc)
-#	TARGET_LINK_LIBRARIES(qhashproxy_value qtlua)
-#	ADD_EXECUTABLE(qlinkedlistproxy_string examples/cpp/proxy/qlinkedlistproxy_string.cc)
-#	TARGET_LINK_LIBRARIES(qlinkedlistproxy_string qtlua)
-#	ADD_EXECUTABLE(qlistproxy_string examples/cpp/proxy/qlistproxy_string.cc)
-#	TARGET_LINK_LIBRARIES(qlistproxy_string qtlua)	
-#	ADD_EXECUTABLE(qmapproxy_string examples/cpp/proxy/qmapproxy_string.cc)
-#	TARGET_LINK_LIBRARIES(qmapproxy_string qtlua)
-#	ADD_EXECUTABLE(qvectorproxy_string examples/cpp/proxy/qvectorproxy_string.cc)
-#	TARGET_LINK_LIBRARIES(qvectorproxy_string qtlua)	
-#	ADD_EXECUTABLE(qvectorproxy_userdata examples/cpp/proxy/qvectorproxy_userdata.cc)
-#	TARGET_LINK_LIBRARIES(qvectorproxy_userdata qtlua)
-#
-#	# qobject
-#	ADD_EXECUTABLE(qobject_iter examples/cpp/qobject/qobject_iter.cc)
-#	TARGET_LINK_LIBRARIES(qobject_iter qtlua)
-#	ADD_EXECUTABLE(qobject_owner examples/cpp/qobject/qobject_owner.cc)
-#	TARGET_LINK_LIBRARIES(qobject_owner  qtlua)
-#
-#	# userdata
-#	ADD_EXECUTABLE(function examples/cpp/userdata/function.cc)
-#	TARGET_LINK_LIBRARIES(function qtlua)
-#	ADD_EXECUTABLE(ref examples/cpp/userdata/ref.cc)
-#	TARGET_LINK_LIBRARIES(ref qtlua)
-#	
-#	# value
-#	ADD_EXECUTABLE(global examples/cpp/value/global.cc)
-#	TARGET_LINK_LIBRARIES(global qtlua)
-#	ADD_EXECUTABLE(iterate examples/cpp/value/iterate.cc)
-#	TARGET_LINK_LIBRARIES(iterate qtlua)
-#
-#	# types
-#	QT4_WRAP_CPP(MOC_OUTFILES_TYPES  examples/cpp/types/myobject.hh)
-#	ADD_EXECUTABLE(meta examples/cpp/types/meta.cc ${MOC_OUTFILES_TYPES})
-#	TARGET_LINK_LIBRARIES(meta qtlua)
 
