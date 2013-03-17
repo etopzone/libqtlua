@@ -36,6 +36,9 @@
 
 extern "C" {
 #include <lua.h>
+#if LUA_VERSION_NUM < 501
+# include <lauxlib.h>
+#endif
 }
 
 namespace QtLua {
@@ -313,11 +316,13 @@ void ValueBase::table_shift(int pos, int count, const Value &init, int len)
 
   int i;
   if (len < 0)
-# if LUA_VERSION_NUM < 502
+#if LUA_VERSION_NUM < 501
+    len = luaL_getn(lst, -1);
+#elif LUA_VERSION_NUM < 502
     len = lua_objlen(lst, -1);
-# else
+#else
     len = lua_rawlen(lst, -1);
-# endif
+#endif
 
   if (count > 0)
     {
@@ -507,10 +512,12 @@ String ValueBase::to_string() const
 
   if (str)
     {
-#if LUA_VERSION_NUM < 502
+#if LUA_VERSION_NUM < 501
       String res(lua_tostring(lst, -1), lua_strlen(lst, -1));
 #else
-      String res(lua_tostring(lst, -1), lua_rawlen(lst, -1));
+      size_t len;
+      const char *s = lua_tolstring(lst, -1, &len);
+      String res(s, len);
 #endif
       lua_pop(lst, 1);
       return res;
@@ -671,10 +678,18 @@ int ValueBase::len() const
 
   switch (t)
     {
-    case TString:
 #if LUA_VERSION_NUM < 501
+    case TString:
       res = lua_strlen(lst, -1);
+      lua_pop(lst, 1);
+      return res;
+
+    case TTable:
+      res = luaL_getn(lst, -1);
+      lua_pop(lst, 1);
+      return res;
 #else
+    case TString:
     case TTable:
 # if LUA_VERSION_NUM < 502
       res = lua_objlen(lst, -1);
@@ -926,10 +941,12 @@ bool ValueBase::operator==(const String &str) const
 
   if (lua_isstring(lst, -1))
     {
-#if LUA_VERSION_NUM < 502
+#if LUA_VERSION_NUM < 501
       String s(lua_tostring(lst, -1), lua_strlen(lst, -1));
 #else
-      String s(lua_tostring(lst, -1), lua_rawlen(lst, -1));
+      size_t len;
+      const char *cs = lua_tolstring(lst, -1, &len);
+      String s(cs, len);
 #endif
       res = (str == s);
     }
@@ -987,14 +1004,16 @@ uint ValueBase::qHash(lua_State *lst, int index)
       return u;
     }
 
-    case LUA_TSTRING:
-      return ::qHash(String(lua_tostring(lst, index),
-#if LUA_VERSION_NUM < 502
-			    lua_strlen(lst, index)
+    case LUA_TSTRING: {
+#if LUA_VERSION_NUM < 501
+      String s(lua_tostring(lst, -1), lua_strlen(lst, -1));
 #else
-			    lua_rawlen(lst, index)
+      size_t len;
+      const char *cs = lua_tolstring(lst, -1, &len);
+      String s(cs, len);
 #endif
-			    ));
+      return ::qHash(s);
+    }
 
     case LUA_TUSERDATA: {
       try {
