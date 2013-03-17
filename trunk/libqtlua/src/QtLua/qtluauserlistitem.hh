@@ -43,7 +43,7 @@ class UserItemModel;
    * code.
    *
    * @ref UserListItem objects are @ref UserItem objects with pointer list to
-   * children objects. It can be accessed as tables from lua script.
+   * children objects. They can be accessed as tables from lua script.
    *
    * See @ref UserItemModel for example.
    */

@@ -32,7 +32,7 @@ namespace QtLua {
    * @module {Base}
    *
    * This class may be used to dispatch operations to several
-   * underlying UserData objects.
+   * underlying @ref UserData objects.
    *
    * This can be used to create a composite object where different
    * operations are handled by different objects. Table operations are
@@ -44,8 +44,8 @@ namespace QtLua {
    * object matters. See operation functions documentation in this
    * class for a detailed description of the associated behaviors.
    *
-   * See @xref{Members detail} section for details about behavior of
-   * different operations.
+   * Please read the @xref{Members detail} section for details
+   * about behavior of different operations.
    *
    * @example examples/cpp/proxy/dispatchproxy_string.cc:1|2
    */
@@ -66,7 +66,7 @@ public:
    * of this object to provide support for some operations.
    *
    * Template argument may be used to force use of operation functions
-   * from a specific class in @ref UserData inheritance tree. When this
+   * from a specific class in the @ref UserData inheritance tree. When this
    * feature is used, a reimplementation of the @ref
    * UserData::meta_contains function must be available in the same class
    * if either the @ref UserData::meta_index function or the @ref
@@ -118,10 +118,11 @@ public:
    * does not already contains the passed @tt key (according to object
    * @ref meta_contains function).
    *
-   * If a previous object contains an entry for passed key but only
+   * If a previous object contains an entry for the passed key but only
    * supports the @ref Value::OpIndex table access operation and had
    * this operation enabled when registered, an exception is thrown
-   * to avoid shadowing before the call to @ref meta_newindex is forwarded.
+   * before the call to @ref meta_newindex is forwarded. This avoids
+   * shadowing a table entry.
    */
   void meta_newindex(State *ls, const Value &key, const Value &value);
 

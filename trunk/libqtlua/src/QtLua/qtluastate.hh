@@ -68,8 +68,8 @@ namespace QtLua {
       Bit32Lib,		//< standard lua bit library
       JitLib,		//< luajit jit library
       FfiLib,		//< luajit ffi library
-      QtLuaLib,		//< lua library with base functions, see @xref{Predefined lua functions} section.
-      QtLib,		//< lua library with wrapped Qt functions, see @xref{Wrapped Qt functions} section.
+      QtLuaLib,		//< lua library with base functions, see the @xref{Predefined lua functions} section.
+      QtLib,		//< lua library with wrapped Qt functions, see the @xref{Qt related functions} section.
       AllLibs,		//< All libraries wildcard
     };
 

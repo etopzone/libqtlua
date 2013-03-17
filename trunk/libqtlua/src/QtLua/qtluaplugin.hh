@@ -44,10 +44,10 @@ namespace QtLua {
    * @see PluginInterface
    *
    * This class allows easy development and loading of Qt plugins
-   * which can be manipulated from lua scripts.
+   * which can be handled from lua scripts.
    *
-   * These plugins must use the @ref PluginInterface interface. It may
-   * have additional Qt plugin interfaces which can be queried with
+   * These plugins must use the @ref PluginInterface interface. They may
+   * implement additional Qt plugin interfaces which can be queried with
    * the @ref api function from C++ code.
    *
    * These plugins are designed to contain @ref Function objects which can
@@ -55,8 +55,8 @@ namespace QtLua {
    *
    * @ref Function objects contained in plugin library must be
    * registered on the @ref Plugin object. This is done on @ref Plugin
-   * creation by the @ref PluginInterface::register_members function.
-   * This function must use the call the @ref #QTLUA_PLUGIN_FUNCTION_REGISTER
+   * creation from the @ref PluginInterface::register_members function.
+   * This function must invoke the @ref #QTLUA_PLUGIN_FUNCTION_REGISTER
    * macro for each @ref Function to register.
    *
    * An internal @ref Plugin::Loader {plugin loader} object is

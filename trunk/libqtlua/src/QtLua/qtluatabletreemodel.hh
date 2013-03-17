@@ -44,14 +44,17 @@ namespace QtLua {
    * are handled.
    *
    * Lua tables can be edited from Qt views using this model. The
-   * @ref Attribute flags can be used to finely control which editing
+   * @ref Attribute flags can be used to control which editing
    * actions are allowed. User input may be evaluated as a lua
    * expression when editing a table entry.
    *
    * Lua tables change may @b not update the model on the fly and the
    * @ref update function must be called to refresh views on heavy
    * modifications. This is partially due to lack of lua mechanism to
-   * implement efficient table change event.
+   * implement efficient table change event. If you need to edit the
+   * underlying data from lua and have the views updated
+   * automatically, you might use the @ref UserItemModel approach
+   * instead.
    *
    * Usage example:
    * @example examples/cpp/mvc/tabletreeview.cc:1

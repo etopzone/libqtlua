@@ -38,6 +38,9 @@ namespace QtLua {
      functions must be provided to the C++ model wrapper in order to
      implement the model.
 
+     The @xref {qt.mvc.new_lua_model} lua function can be used to
+     create such a model from lua script.
+
      @section {read-only lua model}
 
      At least one lua function must be provided to implement a
@@ -81,8 +84,8 @@ return (item_rows, item_cols, child_id, parent_id, item_row, item_col, flags)
        @item @tt item_row and @tt item_col give the position of the
          item specified by @tt item_id in its parent, starting at
          1. This is not used if @tt parent_id is @tt nil or 0.
-       @item @tt flags is the @ref Qt::ItemFlag value for queried
-         item. A default value is used if @tt nil.
+       @item @tt flags is the @ref Qt::ItemFlag value to use for the
+         queried item. A default value is used if @tt nil.
      @end list
 
      If the @tt role parameter is not a @tt nil value, the @tt get
@@ -125,10 +128,12 @@ function remove_cols(check, parent_id, pos, count)
        return a boolean value to indicate if the insert action is
        allowed. The insertion will takes place on the next call if
        the first call returns @tt {true}.
+     @end section
 
-       Some lua @sourcelink examples/lua/mvc/lua_model_list.lua {list
+     @section {Examples}
+       Some examples of lua @sourcelink examples/lua/mvc/lua_model_list.lua {list
        model} and @sourcelink examples/lua/mvc/lua_model_tree.lua
-       {tree model} examples are available.
+       {tree model} are available in the QtLua tree.
      @end section
   */
 

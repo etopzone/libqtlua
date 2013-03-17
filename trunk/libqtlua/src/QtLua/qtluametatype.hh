@@ -59,17 +59,19 @@ namespace QtLua {
    * @example examples/cpp/types/myobject.hh:3
    *
    * The following code shows how to write conversion handler class
-   * to handle the @tt Mystruct C++ type as a Lua table value:
+   * to handle the @tt Mystruct C++ type as a table value on the lua side:
    *
    * @example examples/cpp/types/myobject.hh:1
-   * The conversion handler and Qt meta type will be registered on class instantiation:
+   *
+   * The conversion handler and the Qt meta type will be registered on
+   * class instantiation:
+   *
    * @example examples/cpp/types/meta.cc:1
    *
    * Moreover, a template class with builtin conversion functions is
    * available to readily handle @ref QObject pointer cases:
    *
    * @example examples/cpp/types/myobject.hh:2
-   * @ref QObject pointer converter class instantiation:
    * @example examples/cpp/types/meta.cc:2
    *
    * @see qRegisterMetaType @see #QTLUA_METATYPE

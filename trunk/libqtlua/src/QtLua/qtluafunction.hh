@@ -42,7 +42,7 @@ namespace QtLua {
    * Basic argument checking can be done using the @ref
    * QtLua::UserData::meta_call_check_args function. More argument
    * checking and conversion can be performed with the @ref __get_arg1__
-   * function. See @xref{Qt/Lua types conversion} for supported
+   * family of functions. See @xref{Qt/Lua types conversion} for supported
    * types and conversion operations.
    *
    * The @ref #QTLUA_FUNCTION macro is provided to easily declare a
@@ -169,7 +169,7 @@ namespace QtLua {
 
     /**
      * This function does the same as the @ref __get_arg1__ function
-     * but throws if argument is not available instead of returning a
+     * but throws if the argument is not available instead of returning a
      * default value.
      *
      * @see __get_arg1__
@@ -184,7 +184,7 @@ namespace QtLua {
      * perform lua to C++ argument conversion and checking.
      *
      * It checks if the argument is available and if it is an @ref
-     * UserData object and tries to cast it using the
+     * UserData object and tries to cast it using the @ref
      * Value::to_userdata_cast function.
      *
      * @param args arguments list
@@ -202,12 +202,13 @@ namespace QtLua {
      * perform lua to C++ argument conversion and checking.
      *
      * It checks if the argument is available and if it is an @ref
-     * UserData object and tries to @tt dynamic_cast it. This function
-     * throws an exception if the result is null.
+     * UserData object and tries to @tt dynamic_cast it to the
+     * specified class. This function throws an exception if the
+     * result is null.
      *
      * @param args arguments list
      * @param n argument index in list
-     * @returns @ref pointer to @tt X type.
+     * @returns pointer to @tt X type.
      *
      * @xsee{Qt/Lua types conversion}
      * @see __get_arg2__
@@ -219,9 +220,9 @@ namespace QtLua {
      * This function may be called from the @ref meta_call function to
      * perform lua to C++ argument conversion and checking.
      *
-     * It checks if the argument is available and if it is @ref
+     * It checks if the argument is available and if it is a @ref
      * QObject wrapper and tries to cast to the requested @ref QObject
-     * based class using the Value::to_qobject_cast function.
+     * based class using the @ref Value::to_qobject_cast function.
      *
      * @param args arguments list
      * @param n argument index in list

@@ -54,7 +54,7 @@
       Types commonly used by the Qt meta object system are automatically
       converted to and from lua values when needed. It occurs on slot invocation
       for arguments and return values, on Qt enums and properties
-      values reading and writing, on lua function invocation from Qt Signal...
+      values reading and writing, on lua function invocation from a Qt Signal...
 
       The following table shows how types get converted:
 
@@ -137,6 +137,12 @@
         @item table with @tt x, @tt y, @tt width and @tt height fields
         @item @tt QMetaType::QRectF
 
+        @item table with red, green and blue values
+        @item @tt QMetaType::QColor
+
+        @item image file name string
+        @item @tt QMetaType::QIcon
+
         @item userdata (see @ref QtLua::UserData) 
         @item @ref QtLua::Ref pointer to @ref QtLua::UserData type. Qt meta type name is @tt "QtLua::UserData::ptr" .
 
@@ -160,7 +166,7 @@
 
     See @xref{The qtlua interpreter} section for examples of @ref QObject manipulation from lua script.
 
-    @section T{QObject ownership}
+    @section T {QObject ownership}
 
       Lua uses a garbage collector to track references to live values and
       QtLua provides the @ref QtLua::Ref smart pointer class to track references
@@ -196,10 +202,12 @@
           constructor.
       @end list
 
-      New @ref QObject wrappers returned by the @ref QtLua::QtLib
-      {QtLib lua library} functions have their delete flag set.
+      New @ref QObject wrappers returned by the functions in the @tt
+      qt @xref {Predefined lua functions} {Lua library} have their
+      delete flag set.
 
-      A reparent flag is also available to allow or deny parent change for a @ref QObject.
+      A reparent flag is also available to allow or deny parent change
+      for a @ref QObject.
 
       The example below shows how @ref QObject ownership is handled in C++ code:
       @example examples/cpp/qobject/qobject_owner.cc:1
@@ -210,7 +218,7 @@
 
   @section TP {Coroutines}
 
-    QtLua supports lua coroutines from version 2.
+    QtLua supports lua coroutines since version 2.
 
     Coroutines can be created from C++ code using the @ref
     Value::new_thread function.
@@ -219,9 +227,10 @@
     return by invoking the @ref UserData::yield function from their
     reimplementation of the @ref UserData::meta_call function.
 
-    Resuming a coroutines value use the same method as value function
-    call operation. This way you can use the @ref Value::call and
-    related @tt () operators on @ref Value objects without first
+    Resuming a coroutines from C++ use the same method as function
+    call operation on the @ref Value object. 
+    This way you can use the @ref Value::call function and
+    related @tt () operators on a @ref Value object without first
     checking if it is a regular lua function, a callable @ref UserData
     based object or a lua coroutine to resume.
 

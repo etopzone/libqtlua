@@ -33,29 +33,29 @@ namespace QtLua {
    * @module {Base}
    *
    * This abstract class can be subclassed to implement iterators to
-   * iterate over user defined objects from both lua and C++ code.
+   * traverse user defined objects from both lua and C++ code.
    *
    * @ref UserData based classes can reimplement the @ref
    * UserData::new_iterator function to return a @ref Ref
-   * pointer to an @ref Iterator based class. This allow iteration
+   * pointer to an @ref Iterator based class. This allows iteration
    * over user defined objects.
    *
    * Some @ref Iterator based classes are already defined internally
-   * in QtLua library for iteration over lua tables and other table
+   * in the QtLua library for iteration over lua tables and other table
    * like @ref UserData based objects.
    *
    * @ref Iterator based classes are used by @ref Value::iterator and
-   * @ref Value::const_iterator classes, this allow iteration on lua
+   * @ref Value::const_iterator classes, this allows iteration on lua
    * tables and @ref UserData based objects from C++:
    *
-   * @example examples/cpp/value/iterate.cc:1
+   * @example examples/cpp/value/iterate.cc:1|4
    *
-   * Non const iterator can be used to modify a lua table as well:
+   * The non-const iterator can be used to modify a lua table:
    *
    * @example examples/cpp/value/iterate.cc:2
    *
-   * The @ref QtLuaLib lua library provides an @tt{each()} lua function
-   * which returns a suitable @ref Iterator to iterate over any
+   * The lua function @xref {Predefined lua functions}{each}
+   * returns a suitable @ref Iterator to iterate over any
    * @ref UserData based object or lua table:
    *
    * @example examples/cpp/value/iterate.cc:3
