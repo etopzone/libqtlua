@@ -21,35 +21,14 @@
 #ifndef QTLUAQTLIB_HH_
 #define QTLUAQTLIB_HH_
 
-#include <QFileDialog>
+#include <QObject>
+#include <QSizePolicy>
 
 namespace QtLua {
 
   class State;
 
   void qtluaopen_qt(State *ls);
-
-  /** QFileDialog widget with more usefull properties */
-  class FileDialog : public ::QFileDialog
-  {
-    Q_OBJECT;
-
-    QString get_directory() const
-    {
-      return directory().absolutePath();
-    }
-
-    Q_PROPERTY(QString directory READ get_directory WRITE setDirectory);
-    Q_PROPERTY(QStringList history READ history WRITE setHistory);
-    Q_PROPERTY(QStringList selectedFiles READ selectedFiles);
-#if QT_VERSION >= 0x040400
-    Q_PROPERTY(QString selectedNameFilter READ selectedNameFilter);
-    Q_PROPERTY(QStringList nameFilters READ nameFilters WRITE setNameFilters);
-#else
-    Q_PROPERTY(QString selectedNameFilter READ selectedFilter);
-    Q_PROPERTY(QStringList nameFilters READ filters WRITE setFilters);
-#endif
-  };
 
   /** Fake QSizePolicy class needed to expose Policy enum */
   class SizePolicy

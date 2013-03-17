@@ -90,8 +90,6 @@ namespace QtLua {
 
       _mo_table.insert("Qt", QMetaObjectWrapper(&staticQtMetaObject));
       _mo_table.insert("QSizePolicy", QMetaObjectWrapper(&QtLua::SizePolicy::staticMetaObject));
-      _mo_table.insert("QFileDialog", QMetaObjectWrapper(&QtLua::FileDialog::staticMetaObject, 
-							 &create_qobject<FileDialog>));
     }
 
     qmetaobject_table_t _mo_table;
