@@ -29,6 +29,11 @@ namespace QtLua {
   void QMetaValue::init(int type)
   {
     _type = type;
+    if (type == QMetaType::Void)
+      {
+        _data = 0;
+        return;
+      }
 #if QT_VERSION < 0x050000
     _data = QMetaType::construct(_type);
 #else
@@ -51,8 +56,8 @@ namespace QtLua {
   }
 
   QVariant QMetaValue::to_qvariant() const
-  {
-    return QVariant(_type, _data);
+  {    
+    return _type != QMetaType::Void ? QVariant(_type, _data) : QVariant();
   }
 
   QMetaValue::QMetaValue(int type)
@@ -67,7 +72,8 @@ namespace QtLua {
 
   QMetaValue::~QMetaValue()
   {
-    QMetaType::destroy(_type, _data);
+    if (_type != QMetaType::Void)
+      QMetaType::destroy(_type, _data);
   }
 
   void * QMetaValue::get_data() const
