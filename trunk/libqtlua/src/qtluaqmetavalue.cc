@@ -170,8 +170,6 @@ namespace QtLua {
   {
     switch (type)
       {
-      case QMetaType::Void:
-	break;
       case QMetaType::Bool:
 	*(bool*)data = v.to_boolean();
 	break;
