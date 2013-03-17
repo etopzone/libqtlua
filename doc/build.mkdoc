@@ -31,7 +31,7 @@ make
 cmake -G "<cmake generator name>" .
 make
     @end code
-    This will build the library and the @tt qtlua tool.
+    This will build the library and tools.
   @end section
 
 @end section

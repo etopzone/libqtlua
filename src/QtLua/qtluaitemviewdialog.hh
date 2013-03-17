@@ -41,10 +41,10 @@ namespace QtLua {
    * model.
    *
    * Some edit buttons can be made available depending on the value of
-   * the @ref edit_action attribute.
+   * the @ref edit_actions attribute.
    *
-   * The @ref QtLib lua library provides functions to invoke these
-   * dialogs from lua code.
+   * Some @xref {QObject related functions}{lua functions} can be used
+   * to create and invoke these dialogs from lua script.
    *
    * @see TableTreeModel @see TableGridModel
    */
@@ -88,7 +88,9 @@ namespace QtLua {
      * @param model mvc model to use, a default model is created if @tt NULL.
      * @param attr model attributes, control display and edit options
      *
-     * @see tree_tree_dialog @see tree_table_dialog @see grid_table_dialog
+     * @see TableTreeModel::tree_dialog
+     * @see TableTreeModel::table_dialog
+     * @see TableGridModel::table_dialog
      */
     ItemViewDialog(EditActions edit,
 		   QAbstractItemModel *model,

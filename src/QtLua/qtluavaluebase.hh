@@ -104,7 +104,9 @@ public:
    * directly from C++ code. Assignation of @ref ValueRef object
    * returned by @ref value @strong modify traversed container.
    *
-   * @see const_iterator
+   * @example examples/cpp/value/iterate.cc:2
+   *
+   * @see const_iterator @see Iterator
    */
   struct iterator : public iterator_
   {
@@ -127,7 +129,9 @@ public:
    * returned by @ref value @strong{doesn't modify} traversed
    * container.
    *
-   * @see iterator
+   * @example examples/cpp/value/iterate.cc:4
+   *
+   * @see iterator @see Iterator
    */
   struct const_iterator : public iterator_
   {

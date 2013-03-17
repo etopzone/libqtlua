@@ -72,8 +72,8 @@
 @section TP {The qtlua_uic user interface compiler}
   @label {qtlua_uic}
   
-  This tool is able to compile @tt .ui user interface files designed
-  using the Qt designer tool to lua code.
+  This tool is able to compile @tt .ui user interface files produced
+  by the Qt designer tool to lua code.
 
   @code R
   $ cd examples/lua/hello_uic/

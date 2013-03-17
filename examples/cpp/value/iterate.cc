@@ -36,6 +36,7 @@ int main()
 
     QtLua::Value table = state.at("table");
 
+							/* anchor 4 */
     // Iterate over lua table from C++ code
     for (QtLua::Value::const_iterator i = table.begin(); i != table.end(); i++)
       qDebug() << i.key().to_string_p()

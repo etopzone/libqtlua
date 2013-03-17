@@ -38,7 +38,7 @@ namespace QtLua {
    * @header QtLua/Console
    * @module {Base}
    *
-   * This class provides a easy to use console widget for use in QtLua
+   * This class provides an easy to use console widget for use in QtLua
    * based applications.
    *
    * This widget is a general purpose console widget with history and

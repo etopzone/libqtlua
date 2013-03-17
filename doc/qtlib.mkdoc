@@ -140,7 +140,7 @@ type_name = qt.meta_type( 42 )
 
     @section {qt.ui.new_widget function}
       @index {qt.ui.new_widget} {qtlib}
-      The @tt  function creates a new widget of given type name
+      The @tt function creates a new widget of given type name
       using the @ref QUiLoader::createWidget Qt function.
 
       @code
@@ -223,7 +223,7 @@ qt.ui.layout_spacer( layout, width, height, h QSizePolicy, v QSizePolicy )
 
   @c---------------------------------------------
 
-    @section {qt.ui.menu.add_menu}
+    @section {qt.ui.menu.add_menu function}
       @index {qt.ui.menu.add_menu} {qtlib}
 
       The @tt qt.ui.menu.add_menu function creates and adds a new menu to
@@ -237,7 +237,7 @@ menu = qt.ui.menu.add_menu( menu|menubar, "text", [ "object_name" ] )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.add_separator}
+    @section {qt.ui.menu.add_separator function}
       @index {qt.ui.menu.add_separator} {qtlib}
 
       The @tt qt.ui.menu.add_separator function creates and adds a new
@@ -250,7 +250,7 @@ sep = qt.ui.menu.add_separator( menu|toolbar, [ "object_name" ] )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.add_action}
+    @section {qt.ui.menu.add_action function}
       @index {qt.ui.menu.add_action} {qtlib}
 
       The @tt qt.ui.menu.add_action function creates and adds a new @ref
@@ -263,7 +263,7 @@ action = qt.ui.menu.add_action( menu|menubar|... , "text", [ "object_name" ] )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.new_action_group}
+    @section {qt.ui.menu.new_action_group function}
       @index {qt.ui.menu.new_action_group} {qtlib}
 
       The @tt qt.ui.menu.new_action_group function creates a new @ref
@@ -276,7 +276,7 @@ ag = qt.ui.menu.new_action_group( action, [ action, ... ] )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.new_action}
+    @section {qt.ui.menu.new_action function}
       @index {qt.ui.menu.new_action} {qtlib}
 
       The @tt qt.ui.menu.new_action function creates a new @ref QAction
@@ -289,7 +289,7 @@ action = qt.ui.menu.new_action( parent )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.new_menu}
+    @section {qt.ui.menu.new_menu function}
       @index {qt.ui.menu.new_menu} {qtlib}
 
       The @tt qt.ui.menu.new_menu function creates a new @ref QMenu
@@ -302,7 +302,7 @@ menu = qt.ui.menu.new_menu( parent )
 
     @c---------------------------------------------
 
-    @section {qt.ui.menu.remove}
+    @section {qt.ui.menu.remove function}
       @index {qt.ui.menu.remove} {qtlib}
 
       The @tt qt.ui.menu.remove function remove a @ref QAction or @ref
@@ -397,7 +397,7 @@ qt.dialog.grid_view( table [ , TableGridModel::Attribute, "title", {column keys}
 
   @section {Model/View functions}
 
-    @section {qt.mvc.new_table_tree_model}
+    @section {qt.mvc.new_table_tree_model function}
       @index {qt.mvc.new_table_tree_model} {qtlib}
 
       This function returns a new @ref TableTreeModel object which
@@ -409,7 +409,7 @@ model = qt.mvc.new_table_tree_model( table, TableTreeModel::Attributes, [ view_w
       @end code
     @end section
 
-    @section {qt.mvc.new_table_grid_model}
+    @section {qt.mvc.new_table_grid_model function}
       @index {qt.mvc.new_table_grid_model} {qtlib}
 
       This function returns a new @ref TableGridModel object which
@@ -421,7 +421,7 @@ model = qt.mvc.new_table_grid_model( table, TableGridModel::Attributes, [ view_w
       @end code
     @end section
 
-    @section {qt.mvc.new_lua_model}
+    @section {qt.mvc.new_lua_model function}
       @index {qt.mvc.new_lua_model} {qtlib}
 
       This function returns a new @ref LuaModel object. At least one
@@ -435,7 +435,7 @@ model = qt.mvc.new_lua_model( get_fcn, [ set_fcn, ins_row_fcn, del_row_fnc,
       @end code
     @end section
 
-    @section {qt.mvc.set_model}
+    @section {qt.mvc.set_model function}
       @index {qt.mvc.set_model} {qtlib}
 
       This function associates a model to one or more views.
@@ -444,7 +444,7 @@ qt.mvc.set_model( model, view_widget [, view_widget, ... ] )
       @end code
     @end section
 
-    @section {qt.mvc.new_itemview_dialog}
+    @section {qt.mvc.new_itemview_dialog function}
       @index {qt.mvc.new_itemview_dialog} {qtlib}
 
       This function returns a new @ref ItemViewDialog object. The

@@ -30,6 +30,12 @@
 
 namespace QtLua {
 
+/**
+ * @short Qt/lua value conversion
+ * @header internal/QMetaValue
+ * @module {Base}
+ * @internal
+ */
   class QMetaValue
   {
     int _type;

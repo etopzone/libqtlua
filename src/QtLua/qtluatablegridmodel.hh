@@ -50,7 +50,7 @@ namespace QtLua {
    *
    * Exposed keys can be defined in several ways:
    * @list
-   *  @item all lua values can be automatically fetched from tables keys, or
+   *  @item all lua values can be automatically fetched from table keys, or
    *  @item keys can be user specified, or
    *  @item incremental numerical keys can be used.
    * @end list
@@ -59,7 +59,7 @@ namespace QtLua {
    * are handled.
    *
    * Lua tables can be edited from Qt views using this model. The
-   * @ref Attribute flags can be used to finely control which editing
+   * @ref Attribute flags can be used to control which editing
    * actions are allowed. User input may be evaluated as a lua
    * expression when editing a table entry.
    *
