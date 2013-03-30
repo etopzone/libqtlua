@@ -106,6 +106,12 @@ dnl Memo: AC_ARG_WITH(package, help-string, [if-given], [if-not-given])
                  [Path to Qt bin directory])],
               [QT_PATH=$withval], [QT_PATH=])
 
+  AC_ARG_ENABLE(qtrelease, AC_HELP_STRING(--enable-qtrelease, [Build in Qt release mode]),
+   		enable_qtrelease=yes, enable_qtrelease=no)
+
+  AC_ARG_ENABLE(qtdebug, AC_HELP_STRING(--enable-qtdebug, [Build in Qt debug mode]),
+   		enable_qtdebug=yes, enable_qtdebug=no)
+
   # Find qmake.
   AC_PATH_PROGS([QMAKE], [qmake], [missing], [$QT_DIR:$QT_PATH:$PATH:$tmp_qt_paths])
   if test x"$QMAKE" = xmissing; then
@@ -242,6 +248,12 @@ _ASEOF
      m4_ifval([$1$2], [_AT_TWEAK_PRO_FILE([QT], [$1 $2])])
   else
     AC_MSG_ERROR([Qt version 4 or 5 is expected])
+  fi
+
+  if test x$enable_qtrelease = xyes; then
+    _AT_TWEAK_PRO_FILE([CONFIG], [release])
+  elif test x$enable_qtdebug = xyes; then
+    _AT_TWEAK_PRO_FILE([CONFIG], [debug])
   fi
 
 m4_ifval([$3],
