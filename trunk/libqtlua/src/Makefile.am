@@ -2,6 +2,8 @@ include $(top_srcdir)/build/autotroll.mk
 
 SUBDIRS = QtLua internal
 
+EXTRA_DIST = CMakeLists.txt
+
 lib_LTLIBRARIES = libqtlua.la
 
 BUILT_SOURCES = QtLua/qtluaconsole.moc.cc QtLua/qtluauseritemselectionmodel.moc.cc \
