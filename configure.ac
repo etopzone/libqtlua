@@ -62,7 +62,7 @@ AC_CHECK_LIB(dl, dlopen, , )
 AC_CHECK_LIB($luaname, lua_pushnil, , AC_MSG_ERROR([can not find $luaname library; try --with-lua* arguments]))
 AC_CHECK_LIB($luaname, lua_gc, AC_DEFINE(HAVE_LUA_GC, 1, [lua_gc function is available]))
 
-AC_CHECK_LIB($luaname, luaL_loadbuffer, lualibname=$luaname, AC_CHECK_LIB($lualibname, luaL_loadbuffer))
+AC_CHECK_LIB($luaname, luaL_error, lualibname=$luaname, AC_CHECK_LIB($lualibname, luaL_error))
 
 AC_CHECK_LIB($lualibname, luaopen_package, AC_DEFINE(HAVE_LUA_PACKAGELIB, 1, [lua package library is available]))
 AC_CHECK_LIB($lualibname, luaopen_os, AC_DEFINE(HAVE_LUA_OSLIB, 1, [lua os library is available]))
