@@ -9,3 +9,5 @@ qtlua_CPPFLAGS = $(QT_CPPFLAGS) $(AM_CPPFLAGS) -I$(top_srcdir)/src
 qtlua_LDFLAGS  = $(QT_LDFLAGS) $(LDFLAGS) $(libtool_flags)
 qtlua_LDADD   = $(QT_LIBS) $(LDADD) $(top_builddir)/src/libqtlua.la
 
+EXTRA_DIST = CMakeLists.txt
+
