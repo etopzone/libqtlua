@@ -359,7 +359,7 @@ _ASEOF
 
   # Find the INCPATH of Qt.
   AC_CACHE_CHECK([for the INCPATH to use with Qt], [at_cv_env_QT_INCPATH],
-  [at_cv_env_QT_INCPATH=`cat ${at_mfile}_INCPATH`])
+  [at_cv_env_QT_INCPATH=`cat ${at_mfile}_INCPATH | sed -e 's/isystem/I/g'`])
   AC_SUBST([QT_INCPATH], [$at_cv_env_QT_INCPATH])
 
   AC_CACHE_CHECK([for the CPPFLAGS to use with Qt], [at_cv_env_QT_CPPFLAGS],
