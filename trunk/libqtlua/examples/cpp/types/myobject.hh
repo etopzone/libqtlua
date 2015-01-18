@@ -48,7 +48,7 @@ QtLua::Value MyStructConvert::qt2lua(QtLua::State *ls, const Mystruct *qtvalue)
   return luavalue;
 }
 
-bool MyStructConvert::lua2qt(Mystruct *qtvalue, const QtLua::Value &luavalue)
+bool MyStructConvert::lua2qt(Mystruct *qtvalue, const QtLua::ValueBase &luavalue)
 {
   qtvalue->a = luavalue.at(1);
   qtvalue->b = luavalue.at(2);

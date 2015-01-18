@@ -71,7 +71,7 @@ namespace QtLua {
   }
 
   template <class X>
-  bool MetaTypeQObjectStar<X>::lua2qt(X** qtvalue, const QtLua::Value &luavalue)
+  bool MetaTypeQObjectStar<X>::lua2qt(X** qtvalue, const QtLua::ValueBase &luavalue)
   {
     *qtvalue = luavalue.to_qobject_cast<X>();
     return true;

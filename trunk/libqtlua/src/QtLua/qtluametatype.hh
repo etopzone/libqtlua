@@ -99,7 +99,7 @@ namespace QtLua {
 
     /** This function must be implemented to converts a lua value to a
 	C++ value.  @return true on success. */
-    virtual bool  lua2qt(X *qtvalue, const Value &luavalue) = 0;
+    virtual bool  lua2qt(X *qtvalue, const ValueBase &luavalue) = 0;
 
     /** @showcontent This macro defines a type conversion handler
 	class. Class instantiation will also take care of registering
@@ -114,7 +114,7 @@ namespace QtLua {
       inline QtLua::Value qt2lua(QtLua::State *ls,		\
 				 typename_ const * qtvalue);	\
       inline bool lua2qt(typename_ *qtvalue,			\
-			 const QtLua::Value &luavalue);		\
+			 const QtLua::ValueBase &luavalue);	\
     };
 
     /** @showcontent This macro defines a type conversion handler
@@ -129,7 +129,7 @@ namespace QtLua {
       inline QtLua::Value qt2lua(QtLua::State *ls,		\
 				 typename_ const * qtvalue);	\
       inline bool lua2qt(typename_ *qtvalue,			\
-			 const QtLua::Value &luavalue);		\
+			 const QtLua::ValueBase &luavalue);	\
     };
 
     /** This macro defines a type conversion class along with its
@@ -160,7 +160,7 @@ namespace QtLua {
 
   private:
     inline QtLua::Value qt2lua(QtLua::State *ls, X* const * qtvalue);
-    inline bool lua2qt(X** qtvalue, const QtLua::Value &luavalue);
+    inline bool lua2qt(X** qtvalue, const QtLua::ValueBase &luavalue);
   };
 
 }
