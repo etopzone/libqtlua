@@ -28,7 +28,6 @@
 #include <QMap>
 
 #include "qtluavalue.hh"
-#include "internal/qtluaqobjectwrapper.hh"
 
 /* related stuff in internal/qtluamember.hh */
 

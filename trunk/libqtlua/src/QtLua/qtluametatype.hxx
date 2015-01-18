@@ -22,7 +22,6 @@
 #define QTLUAMETATYPE_HXX_
 
 #include "qtluavalue.hxx"
-#include "internal/qtluaqobjectwrapper.hxx"
 
 namespace QtLua {
 
@@ -68,18 +67,13 @@ namespace QtLua {
   template <class X>
   QtLua::Value MetaTypeQObjectStar<X>::qt2lua(QtLua::State *ls, X* const * qtvalue)
   {
-    return Value(ls, QObjectWrapper::get_wrapper(ls, *qtvalue));
+    return Value(ls, static_cast<QObject*>(*qtvalue));
   }
 
   template <class X>
   bool MetaTypeQObjectStar<X>::lua2qt(X** qtvalue, const QtLua::Value &luavalue)
   {
-    QObject *obj = &luavalue.to_userdata_cast<QObjectWrapper>()->get_object();
-    X *w = qobject_cast<X*>(obj);
-    if (!w)
-      QTLUA_THROW(QtLua::MetaType, "Can not convert from lua value, QObject is not a `%'.",
-		  .arg(QMetaType::typeName(MetaType<X*>::get_type())));
-    *qtvalue = w;
+    *qtvalue = luavalue.to_qobject_cast<X>();
     return true;
   }
 
