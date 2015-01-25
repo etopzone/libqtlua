@@ -281,22 +281,5 @@ Value::Value(int index, const State *st)
   lua_rawset(lst, LUA_REGISTRYINDEX);
 }
 
-uint qHash(const Value &lv)
-{
-  if (!lv._st)
-    return 0;
-
-  lua_State *lst = lv._st->_lst;
-  try {
-    lv.push_value(lst);
-  } catch (...) {
-    return 0;
-  }
-
-  uint	res = ValueBase::qHash(lst, -1);
-  lua_pop(lst, 1);
-  return res;
-}
-
 }
 
