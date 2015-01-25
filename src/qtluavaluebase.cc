@@ -989,6 +989,23 @@ bool ValueBase::operator==(double n) const
   return res;
 }
 
+uint qHash(const ValueBase &lv)
+{
+  if (!lv._st)
+    return 0;
+
+  lua_State *lst = lv._st->get_lua_state();
+  try {
+    lv.push_value(lst);
+  } catch (...) {
+    return 0;
+  }
+
+  uint	res = ValueBase::qHash(lst, -1);
+  lua_pop(lst, 1);
+  return res;
+}
+
 uint ValueBase::qHash(lua_State *lst, int index)
 {
   switch (lua_type(lst, index))

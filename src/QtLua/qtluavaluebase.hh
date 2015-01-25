@@ -42,9 +42,6 @@ class UserData;
 class TableIterator;
 class Iterator;
 
-/** @internal */
-uint qHash(const Value &lv);
-
   /**
    * @short Lua values wrapper base class
    * @header QtLua/ValueBase
@@ -62,6 +59,7 @@ class ValueBase
   friend class TableIterator;
   friend class Value;
   friend class ValueRef;
+  friend uint qHash(const ValueBase &lv);
 
   inline ValueBase(const State *ls);
 

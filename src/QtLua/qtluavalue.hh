@@ -50,7 +50,6 @@ class Value : public ValueBase
   friend class TableIterator;
   friend class ValueRef;
   friend class ValueBase;
-  friend uint qHash(const Value &lv);
 
 public:
   /** Create a lua value object with no associated @ref State */
