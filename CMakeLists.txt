@@ -25,8 +25,8 @@ SET(INSTALL_INC include CACHE PATH "Where to install headers to.")
 	FIND_PACKAGE(Qt5Xml)
 #	SET(CMAKE_AUTOMOC ON)
 
-# Find Lua 
-	FIND_PACKAGE (Lua51 REQUIRED)
+# Find Lua
+	FIND_PACKAGE (Lua REQUIRED)
 	INCLUDE_DIRECTORIES (${LUA_INCLUDE_DIR})	
 
 ###########################################################################
@@ -64,8 +64,8 @@ SET(SHLIBEXT ${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 SET(PACKAGE_NAME "\"libqtlua\"")
 SET(PACKAGE_TARNAME "\"libqtlua\"")
-SET(PACKAGE_VERSION "\"2.0\"")
-SET(PACKAGE_STRING "\"libqtlua 2.0\"")
+SET(PACKAGE_VERSION "\"2.1\"")
+SET(PACKAGE_STRING "\"libqtlua 2.1\"")
 SET(PACKAGE_BUGREPORT "\"\"")
 SET(PACKAGE_URL "\"http://www.nongnu.org/libqtlua/\"")
 
